@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -14,6 +15,7 @@ import {
   formatClassificationLabel,
   formatVerificationLabel,
 } from "@/lib/api";
+import { ShareButton } from "@/components/ShareButton";
 
 async function fetchAccount(platform: string, username: string): Promise<AccountPayload | null> {
   try {
@@ -26,6 +28,44 @@ async function fetchAccount(platform: string, username: string): Promise<Account
   } catch {
     return null;
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ platform: string; username: string }>;
+}): Promise<Metadata> {
+  const { platform, username } = await params;
+  const record = await fetchAccount(platform, username);
+  if (!record) {
+    return {
+      title: "Account Not Indexed — AIBlockList",
+      description: "This account is not indexed in the AIBlockList public intelligence database.",
+    };
+  }
+
+  const a = record.account;
+  const classification = formatClassificationLabel(a.classification);
+  const status = formatVerificationLabel(a.verification_status);
+  const title = `@${a.username} (${a.platform.toUpperCase()}) — ${classification} | AIBlockList`;
+  const description = `${status} intelligence record. ${a.public_rationale || "Behavioral observation under active policy."} Backed by ${a.evidence_count} canonical evidence URL(s).`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      images: [{ url: "/logo.png", width: 1200, height: 1200, alt: "AIBlockList Intelligence" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/logo.png"],
+    },
+  };
 }
 
 export default async function AccountDetailPage({
@@ -76,6 +116,12 @@ export default async function AccountDetailPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <ShareButton
+              platform={a.platform}
+              username={a.username}
+              classification={formatClassificationLabel(a.classification)}
+              url={`https://aiblocklist.com/accounts/${a.platform}/${a.username}`}
+            />
             <a
               href={a.public_profile_url}
               target="_blank"

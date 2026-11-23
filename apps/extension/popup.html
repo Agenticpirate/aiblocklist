@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AIBlockList</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px;
+      background: #000000;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #272727;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #313131;
+    }
+    .brand h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+    .badge {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: #ff6600;
+      background: #131209;
+      border: 1px solid rgba(255,102,0,0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .stats {
+      background: #181818;
+      border: 1px solid #272727;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stats-title { font-size: 12px; color: #a1a1aa; }
+    .stats-val { font-size: 13px; font-weight: 700; color: #ffffff; font-family: ui-monospace, monospace; }
+    .controls {
+      margin-bottom: 12px;
+    }
+    .control-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-family: ui-monospace, monospace;
+      color: #71717a;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .select {
+      width: 100%;
+      background: #181818;
+      border: 1px solid #272727;
+      color: #f4f4f5;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+    .select:focus { border-color: #ff6600; }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s ease;
+    }
+    .btn-primary { background: #ff6600; color: #000000; }
+    .btn-primary:hover { background: #e55c00; }
+    .btn-secondary { background: #1f1f1f; color: #f4f4f5; border: 1px solid #313131; }
+    .btn-secondary:hover { background: #272727; }
+    .footer-note {
+      font-size: 10px;
+      color: #71717a;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <img src="icons/icon-48.png" alt="AIBlockList Logo">
+      <h1>AIBlockList</h1>
+    </div>
+    <span class="badge">v1.0.0</span>
+  </div>
+
+  <div class="stats">
+    <span class="stats-title">Protected Accounts</span>
+    <span class="stats-val" id="account-count">Loading...</span>
+  </div>
+
+  <div class="controls">
+    <label class="control-label" for="mode-select">In-Feed Filter Mode</label>
+    <select id="mode-select" class="select">
+      <option value="warn">Warn Badge (Recommended)</option>
+      <option value="dim">Dim Detected Posts</option>
+      <option value="highlight">Highlight Red Border</option>
+    </select>
+  </div>
+
+  <div class="btn-row">
+    <button id="sync-btn" class="btn btn-secondary">Sync Now</button>
+    <a href="https://aiblocklist.com/directory" target="_blank" class="btn btn-primary">Directory</a>
+  </div>
+
+  <p class="footer-note">
+    Local-first zero telemetry. Never executes auto-blocks or DOM clicks.
+  </p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

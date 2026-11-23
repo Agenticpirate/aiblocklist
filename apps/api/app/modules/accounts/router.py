@@ -373,6 +373,66 @@ async def list_blocklists(
     return data
 
 
+@router.get("/blocklists/export")
+async def export_blocklist(
+    platform: str | None = None,
+    format: str = Query(default="csv"),
+    verification_status: str | None = None,
+    category: str | None = None,
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    stmt = select(Account).order_by(Account.username.asc())
+    if platform and platform.lower() != "all":
+        stmt = stmt.where(Account.platform == platform.lower())
+    if verification_status and verification_status != "all":
+        stmt = stmt.where(Account.verification_status == verification_status)
+    if category and category != "all":
+        stmt = stmt.where(Account.classification == category)
+
+    result = await db.execute(stmt)
+    accounts = result.scalars().all()
+
+    filename_prefix = f"aiblocklist_{platform or 'all'}_{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+
+    if format == "json":
+        data = [
+            {
+                "platform": a.platform,
+                "username": a.username,
+                "platform_account_id": a.platform_account_id,
+                "classification": a.classification,
+                "verification_status": a.verification_status,
+                "public_profile_url": a.public_profile_url,
+            }
+            for a in accounts
+        ]
+        return Response(
+            content=json.dumps(data, indent=2),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.json"'},
+        )
+    elif format == "txt":
+        lines = [f"@{a.username}" for a in accounts]
+        return Response(
+            content="\n".join(lines),
+            media_type="text/plain",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.txt"'},
+        )
+    else:  # csv
+        import csv
+        import io
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["platform", "username", "platform_account_id", "classification", "verification_status", "profile_url"])
+        for a in accounts:
+            writer.writerow([a.platform, a.username, a.platform_account_id or "", a.classification, a.verification_status, a.public_profile_url])
+        return Response(
+            content=buf.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.csv"'},
+        )
+
+
 @router.get("/blocklists/{platform}")
 async def list_platform_blocklist(
     platform: str,
@@ -401,6 +461,66 @@ async def list_platform_blocklist(
     )
     _apply_public_cache_headers(response, {"count": data["count"], "total": data["total_matching"], "cursor": cursor}, 60)
     return data
+
+
+@router.get("/blocklists/export")
+async def export_blocklist(
+    platform: str | None = None,
+    format: str = Query(default="csv"),
+    verification_status: str | None = None,
+    category: str | None = None,
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    stmt = select(Account).order_by(Account.username.asc())
+    if platform and platform.lower() != "all":
+        stmt = stmt.where(Account.platform == platform.lower())
+    if verification_status and verification_status != "all":
+        stmt = stmt.where(Account.verification_status == verification_status)
+    if category and category != "all":
+        stmt = stmt.where(Account.classification == category)
+
+    result = await db.execute(stmt)
+    accounts = result.scalars().all()
+
+    filename_prefix = f"aiblocklist_{platform or 'all'}_{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+
+    if format == "json":
+        data = [
+            {
+                "platform": a.platform,
+                "username": a.username,
+                "platform_account_id": a.platform_account_id,
+                "classification": a.classification,
+                "verification_status": a.verification_status,
+                "public_profile_url": a.public_profile_url,
+            }
+            for a in accounts
+        ]
+        return Response(
+            content=json.dumps(data, indent=2),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.json"'},
+        )
+    elif format == "txt":
+        lines = [f"@{a.username}" for a in accounts]
+        return Response(
+            content="\n".join(lines),
+            media_type="text/plain",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.txt"'},
+        )
+    else:  # csv
+        import csv
+        import io
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["platform", "username", "platform_account_id", "classification", "verification_status", "profile_url"])
+        for a in accounts:
+            writer.writerow([a.platform, a.username, a.platform_account_id or "", a.classification, a.verification_status, a.public_profile_url])
+        return Response(
+            content=buf.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{filename_prefix}.csv"'},
+        )
 
 
 @router.get("/categories")

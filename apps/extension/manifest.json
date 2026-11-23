@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "AIBlockList — Bot & Automated Spam Filter",
+  "version": "1.0.0",
+  "description": "Evidence-based trust & safety intelligence for X and Threads. Flags verified repetitive spam and bot clusters without AI text detection bias.",
+  "homepage_url": "https://aiblocklist.com",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*",
+    "https://*.threads.net/*",
+    "https://threads.net/*",
+    "https://aiblocklist.com/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "AIBlockList Intelligence"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*",
+        "https://*.threads.net/*",
+        "https://threads.net/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

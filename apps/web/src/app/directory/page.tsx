@@ -8,9 +8,11 @@ import {
   WarningCircle,
   LinkSimple,
   Funnel,
+  DownloadSimple,
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
+  API_BASE_URL,
   BlocklistResponse,
   fetchApi,
   formatClassificationLabel,
@@ -160,9 +162,39 @@ export default function DirectoryPage() {
           </button>
         </form>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 caption-5 font-mono text-zinc-400">
-          <span>{totalMatching.toLocaleString()} matching accounts</span>
-          <span>Showing {items.length.toLocaleString()} loaded · Cursor paginated</span>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
+          <div className="flex items-center gap-3">
+            <span className="text-white font-bold">{totalMatching.toLocaleString()} matching accounts</span>
+            <span>· Showing {items.length.toLocaleString()} loaded</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500">Export:</span>
+            <a
+              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
+              download
+              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+            >
+              <DownloadSimple size={12} weight="bold" />
+              <span>CSV</span>
+            </a>
+            <a
+              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=json`}
+              download
+              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+            >
+              <DownloadSimple size={12} weight="bold" />
+              <span>JSON</span>
+            </a>
+            <a
+              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=txt`}
+              download
+              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+            >
+              <DownloadSimple size={12} weight="bold" />
+              <span>Handles (.txt)</span>
+            </a>
+          </div>
         </div>
       </div>
 
