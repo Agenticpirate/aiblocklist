@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: aiblocklist
+      POSTGRES_USER: aibl_migrator
+      POSTGRES_PASSWORD: aibl_migrator_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./database/schemas/001_postgres_enterprise_foundation.sql:/docker-entrypoint-initdb.d/001_foundation.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aibl_migrator -d aiblocklist"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    env_file:
+      - .env.example
+    environment:
+      APP_ENV: docker
+      DATABASE_URL: postgresql+asyncpg://aibl_app_rw:aibl_dev_password@postgres:5432/aiblocklist
+      PUBLIC_READ_DATABASE_URL: postgresql+asyncpg://aibl_public_ro:aibl_ro_password@postgres:5432/aiblocklist
+      VALKEY_URL: redis://valkey:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pg_data:
+  minio_data:

@@ -1,0 +1,26 @@
+# Dependencies & Environments
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+
+# Local runtime databases & secrets
+.env
+.env.local
+*.db
+*.db-shm
+*.db-wal
+
+# Cloned third-party reference repositories
+references/
+
+# OS & Logs
+.DS_Store
+*.log

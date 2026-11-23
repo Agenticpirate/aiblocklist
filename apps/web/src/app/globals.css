@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --ease-weighted: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: dark;
+  --surface-0: #000000;
+  --surface-1: #181818;
+  --surface-2: #1f1f1f;
+  --surface-3: #272727;
+  --surface-4: #313131;
+  --surface-warm: #131209;
+  --accent-orange: #ff6600;
+  --accent-orange-hover: #e55c00;
+}
+
+html,
+body {
+  background-color: #000000;
+  color: #f4f4f5;
+  font-family: var(--font-geist-sans), sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Named Typography Styles (B1 — Strictly Tailwind Type Scale, Zero Italics, Max Semibold) */
+.heading-1 {
+  font-size: 3.75rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.heading-2 {
+  font-size: 3rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.heading-3 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.heading-4 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.heading-5 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.heading-6 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.title-1 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 500;
+}
+
+.title-2 {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 500;
+}
+
+.title-3 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+}
+
+.title-4 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+.title-5 {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+.body-1 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.body-2 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.body-3 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.body-4 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.body-5 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.body-6 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.button-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+.button-md {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+}
+
+.button-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+.button-xsm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+.caption-1 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+.caption-2 {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+}
+
+.caption-3 {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+.caption-4 {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+.caption-5 {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 400;
+}
+
+/* B5 Hero Text Gradient (Strictly text only, never backgrounds) */
+.hero-heading-gradient {
+  background-image: linear-gradient(90deg, #ffffff 0%, #9b9b9b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Responsive mobile adjustment staying strictly on Tailwind scale */
+@media (max-width: 640px) {
+  .heading-1 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  .heading-2 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  .heading-3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+/* Accessible focus ring (B9) */
+*:focus-visible {
+  outline: 2px solid #ff6600;
+  outline-offset: 2px;
+}
