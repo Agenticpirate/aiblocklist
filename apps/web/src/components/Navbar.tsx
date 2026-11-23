@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ShieldCheck, List, X, ArrowUpRight } from "@phosphor-icons/react";
+import { List, X, ArrowUpRight } from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
   { href: "/directory", label: "Directory" },
@@ -38,10 +39,17 @@ export function Navbar() {
         >
           <Link
             href="/"
-            className="group flex items-center gap-2 rounded-lg px-2 py-1 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]"
+            className="group flex items-center gap-2.5 rounded-lg px-2 py-1 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md border border-[#313131] bg-[#000000] text-[#ff6600]">
-              <ShieldCheck size={16} weight="bold" />
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-md overflow-hidden border border-[#313131] bg-[#000000]">
+              <Image
+                src="/logo.png"
+                alt="AIBlockList Logo"
+                width={28}
+                height={28}
+                priority
+                className="h-full w-full object-contain"
+              />
             </span>
             <span className="title-4 text-white tracking-tight">AIBlockList</span>
             <span className="hidden sm:inline-block rounded border border-[#313131] bg-[#1f1f1f] px-1.5 py-0.5 font-mono caption-5 text-zinc-400">

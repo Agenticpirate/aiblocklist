@@ -6,14 +6,23 @@ import { Navbar } from "@/components/Navbar";
 import { FooterAscii } from "@/components/FooterAscii";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://aiblocklist.com"),
   title: "AIBlockList — Open Source Behavioral Trust and Safety Infrastructure",
   description:
     "Identify, verify, and filter abusive automated social media spam using public behavioral evidence, human dual review, and free independent appeals.",
+  icons: {
+    icon: [
+      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "AIBlockList — Identify. Verify. Filter.",
     description:
       "Open source trust and safety infrastructure separating abusive automation from genuine human and AI assisted communication.",
     type: "website",
+    images: [{ url: "/logo.png", width: 1200, height: 1200, alt: "AIBlockList Logo" }],
   },
 };
 

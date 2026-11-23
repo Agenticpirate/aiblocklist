@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
-import { ShieldCheck } from "@phosphor-icons/react";
 
 const ASCII_GRID = [
   "IDENTIFY.VERIFY.FILTER..AIBLOCKLIST.OPEN.INFRASTRUCTURE..SIG01..SIG02..SIG03..",
@@ -19,9 +19,15 @@ export function FooterAscii() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-md border border-[#313131] bg-[#181818] text-[#ff6600]">
-                <ShieldCheck size={16} weight="bold" />
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-7 w-7 items-center justify-center rounded-md overflow-hidden border border-[#313131] bg-[#000000]">
+                <Image
+                  src="/logo.png"
+                  alt="AIBlockList Logo"
+                  width={28}
+                  height={28}
+                  className="h-full w-full object-contain"
+                />
               </span>
               <span className="title-3 text-white">AIBlockList.com</span>
             </div>
