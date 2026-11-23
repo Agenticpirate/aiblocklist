@@ -13,7 +13,7 @@ from app.core.audit import append_audit_log
 from app.core.database import get_db
 from app.core.errors import ProblemDetailError
 from app.core.models import Account, Appeal, AppealVerificationChallenge, ModerationDecision
-from app.core.privacy import canonicalize_x_evidence_url, normalize_username, sha256_hex
+from app.core.privacy import canonicalize_evidence_url, normalize_username, sha256_hex
 
 router = APIRouter(prefix="/api/v1/appeals", tags=["Account Appeals"])
 
@@ -161,7 +161,7 @@ async def submit_appeal(
             f"An appeal was already submitted for this account within the last {settings.appeal_cooldown_days} days.",
         )
 
-    canon_links = [canonicalize_x_evidence_url(u)[1] for u in payload.supporting_urls]
+    canon_links = [canonicalize_evidence_url(payload.platform, u)[1] for u in payload.supporting_urls]
     latest_decision = (
         await db.execute(
             select(ModerationDecision)

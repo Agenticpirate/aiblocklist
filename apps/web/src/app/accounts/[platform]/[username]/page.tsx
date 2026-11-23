@@ -86,7 +86,7 @@ export default async function AccountDetailPage({
               <ArrowUpRight size={14} weight="bold" />
             </a>
             <Link
-              href={`/appeals?username=${encodeURIComponent(a.username)}`}
+              href={`/appeals?username=${encodeURIComponent(a.username)}&platform=${encodeURIComponent(a.platform)}`}
               className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-2 text-black hover:bg-[#e55c00] transition-colors duration-300"
             >
               <Scales size={14} weight="bold" />

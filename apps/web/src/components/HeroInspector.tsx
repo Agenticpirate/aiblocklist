@@ -18,16 +18,22 @@ import {
   formatVerificationLabel,
 } from "@/lib/api";
 
-const SAMPLE_HANDLES = ["Cocothe_gb", "proxy_vector", "raliel01", "iClaude_ai"];
+const SAMPLE_HANDLES = [
+  { platform: "x", handle: "Cocothe_gb" },
+  { platform: "threads", handle: "threads_growth_spammer" },
+  { platform: "x", handle: "proxy_vector" },
+  { platform: "threads", handle: "echo_syndicate_threads" },
+];
 
 export function HeroInspector() {
+  const [platform, setPlatform] = useState<"x" | "threads">("x");
   const [query, setQuery] = useState("Cocothe_gb");
   const [viewMode, setViewMode] = useState<"inspector" | "json">("inspector");
   const [loading, setLoading] = useState(true);
   const [record, setRecord] = useState<AccountPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function lookup(handleOrId: string) {
+  async function lookup(handleOrId: string, targetPlatform = platform) {
     const cleaned = handleOrId.trim().replace(/^@/, "");
     if (!cleaned) return;
     setLoading(true);
@@ -35,8 +41,8 @@ export function HeroInspector() {
     try {
       const isNumeric = /^\d{5,25}$/.test(cleaned);
       const endpoint = isNumeric
-        ? `/accounts/id/x/${encodeURIComponent(cleaned)}`
-        : `/accounts/x/${encodeURIComponent(cleaned)}`;
+        ? `/accounts/id/${targetPlatform}/${encodeURIComponent(cleaned)}`
+        : `/accounts/${targetPlatform}/${encodeURIComponent(cleaned)}`;
       const data = await fetchApi<AccountPayload>(endpoint);
       setRecord(data);
     } catch (err) {
@@ -52,7 +58,7 @@ export function HeroInspector() {
   }
 
   useEffect(() => {
-    lookup("Cocothe_gb");
+    lookup("Cocothe_gb", "x");
   }, []);
 
   return (
@@ -62,7 +68,7 @@ export function HeroInspector() {
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff6600]" />
           <span className="font-mono caption-3 text-zinc-200">
-            GET /api/v1/accounts/x/{query.replace(/^@/, "") || "..."}
+            GET /api/v1/accounts/{platform}/{query.replace(/^@/, "") || "..."}
           </span>
         </div>
         <div className="flex items-center gap-1 rounded-lg border border-[#313131] bg-[#181818] p-1">
@@ -98,12 +104,46 @@ export function HeroInspector() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            lookup(query);
+            lookup(query, platform);
           }}
           className="flex flex-col gap-2 sm:flex-row"
         >
+          {/* Platform Selector */}
+          <div className="flex items-center rounded-lg border border-[#272727] bg-[#181818] p-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setPlatform("x");
+                if (platform !== "x") {
+                  setQuery("Cocothe_gb");
+                  lookup("Cocothe_gb", "x");
+                }
+              }}
+              className={`button-xsm rounded-md px-3 py-1.5 font-mono transition-colors duration-300 ${
+                platform === "x" ? "bg-[#ff6600] text-black font-bold" : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              X
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPlatform("threads");
+                if (platform !== "threads") {
+                  setQuery("threads_growth_spammer");
+                  lookup("threads_growth_spammer", "threads");
+                }
+              }}
+              className={`button-xsm rounded-md px-3 py-1.5 font-mono transition-colors duration-300 ${
+                platform === "threads" ? "bg-[#ff6600] text-black font-bold" : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Threads
+            </button>
+          </div>
+
           <label htmlFor="hero-lookup-input" className="sr-only">
-            Lookup X handle or numeric platform ID
+            Lookup {platform.toUpperCase()} handle or account ID
           </label>
           <div className="relative flex-1">
             <MagnifyingGlass
@@ -116,7 +156,7 @@ export function HeroInspector() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Enter X handle or numeric account ID"
+              placeholder={platform === "x" ? "Enter X handle (e.g. Cocothe_gb) or ID" : "Enter Threads handle (e.g. threads_growth_spammer)"}
               className="body-5 w-full rounded-lg border border-[#272727] bg-[#181818] py-2 pl-9 pr-3 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
             />
           </div>
@@ -129,22 +169,24 @@ export function HeroInspector() {
         </form>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="caption-5 font-mono text-zinc-500">Live records:</span>
-          {SAMPLE_HANDLES.map((h) => (
+          <span className="caption-5 font-mono text-zinc-500">Benchmark samples:</span>
+          {SAMPLE_HANDLES.map((item) => (
             <button
-              key={h}
+              key={`${item.platform}:${item.handle}`}
               type="button"
               onClick={() => {
-                setQuery(h);
-                lookup(h);
+                setPlatform(item.platform as "x" | "threads");
+                setQuery(item.handle);
+                lookup(item.handle, item.platform as "x" | "threads");
               }}
               className={`caption-4 rounded-md border px-2 py-1 font-mono transition-colors duration-300 ${
-                query.toLowerCase() === h.toLowerCase()
+                query.toLowerCase() === item.handle.toLowerCase() && platform === item.platform
                   ? "border-[#ff6600] bg-[#131209] text-[#ff6600]"
                   : "border-[#272727] bg-[#181818] text-zinc-400 hover:border-[#313131] hover:text-white"
               }`}
             >
-              @{h}
+              <span className="text-zinc-500 mr-1 uppercase text-[10px]">{item.platform}:</span>
+              @{item.handle}
             </button>
           ))}
         </div>

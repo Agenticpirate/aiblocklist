@@ -20,6 +20,7 @@ import {
 export default function DirectoryPage() {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
+  const [platformFilter, setPlatformFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [evidenceFilter, setEvidenceFilter] = useState<string>("all");
   const [items, setItems] = useState<AccountPayload[]>([]);
@@ -39,7 +40,9 @@ export default function DirectoryPage() {
       setError(null);
       try {
         const params = new URLSearchParams();
-        params.set("platform", "x");
+        if (platformFilter !== "all") {
+          params.set("platform", platformFilter);
+        }
         params.set("limit", "24");
         if (submittedSearch.trim()) params.set("q", submittedSearch.trim());
         if (sourceFilter !== "all") params.set("source", sourceFilter);
@@ -58,7 +61,7 @@ export default function DirectoryPage() {
         setLoadingMore(false);
       }
     },
-    [submittedSearch, sourceFilter, evidenceFilter]
+    [submittedSearch, platformFilter, sourceFilter, evidenceFilter]
   );
 
   useEffect(() => {
@@ -80,6 +83,25 @@ export default function DirectoryPage() {
 
       {/* Filter & Search Bar */}
       <div className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4">
+        {/* Platform Tabs & Filter Bar */}
+        <div className="mb-3 flex items-center gap-2">
+          <span className="caption-4 font-mono text-zinc-400 mr-1">Platform:</span>
+          {(["all", "x", "threads"] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPlatformFilter(p)}
+              className={`caption-3 rounded-lg px-3 py-1 font-mono uppercase transition-colors duration-300 ${
+                platformFilter === p
+                  ? "bg-[#ff6600] text-black font-bold"
+                  : "border border-[#272727] bg-[#181818] text-zinc-400 hover:text-white"
+              }`}
+            >
+              {p === "all" ? "All platforms" : p}
+            </button>
+          ))}
+        </div>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();

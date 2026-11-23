@@ -13,6 +13,7 @@ interface ReportResult {
 }
 
 export default function ReportPage() {
+  const [platform, setPlatform] = useState<"x" | "threads">("x");
   const [accountUrl, setAccountUrl] = useState("");
   const [reasonCode, setReasonCode] = useState("repetitive_engagement_farming");
   const [urls, setUrls] = useState<string[]>(["", ""]);
@@ -37,12 +38,16 @@ export default function ReportPage() {
     e.preventDefault();
     setError(null);
     const cleanedUrls = urls.map((u) => u.trim()).filter(Boolean);
-    if (!accountUrl.trim().startsWith("https://x.com/")) {
+    if (platform === "x" && !accountUrl.trim().includes("x.com/") && !accountUrl.trim().includes("twitter.com/")) {
       setError("Enter a canonical https://x.com/handle profile URL.");
       return;
     }
+    if (platform === "threads" && !accountUrl.trim().includes("threads.net/@") && !accountUrl.trim().includes("threads.com/@")) {
+      setError("Enter a canonical https://threads.net/@handle profile URL.");
+      return;
+    }
     if (cleanedUrls.length === 0) {
-      setError("Attach at least one canonical public X post or reply URL.");
+      setError(`Attach at least one canonical public ${platform === "x" ? "X" : "Threads"} post or reply URL.`);
       return;
     }
 
@@ -51,7 +56,7 @@ export default function ReportPage() {
       const res = await fetchApi<ReportResult>("/reports", {
         method: "POST",
         body: JSON.stringify({
-          platform: "x",
+          platform,
           account_url: accountUrl.trim(),
           evidence_urls: cleanedUrls,
           reason_code: reasonCode,
@@ -118,8 +123,32 @@ export default function ReportPage() {
           )}
 
           <div>
+            <label className="title-4 block text-white mb-2">Platform</label>
+            <div className="flex items-center gap-2">
+              {(["x", "threads"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => {
+                    setPlatform(p);
+                    setAccountUrl("");
+                    setUrls(["", ""]);
+                  }}
+                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase transition-colors duration-300 ${
+                    platform === p
+                      ? "bg-[#ff6600] text-black font-bold"
+                      : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <label htmlFor="account-url" className="title-4 block text-white mb-2">
-              Target X profile URL
+              Target {platform === "x" ? "X" : "Threads"} profile URL
             </label>
             <input
               id="account-url"
@@ -127,7 +156,7 @@ export default function ReportPage() {
               required
               value={accountUrl}
               onChange={(e) => setAccountUrl(e.target.value)}
-              placeholder="https://x.com/example_handle"
+              placeholder={platform === "x" ? "https://x.com/example_handle" : "https://threads.net/@example_handle"}
               className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
             />
           </div>

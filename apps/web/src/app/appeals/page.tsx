@@ -22,6 +22,7 @@ interface AppealConfirmation {
 }
 
 export default function AppealsPage() {
+  const [platform, setPlatform] = useState<"x" | "threads">("x");
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [username, setUsername] = useState("");
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
@@ -39,7 +40,7 @@ export default function AppealsPage() {
       const res = await fetchApi<ChallengeInit>("/appeals/verify/init", {
         method: "POST",
         body: JSON.stringify({
-          platform: "x",
+          platform,
           username: username.trim().replace(/^@/, ""),
           method: "bio_token",
         }),
@@ -84,7 +85,7 @@ export default function AppealsPage() {
         method: "POST",
         headers: { "X-Appellant-Session": sessionToken },
         body: JSON.stringify({
-          platform: "x",
+          platform,
           username: challenge.account_username,
           statement: statement.trim(),
           supporting_urls: [],
@@ -148,8 +149,27 @@ export default function AppealsPage() {
             <h2 className="title-3 text-white">Step 1: Verify account control</h2>
           </div>
           <div>
+            <label className="title-4 block text-white mb-2">Platform</label>
+            <div className="flex items-center gap-2">
+              {(["x", "threads"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPlatform(p)}
+                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase transition-colors duration-300 ${
+                    platform === p
+                      ? "bg-[#ff6600] text-black font-bold"
+                      : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
             <label htmlFor="appeal-handle" className="title-4 block text-white mb-2">
-              Indexed X handle
+              Indexed {platform === "x" ? "X" : "Threads"} handle
             </label>
             <input
               id="appeal-handle"
@@ -157,7 +177,7 @@ export default function AppealsPage() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Cocothe_gb"
+              placeholder={platform === "x" ? "Cocothe_gb" : "threads_growth_spammer"}
               className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
             />
           </div>

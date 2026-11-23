@@ -51,6 +51,8 @@ services:
       VALKEY_URL: redis://valkey:6379/0
     ports:
       - "8000:8000"
+    volumes:
+      - ./database/seeds:/database/seeds:ro
     depends_on:
       postgres:
         condition: service_healthy

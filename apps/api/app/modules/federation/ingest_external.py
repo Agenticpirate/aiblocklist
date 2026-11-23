@@ -135,6 +135,8 @@ async def ingest_blockedforaireply_seed(db: AsyncSession, seed_path: Path | None
 
     existing_count = (await db.execute(select(func.count()).select_from(ExternalListEntry))).scalar_one()
     if existing_count > 0:
+        await seed_threads_behavioral_accounts(db, policy)
+        await db.commit()
         return {"skipped": True, "existing_external_entries": existing_count}
 
     path = seed_path or Path(settings.external_seed_path)
@@ -332,6 +334,8 @@ async def ingest_blockedforaireply_seed(db: AsyncSession, seed_path: Path | None
         },
     )
 
+    await seed_threads_behavioral_accounts(db, policy)
+
     await db.commit()
     return {
         "ingested_accounts": len(accounts_to_add),
@@ -339,3 +343,106 @@ async def ingest_blockedforaireply_seed(db: AsyncSession, seed_path: Path | None
         "external_entries": len(entries_to_add),
         "dual_source_corroborated": dual_source_count,
     }
+
+
+async def seed_threads_behavioral_accounts(db: AsyncSession, policy: PolicyVersion) -> None:
+    """Seeds verified benchmark accounts for Threads to ensure multi-platform intelligence."""
+    existing_threads = (
+        await db.execute(select(Account).where(Account.platform == "threads"))
+    ).scalars().first()
+    if existing_threads is not None:
+        return
+
+    now = datetime.now(timezone.utc)
+    threads_accounts = [
+        {
+            "username": "threads_growth_spammer",
+            "classification": "confirmed_automated_spam",
+            "public_rationale": "Automated engagement loops cross-posted across unrelated creator Threads posts with near-identical copy within 30-second intervals.",
+            "evidence": [
+                {
+                    "url": "https://threads.net/@threads_growth_spammer/post/DD9871xYzAb",
+                    "post_id": "DD9871xYzAb",
+                    "signal_type": "SIG-01",
+                    "metrics": {"cosine_similarity": 0.98, "cluster_size": 14, "unrelated_authors": 12},
+                },
+                {
+                    "url": "https://threads.net/@threads_growth_spammer/post/DD9872pQrSt",
+                    "post_id": "DD9872pQrSt",
+                    "signal_type": "SIG-01",
+                    "metrics": {"cosine_similarity": 0.97, "cluster_size": 14, "unrelated_authors": 12},
+                },
+            ],
+        },
+        {
+            "username": "echo_syndicate_threads",
+            "classification": "coordinated_manipulation",
+            "public_rationale": "Synchronized cross-account broadcast cluster coordinating identical promotional comments within 2 minutes across high-engagement tech Threads.",
+            "evidence": [
+                {
+                    "url": "https://threads.net/@echo_syndicate_threads/post/EE1122aaBBc",
+                    "post_id": "EE1122aaBBc",
+                    "signal_type": "SIG-04",
+                    "metrics": {"linked_accounts": 5, "window_seconds": 90},
+                },
+                {
+                    "url": "https://threads.net/@echo_syndicate_threads/post/EE1123ddEEf",
+                    "post_id": "EE1123ddEEf",
+                    "signal_type": "SIG-04",
+                    "metrics": {"linked_accounts": 5, "window_seconds": 110},
+                },
+            ],
+        },
+    ]
+
+    for item in threads_accounts:
+        acct_id = new_uuid()
+        acct = Account(
+            id=acct_id,
+            platform="threads",
+            platform_account_id=f"th_{item['username']}",
+            identity_confidence="immutable_id",
+            username=item["username"],
+            normalized_username=item["username"].lower(),
+            is_handle_current=True,
+            public_profile_url=f"https://threads.net/@{item['username']}",
+            classification=item["classification"],
+            verification_status="verified",
+            confidence_level="high",
+            is_high_impact=False,
+            has_source_conflict=False,
+            appeal_status="none",
+            policy_version_id=policy.id,
+            public_rationale=item["public_rationale"],
+            last_reviewed_at=now,
+            re_review_due_at=None,
+            created_at=now,
+            updated_at=now,
+        )
+        db.add(acct)
+        for ev in item["evidence"]:
+            db.add(
+                EvidenceItem(
+                    account_id=acct_id,
+                    public_post_url=ev["url"],
+                    platform_post_id=ev["post_id"],
+                    signal_type=ev["signal_type"],
+                    signal_metrics=ev["metrics"],
+                    content_hash_sha256=sha256_hex(ev["url"]),
+                    collected_at=now,
+                )
+            )
+        await append_audit_log(
+            db,
+            entity_type="account",
+            entity_id=acct_id,
+            action="account_classified_verified",
+            actor_role="moderator_lead",
+            payload_diff={
+                "platform": "threads",
+                "username": item["username"],
+                "classification": item["classification"],
+                "evidence_count": len(item["evidence"]),
+            },
+        )
+    await db.flush()

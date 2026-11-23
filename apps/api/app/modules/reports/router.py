@@ -14,8 +14,8 @@ from app.core.database import get_db
 from app.core.errors import ProblemDetailError
 from app.core.models import Account, Report, Reporter
 from app.core.privacy import (
-    canonicalize_x_account_url,
-    canonicalize_x_evidence_url,
+    canonicalize_account_url,
+    canonicalize_evidence_url,
     hash_ip_subnet,
     normalize_username,
     redact_pii,
@@ -71,12 +71,12 @@ async def submit_report(
     rate_limiter.check(f"report:{subnet_hash}", settings.report_rate_limit_hourly_ip, 3600)
 
     # Strict canonical URL allowlist validation (prevents SSRF & arbitrary file uploads)
-    handle, canonical_profile = canonicalize_x_account_url(payload.account_url)
+    handle, canonical_profile = canonicalize_account_url(platform, payload.account_url)
     norm_handle = normalize_username(handle)
 
     canonical_urls: list[str] = []
     for raw_url in payload.evidence_urls:
-        _, canon = canonicalize_x_evidence_url(raw_url)
+        _, canon = canonicalize_evidence_url(platform, raw_url)
         if canon not in canonical_urls:
             canonical_urls.append(canon)
 

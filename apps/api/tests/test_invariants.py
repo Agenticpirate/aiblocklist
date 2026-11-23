@@ -11,7 +11,12 @@ from app.core.audit import verify_audit_chain
 from app.core.database import Base, get_db
 from app.core.errors import ProblemDetailError
 from app.core.models import Account, AuditLog, EvidenceItem, PolicyVersion
-from app.core.privacy import canonicalize_x_evidence_url, redact_pii
+from app.core.privacy import (
+    canonicalize_account_url,
+    canonicalize_evidence_url,
+    canonicalize_x_evidence_url,
+    redact_pii,
+)
 from app.core.rate_limit import rate_limiter
 from app.core.state_machine import validate_classification_transition
 from app.main import app
@@ -356,3 +361,48 @@ async def test_external_blockedforaireply_stays_unverified_external(test_session
         assert data["account"]["has_source_conflict"] is True
         assert len(data["source_assertions"]) == 2
         assert "SECRET RAW POST TEXT" not in str(data)
+
+
+@pytest.mark.asyncio
+async def test_threads_platform_canonicalization_and_reporting(test_session: AsyncSession):
+    # Verify Threads canonical profile and evidence URLs
+    handle, canon_profile = canonicalize_account_url("threads", "https://www.threads.net/@growth_bot")
+    assert handle == "growth_bot"
+    assert canon_profile == "https://threads.net/@growth_bot"
+
+    post_id, canon_post = canonicalize_evidence_url("threads", "https://threads.net/@growth_bot/post/DD9871xYzAb?s=12")
+    assert post_id == "DD9871xYzAb"
+    assert canon_post == "https://threads.net/@growth_bot/post/DD9871xYzAb"
+
+    # Reject non-Threads domains for Threads platform
+    with pytest.raises(ProblemDetailError) as exc:
+        canonicalize_account_url("threads", "https://malicious.org/@growth_bot")
+    assert exc.value.code == "INVALID_ACCOUNT_IDENTIFIER"
+
+    # Submit a Threads community report
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        r = await client.post(
+            "/api/v1/reports",
+            json={
+                "platform": "threads",
+                "account_url": "https://threads.net/@growth_bot",
+                "evidence_urls": [
+                    "https://threads.net/@growth_bot/post/DD9871xYzAb",
+                    "https://threads.net/@growth_bot/post/DD9872pQrSt",
+                ],
+                "reason_code": "confirmed_automated_spam",
+                "explanation": "Observed rapid copy paste promo loops across tech creators.",
+            },
+        )
+        assert r.status_code == 202
+        data = r.json()
+        assert data["status"] == "queued"
+        assert "report_id" in data
+
+        # Check account was indexed under review for threads
+        acct_res = await client.get("/api/v1/accounts/threads/growth_bot")
+        assert acct_res.status_code == 200
+        acct_data = acct_res.json()
+        assert acct_data["account"]["platform"] == "threads"
+        assert acct_data["account"]["username"] == "growth_bot"
+        assert acct_data["account"]["classification"] == "under_review"

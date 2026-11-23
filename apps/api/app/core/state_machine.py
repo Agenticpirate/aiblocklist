@@ -37,7 +37,7 @@ SUPPORTED_PLATFORMS = frozenset(
 )
 
 # Active MVP platforms (LinkedIn/Facebook/Instagram excluded from global scraping)
-ACTIVE_PLATFORMS = frozenset({"x"})
+ACTIVE_PLATFORMS = frozenset({"x", "threads"})
 
 ALLOWED_CLASSIFICATION_TRANSITIONS: dict[str, set[str]] = {
     "under_review": {
