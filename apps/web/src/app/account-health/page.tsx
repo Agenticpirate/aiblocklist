@@ -21,6 +21,7 @@ import { AccountPayload, fetchApi, formatClassificationLabel } from "@/lib/api";
 import { VerifiedTick } from "@/components/VerifiedTick";
 import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 import { PreFlightEvaluator } from "@/components/PreFlightEvaluator";
+import { AlgoIntelligencePlaybook } from "@/components/AlgoIntelligencePlaybook";
 
 interface HealthCheckResult {
   username: string;
@@ -435,6 +436,9 @@ export default function AccountHealthPage() {
           </div>
         </div>
       </div>
+
+      {/* Algorithmic Intelligence Playbook (Fast Reply Spam & Scoring Matrix) */}
+      <AlgoIntelligencePlaybook />
 
       {/* Deep Dive: What is X's Official "Under the Hood"? */}
       <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">

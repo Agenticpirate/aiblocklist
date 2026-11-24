@@ -15,6 +15,7 @@ import {
 import { fetchApi } from "@/lib/api";
 import { QuickCheckModal } from "@/components/QuickCheckModal";
 import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
+import { XSuspensionGuide } from "@/components/XSuspensionGuide";
 
 interface ChallengeInit {
   challenge_id: string;
@@ -39,6 +40,9 @@ function AppealsContent() {
   const paramPlatform = (searchParams.get("platform") || "x") as "x" | "threads";
 
   const [platform, setPlatform] = useState<"x" | "threads">(paramPlatform);
+  const [activeTab, setActiveTab] = useState<"aiblocklist" | "x_suspension">(
+    searchParams.get("tab") === "x_suspension" ? "x_suspension" : "aiblocklist"
+  );
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [username, setUsername] = useState(paramUsername);
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
@@ -148,44 +152,76 @@ function AppealsContent() {
         listing, with 48 hour triage and a 7 business day resolution target.
       </p>
 
-      {/* Upstream & Scope Notice Card */}
-      <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
-        <p>
-          <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
-        </p>
-        <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
-          <span className="text-zinc-500 font-mono">Quick Platform Unblock Links:</span>
-          <a
-            href="https://blockedforaireply.com/#all"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
-          >
-            <span>Pieter Levels (@levelsio) unblock</span>
-            <ArrowSquareOut size={11} weight="bold" />
-          </a>
-          <span className="text-zinc-600">·</span>
-          <a
-            href="https://help.x.com/en/managing-your-account/suspended-x-accounts"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
-          >
-            <span>𝕏 Suspension Appeal</span>
-            <ArrowSquareOut size={11} weight="bold" />
-          </a>
-          <span className="text-zinc-600">·</span>
-          <a
-            href="https://help.instagram.com/contact/606967319425038"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
-          >
-            <span>Threads Account Status</span>
-            <ArrowSquareOut size={11} weight="bold" />
-          </a>
-        </div>
+      {/* Top Tab Switcher: AIBlockList vs Official 𝕏 Suspension Recovery */}
+      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-[#272727] pb-3">
+        <button
+          type="button"
+          onClick={() => setActiveTab("aiblocklist")}
+          className={`button-sm px-4 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
+            activeTab === "aiblocklist"
+              ? "bg-[#ff6600] text-black"
+              : "border border-[#272727] bg-[#181818] text-zinc-400 hover:text-white"
+          }`}
+        >
+          AIBlockList De-indexing Appeal
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("x_suspension")}
+          className={`button-sm inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
+            activeTab === "x_suspension"
+              ? "bg-[#ff6600] text-black"
+              : "border border-[#ff6600]/40 bg-[#160f08] text-[#ff6600] hover:bg-[#ff6600]/20"
+          }`}
+        >
+          <XLogo className="w-3.5 h-3.5 text-current" shiny />
+          <span>Official 𝕏 Suspension Recovery Guide</span>
+        </button>
       </div>
+
+      {activeTab === "x_suspension" ? (
+        <div className="mt-6">
+          <XSuspensionGuide />
+        </div>
+      ) : (
+        <>
+          {/* Upstream & Scope Notice Card */}
+          <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
+            <p>
+              <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
+            </p>
+            <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
+              <span className="text-zinc-500 font-mono">Quick Platform Unblock Links:</span>
+              <a
+                href="https://blockedforaireply.com/#all"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
+              >
+                <span>Pieter Levels (@levelsio) unblock</span>
+                <ArrowSquareOut size={11} weight="bold" />
+              </a>
+              <span className="text-zinc-600">·</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab("x_suspension")}
+                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-[#ff6600] font-mono cursor-pointer"
+              >
+                <span>𝕏 Suspension Appeal Guide →</span>
+              </button>
+              <span className="text-zinc-600">·</span>
+              <a
+                href="https://help.instagram.com/contact/606967319425038"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
+              >
+                <span>Threads Account Status</span>
+                <ArrowSquareOut size={11} weight="bold" />
+              </a>
+            </div>
+          </div>
 
       {error && (
         <div className="mt-6 rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 flex items-start gap-2.5">
@@ -318,6 +354,8 @@ function AppealsContent() {
             {loading ? "Submitting appeal..." : "Submit independent appeal"}
           </button>
         </form>
+      )}
+        </>
       )}
 
       <QuickCheckModal
