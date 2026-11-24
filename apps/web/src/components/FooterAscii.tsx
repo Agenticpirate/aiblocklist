@@ -86,6 +86,11 @@ export function FooterAscii() {
                 </Link>
               </li>
               <li>
+                <Link href="/account-health" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Account health (Under the Hood)
+                </Link>
+              </li>
+              <li>
                 <Link href="/methodology" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
                   Methodology & signals
                 </Link>

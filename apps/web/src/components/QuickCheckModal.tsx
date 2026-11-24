@@ -229,7 +229,36 @@ export function QuickCheckModal({
               </span>
 
               <div className="space-y-2 text-xs">
-                {/* 1. Pieter Levels Upstream List */}
+                {/* 3. Official X Under the Hood Report & Account Health */}
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-[#ff6600]/30 bg-[#161208] p-2.5">
+                  <div>
+                    <p className="font-bold text-[#ff6600] flex items-center gap-1.5">
+                      <span>𝕏 Official &quot;Under the Hood&quot; &amp; Health Report</span>
+                    </p>
+                    <p className="text-[11px] text-zinc-400">
+                      Check if 𝕏 applied internal labels like DoNotAmplify, SpamHighRecall, or ReplyDeboosting.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Link
+                      href="/account-health"
+                      onClick={onClose}
+                      className="button-xsm inline-flex items-center gap-1 rounded-md bg-[#ff6600] px-2.5 py-1 text-black font-bold hover:bg-[#e55c00] transition-colors"
+                    >
+                      <span>Health Suite</span>
+                    </Link>
+                    <a
+                      href="https://x.com/i/jf/under_the_hood"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+                    >
+                      <XLogo className="w-2.5 h-2.5" />
+                      <span>x.com</span>
+                      <ArrowSquareOut size={10} weight="bold" />
+                    </a>
+                  </div>
+                </div>
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-[#222] bg-[#121212] p-2.5">
                   <div>
                     <p className="font-bold text-zinc-200">

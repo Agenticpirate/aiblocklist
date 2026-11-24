@@ -10,6 +10,7 @@ import { QuickCheckModal } from "./QuickCheckModal";
 const NAV_ITEMS = [
   { href: "/", label: "Intelligence" },
   { href: "/extension", label: "Extension" },
+  { href: "/account-health", label: "Health" },
   { href: "/methodology", label: "Methodology" },
   { href: "/about", label: "About" },
   { href: "/transparency", label: "Transparency" },
