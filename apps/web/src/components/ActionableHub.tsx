@@ -20,8 +20,8 @@ import {
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
-  API_BASE_URL,
   BlocklistResponse,
+  CLIENT_API_BASE_URL,
   fetchApi,
   formatClassificationLabel,
   formatVerificationLabel,
@@ -114,15 +114,15 @@ export function ActionableHub({
   }, [loadPage, initialItems.length, initialNextCursor]);
 
   return (
-    <div className="space-y-6">
-      {/* Premium Stat KPI Cards */}
+    <div className="space-y-3">
+      {/* Stat KPI Cards */}
       <PremiumStatCards
         totalIndexed={totalIndexed}
         meetingTwoUrls={meetingTwoUrls}
       />
 
       {/* Search & Filter Command Bar */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-5 space-y-4">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-2.5 sm:p-3.5 space-y-2 sm:space-y-2.5">
         {/* Search Input */}
         <form
           onSubmit={(e) => {
@@ -132,18 +132,18 @@ export function ActionableHub({
           className="relative flex items-center"
         >
           <MagnifyingGlass
-            size={18}
+            size={15}
             weight="bold"
-            className="pointer-events-none absolute left-3.5 text-zinc-500"
+            className="pointer-events-none absolute left-3 text-zinc-500"
           />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search accounts by handle (@username) or numeric platform ID..."
-            className="body-4 w-full rounded-xl border border-[#272727] bg-[#000000] py-3 pl-11 pr-24 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
+            placeholder="Search @username or numeric ID..."
+            className="body-6 w-full rounded-xl border border-[#272727] bg-[#000000] py-1.5 sm:py-2 pl-9 pr-20 font-mono text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none transition-colors duration-300"
           />
-          <div className="absolute right-2 flex items-center gap-1">
+          <div className="absolute right-1.5 flex items-center gap-1">
             {search && (
               <button
                 type="button"
@@ -151,70 +151,69 @@ export function ActionableHub({
                   setSearch("");
                   setSubmittedSearch("");
                 }}
-                className="p-1 text-zinc-500 hover:text-white"
+                className="p-1 text-zinc-500 hover:text-white transition-colors"
               >
-                <X size={16} weight="bold" />
+                <X size={14} weight="bold" />
               </button>
             )}
             <button
               type="submit"
-              className="button-sm rounded-lg bg-[#ff6600] px-3 py-1.5 font-bold text-black hover:bg-[#e55c00] transition-colors"
+              className="button-xsm rounded-lg bg-[#ff6600] px-2.5 sm:px-3 py-1 font-semibold text-black hover:bg-[#e55c00] transition-colors duration-300"
             >
               Search
             </button>
           </div>
         </form>
 
-        {/* Platform Sliding Segmented Control with Official Logos */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        {/* Platform Sliding Segmented Control + Export Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="caption-5 font-mono text-zinc-500 uppercase mr-1">Platform:</span>
+            <span className="hidden sm:inline text-[11px] font-mono text-zinc-500 uppercase">Platform:</span>
             <PlatformSlideControl
               activePlatform={platformFilter}
               onChange={setPlatformFilter}
               size="sm"
-              className="w-72 sm:w-80"
+              className="w-full sm:w-72"
             />
           </div>
 
-          {/* Export Actions Bar */}
-          <div className="flex items-center gap-1.5">
-            <span className="caption-5 font-mono text-zinc-500 uppercase mr-1">Export:</span>
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <span className="text-[10px] sm:text-[11px] font-mono text-zinc-500 uppercase mr-0.5 shrink-0">Export:</span>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
               download
-              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#313131] bg-[#1F1F1F] px-2 py-1 text-[11px] font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors duration-300"
               title="Download CSV for Twitter/X blocklist import"
             >
-              <DownloadSimple size={12} weight="bold" />
+              <DownloadSimple size={11} weight="bold" />
               <span>CSV</span>
             </a>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=json`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=json`}
               download
-              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#313131] bg-[#1F1F1F] px-2 py-1 text-[11px] font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors duration-300"
               title="Export complete JSON payload with metadata"
             >
-              <DownloadSimple size={12} weight="bold" />
+              <DownloadSimple size={11} weight="bold" />
               <span>JSON</span>
             </a>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=txt`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=txt`}
               download
-              className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#313131] bg-[#1F1F1F] px-2 py-1 text-[11px] font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors duration-300"
               title="Export plain text list of @handles"
             >
-              <DownloadSimple size={12} weight="bold" />
+              <DownloadSimple size={11} weight="bold" />
               <span>Handles (.txt)</span>
             </a>
           </div>
         </div>
 
-        {/* Category & Evidence Secondary Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-[#272727] pt-3">
-          <span className="caption-5 font-mono text-zinc-500 uppercase mr-1">Filter:</span>
+        {/* Category & Evidence Secondary Filter Pills (single-row scrollable on mobile) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto sm:flex-wrap border-t border-[#272727] pt-2 pb-0.5">
+          <span className="hidden sm:inline text-[11px] font-mono text-zinc-500 uppercase mr-0.5 shrink-0">Filter:</span>
           {[
-            { id: "all", label: "All Categories" },
+            { id: "all", label: "All" },
             { id: "confirmed_automated_spam", label: "Confirmed Spam" },
             { id: "repetitive_engagement_farming", label: "Engagement Farming" },
             { id: "coordinated_manipulation", label: "Coordinated" },
@@ -224,31 +223,31 @@ export function ActionableHub({
               key={c.id}
               type="button"
               onClick={() => setCategoryFilter(c.id)}
-              className={`caption-5 rounded-md px-2.5 py-1 font-mono transition-colors ${
+              className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-mono transition-colors duration-300 whitespace-nowrap ${
                 categoryFilter === c.id
-                  ? "border border-[#ff6600] bg-[#131209] text-[#ff6600] font-bold"
-                  : "border border-[#272727] bg-[#1f1f1f] text-zinc-400 hover:text-white"
+                  ? "border border-[#ff6600] bg-[#131209] text-[#ff6600] font-semibold"
+                  : "border border-[#272727] bg-[#1F1F1F] text-zinc-400 hover:text-white"
               }`}
             >
               {c.label}
             </button>
           ))}
 
-          <span className="text-zinc-600">|</span>
+          <span className="text-zinc-600 px-0.5 shrink-0">|</span>
 
           {[
             { id: "all", label: "Any Coverage" },
-            { id: "with", label: "Has 2+ Public URLs" },
+            { id: "with", label: "2+ Public URLs" },
             { id: "silent", label: "Silent (0 URLs)" },
           ].map((e) => (
             <button
               key={e.id}
               type="button"
               onClick={() => setEvidenceFilter(e.id)}
-              className={`caption-5 rounded-md px-2.5 py-1 font-mono transition-colors ${
+              className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-mono transition-colors duration-300 whitespace-nowrap ${
                 evidenceFilter === e.id
-                  ? "border border-[#ff6600] bg-[#131209] text-[#ff6600] font-bold"
-                  : "border border-[#272727] bg-[#1f1f1f] text-zinc-400 hover:text-white"
+                  ? "border border-[#ff6600] bg-[#131209] text-[#ff6600] font-semibold"
+                  : "border border-[#272727] bg-[#1F1F1F] text-zinc-400 hover:text-white"
               }`}
             >
               {e.label}
@@ -589,81 +588,79 @@ export function ActionableHub({
         </>
       )}
 
-      {/* Comprehensive Pagination & Infinite Browse Command Center */}
+      {/* Compact Pagination & Browse Bar */}
       {!loading && items.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-[#272727] bg-[#121212] p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-zinc-400">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-              <span className="text-white font-bold">{items.length.toLocaleString()}</span>
+        <div className="mt-4 rounded-xl border border-[#272727] bg-[#181818] px-3.5 py-3 space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-zinc-400">
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />
+              <span className="text-white font-semibold">{items.length.toLocaleString()}</span>
               <span>of</span>
-              <span className="text-white font-bold">{totalMatching.toLocaleString()}</span>
-              <span>indexed accounts loaded</span>
+              <span className="text-white font-semibold">{totalMatching.toLocaleString()}</span>
+              <span>loaded</span>
               <span className="text-zinc-500">
                 ({Math.min(100, Math.round((items.length / Math.max(1, totalMatching)) * 100))}%)
               </span>
             </div>
 
-            {/* Batch Size Selector */}
-            <div className="flex items-center gap-2">
-              <span className="text-zinc-500 uppercase text-[10px]">Per Batch:</span>
-              {[24, 48, 96].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setBatchSize(size)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all cursor-pointer ${
-                    batchSize === size
-                      ? "bg-[#ff6600] text-black font-bold"
-                      : "border border-[#272727] bg-[#1a1a1a] text-zinc-400 hover:text-white"
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1">
+                <span className="text-zinc-500 uppercase text-[10px] mr-0.5">Batch:</span>
+                {[24, 48, 96].map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => setBatchSize(size)}
+                    className={`px-1.5 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer ${
+                      batchSize === size
+                        ? "bg-[#ff6600] text-black font-semibold"
+                        : "border border-[#272727] bg-[#1F1F1F] text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+
+              {nextCursor ? (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={loadingMore}
+                    onClick={() => loadPage(nextCursor, true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    <span>{loadingMore ? "Loading..." : `Load Next ${batchSize}`}</span>
+                    <ArrowRight size={12} weight="bold" />
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={loadingMore}
+                    onClick={() => loadPage(nextCursor, true, 48)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#313131] bg-[#1F1F1F] px-2.5 py-1.5 font-mono text-[11px] text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+                    title="Quickly fetch next 48 accounts"
+                  >
+                    <span>+48</span>
+                  </button>
+                </div>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
+                  <CheckCircle size={13} weight="bold" className="text-[#ff6600]" />
+                  <span>All loaded</span>
+                </span>
+              )}
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#222]">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-[#272727]">
             <div
-              className="h-full bg-gradient-to-r from-[#ff6600] to-[#ffaa44] transition-all duration-300"
+              className="h-full bg-[#ff6600] transition-all duration-300"
               style={{
                 width: `${Math.min(100, Math.round((items.length / Math.max(1, totalMatching)) * 100))}%`,
               }}
             />
-          </div>
-
-          {/* Pagination Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            {nextCursor ? (
-              <>
-                <button
-                  type="button"
-                  disabled={loadingMore}
-                  onClick={() => loadPage(nextCursor, true)}
-                  className="button-sm inline-flex items-center gap-2 rounded-xl bg-[#ff6600] px-5 py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-[#ff6600]/20"
-                >
-                  <span>{loadingMore ? "Loading more accounts..." : `Load Next ${batchSize} Accounts`}</span>
-                  <ArrowRight size={14} weight="bold" />
-                </button>
-
-                <button
-                  type="button"
-                  disabled={loadingMore}
-                  onClick={() => loadPage(nextCursor, true, 48)}
-                  className="button-sm inline-flex items-center gap-2 rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 font-mono text-xs text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
-                  title="Quickly fetch next 48 accounts"
-                >
-                  <span>+ Load 48 More</span>
-                </button>
-              </>
-            ) : (
-              <div className="inline-flex items-center gap-2 rounded-xl border border-[#272727] bg-[#181818] px-4 py-2 font-mono text-xs text-zinc-400">
-                <CheckCircle size={15} weight="bold" className="text-[#ff6600]" />
-                <span>All {totalMatching.toLocaleString()} accounts matching current filters are loaded</span>
-              </div>
-            )}
           </div>
         </div>
       )}

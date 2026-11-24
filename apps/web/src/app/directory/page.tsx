@@ -12,8 +12,8 @@ import {
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
-  API_BASE_URL,
   BlocklistResponse,
+  CLIENT_API_BASE_URL,
   fetchApi,
   formatClassificationLabel,
   formatVerificationLabel,
@@ -174,7 +174,7 @@ export default function DirectoryPage() {
           <div className="flex items-center gap-2">
             <span className="text-zinc-500">Export:</span>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
               download
               className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
             >
@@ -182,7 +182,7 @@ export default function DirectoryPage() {
               <span>CSV</span>
             </a>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=json`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=json`}
               download
               className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
             >
@@ -190,7 +190,7 @@ export default function DirectoryPage() {
               <span>JSON</span>
             </a>
             <a
-              href={`${API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=txt`}
+              href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=txt`}
               download
               className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
             >

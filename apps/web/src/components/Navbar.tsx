@@ -21,7 +21,6 @@ import { QuickCheckModal } from "./QuickCheckModal";
 const PRIMARY_NAV_ITEMS = [
   { href: "/", label: "Intelligence" },
   { href: "/account-health", label: "Health" },
-  { href: "/extension", label: "Extension" },
 ];
 
 const MORE_NAV_ITEMS = [

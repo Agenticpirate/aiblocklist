@@ -12,9 +12,12 @@ export const metadata: Metadata = {
     "Identify, verify, and filter abusive automated social media spam using public behavioral evidence, human dual review, and free independent appeals.",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon.png", sizes: "32x32", type: "image/png" },
       { url: "/logo.png", sizes: "192x192", type: "image/png" },
     ],
+    shortcut: "/favicon.ico",
     apple: "/logo.png",
   },
   openGraph: {
@@ -31,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} dark`}>
       <body className="min-h-screen bg-[#000000] text-zinc-100 antialiased selection:bg-[#ff6600] selection:text-black">
         <Navbar />
-        <main id="main-content" className="pt-24">
+        <main id="main-content" className="pt-16 sm:pt-24">
           {children}
         </main>
         <FooterAscii />
