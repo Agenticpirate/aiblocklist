@@ -177,6 +177,43 @@ export default function MethodologyPage() {
           </div>
         </div>
       </div>
+
+      {/* Philosophy: Noise vs Substance & The Course-Correction Doctrine */}
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+        <div className="space-y-1 border-b border-[#272727] pb-4">
+          <span className="caption-4 uppercase text-[#ff6600] font-bold font-mono">
+            Ecosystem Philosophy
+          </span>
+          <h2 className="heading-3 text-white">Noise vs. Substance &amp; The Course-Correction Doctrine</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-xl border border-[#272727] bg-[#111] p-5 space-y-3">
+            <h3 className="title-3 text-white">Is It Really About AI, or Low-Value Noise?</h3>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              Human attention is finite and expensive. When generative AI makes drafting text virtually free,
+              creators are tempted to flood replies with automated affirmations simply to satisfy algorithmic velocity.
+              Processing zero-value noise creates cognitive exhaustion.
+            </p>
+            <p className="body-6 text-zinc-400 font-sans">
+              AIBlockList does not police authorship style or AI writing assistance. We strictly target 
+              <strong> unsolicited programmatic noise loops</strong> that siphon human attention without contributing substance.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-[#272727] bg-[#111] p-5 space-y-3">
+            <h3 className="title-3 text-white">The Course-Correction Guarantee</h3>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              Punitive mass blocking without transparency creates resentment and locks users into permanent exclusion.
+              Because recommendation algorithms actively reward rapid replies, many creators unintentionally fall into bot-like patterns.
+            </p>
+            <p className="body-6 text-zinc-400 font-sans">
+              Everyone deserves a transparent chance to course-correct. That is why AIBlockList provides observable evidence links,
+              pre-flight quality testing, and a free bio verification challenge with automated delisting.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

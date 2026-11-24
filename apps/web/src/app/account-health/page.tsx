@@ -20,6 +20,7 @@ import {
 import { AccountPayload, fetchApi, formatClassificationLabel } from "@/lib/api";
 import { VerifiedTick } from "@/components/VerifiedTick";
 import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
+import { PreFlightEvaluator } from "@/components/PreFlightEvaluator";
 
 interface HealthCheckResult {
   username: string;
@@ -354,6 +355,85 @@ export default function AccountHealthPage() {
             )}
           </div>
         )}
+      </div>
+
+      {/* Interactive Pre-Flight Reply Quality Evaluator */}
+      <PreFlightEvaluator />
+
+      {/* Actionable Algorithmic Diagnosis & Advice: Why Reach Gets Buried */}
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+        <div className="space-y-1 border-b border-[#272727] pb-4">
+          <span className="caption-4 uppercase text-[#ff6600] font-bold">
+            Actionable Strategic Diagnostics
+          </span>
+          <h2 className="heading-3 text-white">Why Reach Gets Buried &amp; How to Course-Correct</h2>
+          <p className="caption-4 text-zinc-400 font-sans">
+            Platforms rarely explain why your engagement drops. Here is the operational reality of how
+            algorithmic downranking works and how you can rehabilitate your account.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card 1: Reach Suppression */}
+          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
+            <div className="flex items-center gap-2 text-[#ff6600]">
+              <WarningCircle size={20} weight="bold" />
+              <h3 className="title-3 text-white">&quot;Why did my post only reach 15 people with 1,500 followers?&quot;</h3>
+            </div>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              When an account triggers excessive blocks, mutes, or automated bot flags, platforms apply
+              the <strong>DoNotAmplify</strong> label. Instead of showing your post to your follower network and the
+              &quot;For You&quot; feed, delivery is restricted exclusively to direct profile visitors and users with notifications turned on.
+            </p>
+            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
+              💡 <strong>Actionable Tip:</strong> Reduce output frequency. Post 1 high-substance post with data or unique insight every 48h rather than 10 rapid posts.
+            </div>
+          </div>
+
+          {/* Card 2: Reply Deboosting */}
+          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
+            <div className="flex items-center gap-2 text-[#ff6600]">
+              <WarningCircle size={20} weight="bold" />
+              <h3 className="title-3 text-white">&quot;Why did my reply get buried behind &apos;Show more replies&apos;?&quot;</h3>
+            </div>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              Heuristic filters penalize formulaic affirmations (e.g. &quot;Great point!&quot;, &quot;Totally agree&quot;) and rapid-fire replies to non-followers.
+              The algorithm classifies short generic responses as low-value noise and downranks them below human conversation turns.
+            </p>
+            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
+              💡 <strong>Actionable Tip:</strong> Never reply with just agreement. Ask a specific question, share a technical anecdote, or provide counter-evidence.
+            </div>
+          </div>
+
+          {/* Card 3: Noise vs Substance */}
+          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
+            <div className="flex items-center gap-2 text-emerald-400">
+              <CheckCircle size={20} weight="bold" />
+              <h3 className="title-3 text-white">Noise vs. Substance: The Cost of Free Bot Generation</h3>
+            </div>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              Human attention is expensive. When LLMs make text generation virtually free, users flood replies to farm engagement.
+              Quality is not about whether an LLM assisted your grammar—it is about whether the output provides <strong>genuine substance or informational pollution</strong>.
+            </p>
+            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
+              💡 <strong>Core Principle:</strong> AIBlockList never bans AI grammar polishing or ESL translation. We only target unsolicited repetitive spam loops.
+            </div>
+          </div>
+
+          {/* Card 4: Perverse Incentives */}
+          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
+            <div className="flex items-center gap-2 text-[#ff6600]">
+              <Heartbeat size={20} weight="bold" />
+              <h3 className="title-3 text-white">The Perverse Algorithmic Incentive &amp; The Exit Route</h3>
+            </div>
+            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
+              Platforms inadvertently incentivize spam by penalizing posts that don&apos;t reply immediately. Creators resort to automated extensions, which eventually causes their accounts to get shadowbanned or mass-blocked.
+            </p>
+            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
+              💡 <strong>Course-Correction Route:</strong> Everyone deserves a second chance. 14–30 days of authentic human-only replies resets algorithmic safety scores.
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Deep Dive: What is X's Official "Under the Hood"? */}
