@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { List, X, ArrowUpRight } from "@phosphor-icons/react";
+import { List, X, ArrowUpRight, ShieldCheck } from "@phosphor-icons/react";
+import { QuickCheckModal } from "./QuickCheckModal";
 
 const NAV_ITEMS = [
   { href: "/", label: "Intelligence" },
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
 export function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [quickCheckOpen, setQuickCheckOpen] = useState(false);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -80,7 +82,17 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setQuickCheckOpen(true)}
+              className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#131209] px-2.5 py-2 text-xs font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer"
+              title="Check if your account is listed or blocked"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600] animate-pulse" />
+              <span>Am I Blocked?</span>
+            </button>
+
             <Link
               href="/directory"
               className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-2 text-black transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#e55c00] active:scale-[0.98]"
@@ -142,10 +154,22 @@ export function Navbar() {
           })}
           <div
             style={{ transitionDelay: menuOpen ? "320ms" : "0ms" }}
-            className={`pt-4 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            className={`pt-4 space-y-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               menuOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
           >
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                setQuickCheckOpen(true);
+              }}
+              className="button-md flex w-full items-center justify-center gap-2 rounded-xl border border-[#ff6600]/40 bg-[#131209] px-3 py-2.5 font-mono text-[#ff6600] font-bold"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#ff6600] animate-pulse" />
+              <span>Am I Blocked? Quick Status Check</span>
+            </button>
+
             <Link
               href="/directory"
               className="button-md flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-3 py-2 text-black"
@@ -156,6 +180,11 @@ export function Navbar() {
           </div>
         </div>
       </div>
+
+      <QuickCheckModal
+        isOpen={quickCheckOpen}
+        onClose={() => setQuickCheckOpen(false)}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { LinkSimple, WarningCircle, CheckCircle, ArrowUpRight } from "@phosphor-icons/react";
+import { LinkSimple, WarningCircle, CheckCircle, ArrowUpRight, ShieldWarning } from "@phosphor-icons/react";
 import { EvidenceRecord } from "@/lib/api";
 import { VerifiedTick } from "./VerifiedTick";
 import { XLogo } from "./PlatformSlideControl";
@@ -80,18 +80,35 @@ export function TweetEvidenceCard({
 
       {/* Tweet Footer & Action Links */}
       <div className="mt-2 flex items-center justify-between border-t border-[#1e1e1e] pt-2.5 font-mono text-xs">
-        <a
-          href={evidence.public_post_url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 font-bold text-[#ff6600] hover:text-white transition-colors"
-        >
-          <XLogo className="w-3 h-3 text-current" />
-          <span>Their reply on X ↗</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href={evidence.public_post_url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 font-bold text-[#ff6600] hover:text-white transition-colors"
+          >
+            <XLogo className="w-3 h-3 text-current" />
+            <span>Their reply on X ↗</span>
+          </a>
 
-        <span className="caption-5 text-zinc-600 truncate max-w-[180px]" title={`SHA-256: ${evidence.content_hash_sha256}`}>
-          SHA-256: {evidence.content_hash_sha256?.slice(0, 12)}…
+          <a
+            href={
+              platform === "x"
+                ? `https://x.com/i/safety/report?screen_name=${username.replace(/^@/, "")}`
+                : `https://threads.net/@${username.replace(/^@/, "")}`
+            }
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors"
+            title="Report this account directly on platform"
+          >
+            <ShieldWarning size={12} weight="bold" />
+            <span>Report</span>
+          </a>
+        </div>
+
+        <span className="caption-5 text-zinc-600 truncate max-w-[160px]" title={`SHA-256: ${evidence.content_hash_sha256}`}>
+          SHA-256: {evidence.content_hash_sha256?.slice(0, 10)}…
         </span>
       </div>
     </div>

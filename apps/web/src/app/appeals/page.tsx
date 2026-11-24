@@ -1,8 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle, WarningCircle, Scales, Key } from "@phosphor-icons/react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  CheckCircle,
+  WarningCircle,
+  Scales,
+  Key,
+  ShieldCheck,
+  ArrowSquareOut,
+  MagnifyingGlass,
+  ArrowRight,
+} from "@phosphor-icons/react";
 import { fetchApi } from "@/lib/api";
+import { QuickCheckModal } from "@/components/QuickCheckModal";
+import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 
 interface ChallengeInit {
   challenge_id: string;
@@ -21,16 +33,30 @@ interface AppealConfirmation {
   scope_notice: string;
 }
 
-export default function AppealsPage() {
-  const [platform, setPlatform] = useState<"x" | "threads">("x");
+function AppealsContent() {
+  const searchParams = useSearchParams();
+  const paramUsername = searchParams.get("username") || "";
+  const paramPlatform = (searchParams.get("platform") || "x") as "x" | "threads";
+
+  const [platform, setPlatform] = useState<"x" | "threads">(paramPlatform);
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(paramUsername);
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [statement, setStatement] = useState("");
   const [confirmation, setConfirmation] = useState<AppealConfirmation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quickCheckOpen, setQuickCheckOpen] = useState(false);
+
+  useEffect(() => {
+    if (paramUsername && !username) {
+      setUsername(paramUsername.replace(/^@/, ""));
+    }
+    if (paramPlatform === "x" || paramPlatform === "threads") {
+      setPlatform(paramPlatform);
+    }
+  }, [paramUsername, paramPlatform]);
 
   async function startChallenge(e: React.FormEvent) {
     e.preventDefault();
@@ -101,19 +127,64 @@ export default function AppealsPage() {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
-        Independent reputation protection
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <p className="caption-3 font-mono uppercase text-[#ff6600]">
+          Independent reputation protection
+        </p>
+        <button
+          type="button"
+          onClick={() => setQuickCheckOpen(true)}
+          className="button-xsm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#131209] px-2.5 py-1 text-xs font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors cursor-pointer"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600] animate-pulse" />
+          <span>⚡ Check if you&apos;re listed first</span>
+        </button>
+      </div>
+
       <h1 className="heading-2 text-white">Free independent account appeal</h1>
       <p className="body-3 mt-3 text-zinc-400">
-        Appeals are always free and never require swearing off AI writing assistance or making
+        Appeals are always 100% free and never require swearing off AI writing assistance or making
         public oaths. Every appeal routes to an independent reviewer excluded from the original
         listing, with 48 hour triage and a 7 business day resolution target.
       </p>
 
-      <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400">
-        Scope notice: AIBlockList appeals govern AIBlockList and subscribing third party tools only.
-        They do not reverse native platform suspensions or restore platform monetization.
+      {/* Upstream & Scope Notice Card */}
+      <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
+        <p>
+          <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
+        </p>
+        <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
+          <span className="text-zinc-500 font-mono">Quick Platform Unblock Links:</span>
+          <a
+            href="https://blockedforaireply.com/#all"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
+          >
+            <span>Pieter Levels (@levelsio) unblock</span>
+            <ArrowSquareOut size={11} weight="bold" />
+          </a>
+          <span className="text-zinc-600">·</span>
+          <a
+            href="https://help.x.com/en/managing-your-account/suspended-x-accounts"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
+          >
+            <span>𝕏 Suspension Appeal</span>
+            <ArrowSquareOut size={11} weight="bold" />
+          </a>
+          <span className="text-zinc-600">·</span>
+          <a
+            href="https://help.instagram.com/contact/606967319425038"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
+          >
+            <span>Threads Account Status</span>
+            <ArrowSquareOut size={11} weight="bold" />
+          </a>
+        </div>
       </div>
 
       {error && (
@@ -156,13 +227,14 @@ export default function AppealsPage() {
                   key={p}
                   type="button"
                   onClick={() => setPlatform(p)}
-                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase transition-colors duration-300 ${
+                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase inline-flex items-center gap-1.5 transition-colors duration-300 ${
                     platform === p
                       ? "bg-[#ff6600] text-black font-bold"
                       : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
                   }`}
                 >
-                  {p}
+                  {p === "x" ? <XLogo className="w-3.5 h-3.5" /> : <ThreadsLogo className="w-3.5 h-3.5" />}
+                  <span>{p}</span>
                 </button>
               ))}
             </div>
@@ -184,7 +256,7 @@ export default function AppealsPage() {
           <button
             type="submit"
             disabled={loading}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300"
+            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
           >
             {loading ? "Generating challenge..." : "Generate ownership challenge"}
           </button>
@@ -206,7 +278,7 @@ export default function AppealsPage() {
             type="button"
             disabled={loading}
             onClick={confirmChallenge}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300"
+            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
           >
             {loading ? "Verifying token..." : "Confirm ownership token"}
           </button>
@@ -241,12 +313,27 @@ export default function AppealsPage() {
           <button
             type="submit"
             disabled={loading}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300"
+            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
           >
             {loading ? "Submitting appeal..." : "Submit independent appeal"}
           </button>
         </form>
       )}
+
+      <QuickCheckModal
+        isOpen={quickCheckOpen}
+        onClose={() => setQuickCheckOpen(false)}
+        initialUsername={username}
+        initialPlatform={platform}
+      />
     </section>
+  );
+}
+
+export default function AppealsPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-3xl px-4 py-16 text-center font-mono text-zinc-500">Loading appeals center...</div>}>
+      <AppealsContent />
+    </Suspense>
   );
 }

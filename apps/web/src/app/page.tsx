@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
 } from "@phosphor-icons/react/dist/ssr";
 import { ActionableHub } from "@/components/ActionableHub";
+import { QuickCheckTriggerButton } from "@/components/QuickCheckTriggerButton";
 import { API_BASE_URL, BlocklistResponse, StatisticsResponse } from "@/lib/api";
 
 async function getLiveStats(): Promise<StatisticsResponse | null> {
@@ -93,6 +94,8 @@ export default async function HomePage() {
 
           {/* Cleanly Aligned Action Buttons */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 self-start lg:self-center">
+            <QuickCheckTriggerButton label="Am I Blocked?" />
+
             <Link
               href="/extension"
               className="button-sm inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff6600] px-4 py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all whitespace-nowrap shadow-lg shadow-[#ff6600]/20"
