@@ -3,6 +3,8 @@ export const API_BASE_URL =
     ? "/api/v1"
     : process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 
+export const DIRECT_BACKEND_URL = "http://127.0.0.1:8000/api/v1";
+
 export interface EvidenceRecord {
   public_post_url: string;
   platform_post_id: string;
@@ -124,25 +126,70 @@ export interface SourceInfo {
 }
 
 export async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
-  });
-  const data = await res.json();
+  const requestHeaders = {
+    "Content-Type": "application/json",
+    ...(init?.headers || {}),
+  };
+
+  let res: Response | null = null;
+  let usedUrl = `${API_BASE_URL}${path}`;
+
+  try {
+    res = await fetch(usedUrl, {
+      ...init,
+      headers: requestHeaders,
+      cache: "no-store",
+    });
+  } catch (netErr) {
+    if (typeof window !== "undefined" && API_BASE_URL === "/api/v1") {
+      try {
+        usedUrl = `${DIRECT_BACKEND_URL}${path}`;
+        res = await fetch(usedUrl, {
+          ...init,
+          headers: requestHeaders,
+          cache: "no-store",
+        });
+      } catch {
+        throw netErr;
+      }
+    } else {
+      throw netErr;
+    }
+  }
+
+  // If local rewrite proxy returns 500/502/503/504, fallback to direct backend URL on client
+  if (res && !res.ok && res.status >= 500 && typeof window !== "undefined" && API_BASE_URL === "/api/v1") {
+    try {
+      const directRes = await fetch(`${DIRECT_BACKEND_URL}${path}`, {
+        ...init,
+        headers: requestHeaders,
+        cache: "no-store",
+      });
+      if (directRes.ok) {
+        return (await directRes.json()) as T;
+      }
+    } catch {
+      // Proceed to normal error handling
+    }
+  }
+
   if (!res.ok) {
-    const err = new Error(data?.detail || "Request failed") as Error & {
-      status?: number;
-      code?: string;
-    };
+    let errorMessage = `Request failed (${res.status})`;
+    try {
+      const errJson = await res.json();
+      errorMessage = errJson?.detail || errJson?.message || errorMessage;
+    } catch {
+      const text = await res.text().catch(() => "");
+      if (text && !text.includes("<!DOCTYPE") && !text.includes("<html")) {
+        errorMessage = text.slice(0, 150);
+      }
+    }
+    const err = new Error(errorMessage) as Error & { status?: number; code?: string };
     err.status = res.status;
-    err.code = data?.code;
     throw err;
   }
-  return data as T;
+
+  return (await res.json()) as T;
 }
 
 export function formatClassificationLabel(slug: string): string {

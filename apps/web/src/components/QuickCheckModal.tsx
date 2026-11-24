@@ -50,13 +50,8 @@ export function QuickCheckModal({
     setSearchedUser(clean);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/accounts/${platform}/${encodeURIComponent(clean)}`);
-      if (res.ok) {
-        const data = (await res.json()) as AccountPayload;
-        setRecord(data);
-      } else {
-        setRecord(null);
-      }
+      const data = await fetchApi<AccountPayload>(`/accounts/${platform}/${encodeURIComponent(clean)}`);
+      setRecord(data);
     } catch {
       setRecord(null);
     } finally {
