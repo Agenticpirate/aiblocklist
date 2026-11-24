@@ -1,5 +1,7 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+  typeof window !== "undefined"
+    ? "/api/v1"
+    : process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 
 export interface EvidenceRecord {
   public_post_url: string;
@@ -9,6 +11,9 @@ export interface EvidenceRecord {
   content_hash_sha256: string;
   source_deleted: boolean;
   collected_at: string;
+  post_text?: string | null;
+  post_date?: string | null;
+  response_text?: string | null;
 }
 
 export interface SourceAssertion {
@@ -41,6 +46,7 @@ export interface AccountPayload {
     appeal_status: string;
     has_source_conflict: boolean;
     evidence_count: number;
+    primary_quote?: string | null;
   };
   evidence: EvidenceRecord[];
   source_assertions: SourceAssertion[];

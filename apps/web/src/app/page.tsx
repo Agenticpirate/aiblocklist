@@ -11,7 +11,7 @@ import {
   ArrowUpRight,
 } from "@phosphor-icons/react/dist/ssr";
 import { ActionableHub } from "@/components/ActionableHub";
-import { API_BASE_URL, StatisticsResponse } from "@/lib/api";
+import { API_BASE_URL, BlocklistResponse, StatisticsResponse } from "@/lib/api";
 
 async function getLiveStats(): Promise<StatisticsResponse | null> {
   try {
@@ -23,10 +23,23 @@ async function getLiveStats(): Promise<StatisticsResponse | null> {
   }
 }
 
+async function getInitialBlocklist(): Promise<BlocklistResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/blocklists?limit=24`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as BlocklistResponse;
+  } catch {
+    return null;
+  }
+}
+
 export default async function HomePage() {
-  const stats = await getLiveStats();
-  const totalIndexed = stats?.totals.indexed_accounts ?? 3621;
-  const meetingTwoUrls = stats?.totals.accounts_meeting_2_url_threshold ?? 754;
+  const [stats, blocklistData] = await Promise.all([
+    getLiveStats(),
+    getInitialBlocklist(),
+  ]);
+  const totalIndexed = stats?.totals.indexed_accounts ?? (blocklistData?.total_matching ?? 3680);
+  const meetingTwoUrls = stats?.totals.accounts_meeting_2_url_threshold ?? 884;
 
   return (
     <div className="pb-12">
@@ -100,6 +113,7 @@ export default async function HomePage() {
           initialTotal={totalIndexed}
           totalIndexed={totalIndexed}
           meetingTwoUrls={meetingTwoUrls}
+          initialItems={blocklistData?.items || []}
         />
       </section>
 

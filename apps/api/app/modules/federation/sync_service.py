@@ -218,7 +218,8 @@ async def sync_blockedforaireply(
             if target_uuid and (target_uuid, post_id) in existing_ev_set:
                 continue
 
-            transient_text = str(ev.get("their_reply") or canonical_url)
+            reply_content = ev.get("their_reply")
+            transient_text = str(reply_content or canonical_url)
             content_hash = sha256_hex(f"{acct_id}:{post_id}:{transient_text}")
             is_deleted = ev.get("their_reply_status") == "deleted"
             collected = _parse_iso_date(ev.get("date")) or now
@@ -227,17 +228,25 @@ async def sync_blockedforaireply(
             acct_uuid_for_ev = target_uuid or None
             new_ev_urls_count += 1
 
+            signal_metrics = {
+                "upstream_source": "blockedforaireply",
+                "reply_status": ev.get("their_reply_status") or "unknown",
+                "verified_by_aiblocklist": False,
+            }
+            if reply_content:
+                signal_metrics["post_text"] = reply_content
+            if ev.get("date"):
+                signal_metrics["post_date"] = ev.get("date")
+            if ev.get("levelsio_reply"):
+                signal_metrics["response_text"] = ev.get("levelsio_reply")
+
             new_evidence_to_add.append(
                 EvidenceItem(
                     account_id=acct_uuid_for_ev or "",  # will backfill if newly created
                     platform_post_id=post_id,
                     public_post_url=canonical_url,
                     signal_type="external_reported_reply",
-                    signal_metrics={
-                        "upstream_source": "blockedforaireply",
-                        "reply_status": ev.get("their_reply_status") or "unknown",
-                        "verified_by_aiblocklist": False,
-                    },
+                    signal_metrics=signal_metrics,
                     content_hash_sha256=content_hash,
                     source_deleted_at=collected if is_deleted else None,
                     collected_at=collected,

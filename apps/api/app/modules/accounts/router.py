@@ -89,18 +89,29 @@ CATEGORY_DEFINITIONS = [
 
 def _serialize_account_public(account: Account, include_sources: bool = True) -> dict:
     """Strictly projects ONLY public intelligence fields (zero private PII)."""
-    evidence_rows = [
-        {
-            "public_post_url": ev.public_post_url,
-            "platform_post_id": ev.platform_post_id,
-            "signal_type": ev.signal_type,
-            "metrics": ev.signal_metrics,
-            "content_hash_sha256": ev.content_hash_sha256,
-            "source_deleted": ev.source_deleted_at is not None,
-            "collected_at": ev.collected_at.isoformat(),
-        }
-        for ev in (account.evidence_items or [])
-    ]
+    evidence_rows = []
+    primary_quote: str | None = None
+
+    for ev in account.evidence_items or []:
+        metrics = ev.signal_metrics or {}
+        post_text = metrics.get("post_text") or metrics.get("text")
+        if primary_quote is None and post_text:
+            primary_quote = post_text
+
+        evidence_rows.append(
+            {
+                "public_post_url": ev.public_post_url,
+                "platform_post_id": ev.platform_post_id,
+                "signal_type": ev.signal_type,
+                "metrics": metrics,
+                "content_hash_sha256": ev.content_hash_sha256,
+                "source_deleted": ev.source_deleted_at is not None,
+                "collected_at": ev.collected_at.isoformat(),
+                "post_text": post_text,
+                "post_date": metrics.get("post_date") or metrics.get("date"),
+                "response_text": metrics.get("response_text"),
+            }
+        )
 
     assertions: list[dict] = []
     if include_sources:
@@ -148,6 +159,7 @@ def _serialize_account_public(account: Account, include_sources: bool = True) ->
             "appeal_status": account.appeal_status,
             "has_source_conflict": account.has_source_conflict,
             "evidence_count": len(evidence_rows),
+            "primary_quote": primary_quote,
         },
         "evidence": evidence_rows,
         "source_assertions": assertions,
@@ -260,6 +272,15 @@ async def _query_blocklists(
     cursor: str | None,
     limit: int,
 ) -> dict:
+    has_quote_sub = (
+        select(1)
+        .where(
+            EvidenceItem.account_id == Account.id,
+            EvidenceItem.signal_metrics.like("%post_text%"),
+        )
+        .exists()
+    )
+
     stmt = (
         select(Account)
         .options(
@@ -267,7 +288,7 @@ async def _query_blocklists(
             selectinload(Account.external_entries).selectinload(ExternalListEntry.source),
             selectinload(Account.policy_version),
         )
-        .order_by(Account.id.asc())
+        .order_by(has_quote_sub.desc(), Account.created_at.desc(), Account.id.asc())
     )
     count_stmt = select(func.count(func.distinct(Account.id))).select_from(Account)
 
@@ -316,18 +337,25 @@ async def _query_blocklists(
 
     total_matching = (await db.execute(count_stmt)).scalar_one()
 
+    offset = 0
     if cursor:
         try:
-            decoded_id = base64.urlsafe_b64decode(cursor.encode()).decode()
-            stmt = stmt.where(Account.id > decoded_id)
-        except Exception as exc:
-            raise ProblemDetailError(400, "INVALID_CURSOR", "Invalid Cursor", "Pagination cursor is malformed.") from exc
+            decoded = base64.urlsafe_b64decode(cursor.encode()).decode()
+            if decoded.startswith("off:"):
+                offset = int(decoded.split("off:")[1])
+            else:
+                stmt = stmt.where(Account.id > decoded)
+        except Exception:
+            offset = 0
+
+    if offset > 0:
+        stmt = stmt.offset(offset)
 
     rows = (await db.execute(stmt.limit(limit + 1))).scalars().all()
     has_more = len(rows) > limit
     page_rows = rows[:limit]
     next_cursor = (
-        base64.urlsafe_b64encode(page_rows[-1].id.encode()).decode() if has_more and page_rows else None
+        base64.urlsafe_b64encode(f"off:{offset + limit}".encode()).decode() if has_more and page_rows else None
     )
 
     return {

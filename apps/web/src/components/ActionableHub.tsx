@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MagnifyingGlass,
   Funnel,
@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
   ShareNetwork,
   ShieldWarning,
+  ChatCircleText,
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
@@ -25,21 +26,24 @@ import {
   formatClassificationLabel,
   formatVerificationLabel,
 } from "@/lib/api";
-import { PlatformSlideControl } from "./PlatformSlideControl";
+import { PlatformSlideControl, XLogo } from "./PlatformSlideControl";
 import { PremiumStatCards } from "./PremiumStatCards";
 import { VerifiedTick } from "./VerifiedTick";
 import { PlatformReportModal } from "./PlatformReportModal";
+import { TweetEvidenceCard } from "./TweetEvidenceCard";
 
 interface ActionableHubProps {
   initialTotal: number;
   totalIndexed?: number;
   meetingTwoUrls?: number;
+  initialItems?: AccountPayload[];
 }
 
 export function ActionableHub({
   initialTotal,
-  totalIndexed = 3621,
-  meetingTwoUrls = 754,
+  totalIndexed = 3680,
+  meetingTwoUrls = 884,
+  initialItems = [],
 }: ActionableHubProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
@@ -48,16 +52,18 @@ export function ActionableHub({
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [evidenceFilter, setEvidenceFilter] = useState<string>("all");
 
-  const [items, setItems] = useState<AccountPayload[]>([]);
+  const [items, setItems] = useState<AccountPayload[]>(initialItems);
   const [totalMatching, setTotalMatching] = useState<number>(initialTotal);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(initialItems.length === 0);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Quick Inspector & Auto-Report Modal States
   const [inspectingAccount, setInspectingAccount] = useState<AccountPayload | null>(null);
   const [reportingAccount, setReportingAccount] = useState<AccountPayload | null>(null);
+
+  const isFirstMount = useRef(true);
 
   const loadPage = useCallback(
     async (cursorVal: string | null, append: boolean) => {
@@ -93,8 +99,14 @@ export function ActionableHub({
   );
 
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      if (initialItems.length > 0) {
+        return;
+      }
+    }
     loadPage(null, false);
-  }, [loadPage]);
+  }, [loadPage, initialItems.length]);
 
   return (
     <div className="space-y-6">
@@ -298,6 +310,14 @@ export function ActionableHub({
           {items.map((item) => {
             const a = item.account;
             const initial = (a.username.replace(/^@/, "")[0] || "?").toUpperCase();
+            const quoteText =
+              a.primary_quote ||
+              item.evidence.find((e) => e.post_text)?.post_text ||
+              (item.evidence[0]?.metrics?.post_text as string) ||
+              null;
+            const firstEv = item.evidence[0];
+            const firstEvUrl = firstEv?.public_post_url;
+
             return (
               <div
                 key={a.id}
@@ -347,11 +367,33 @@ export function ActionableHub({
                     )}
                   </div>
 
-                  {a.public_rationale && (
+                  {/* Quoted AI Reply Snippet styled like blockedforaireply.com */}
+                  {quoteText ? (
+                    <div className="mt-3 rounded-xl border border-[#2f3336] bg-[#0c0c0c] p-3 shadow-inner">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1.5">
+                        <span className="font-bold text-[#ff6600]">Flagged AI Reply:</span>
+                        <span className="text-zinc-500">{firstEv?.post_date || "Observed on X"}</span>
+                      </div>
+                      <p className="font-sans text-xs text-zinc-100 line-clamp-3 leading-relaxed border-l-2 border-[#ff6600] pl-2.5 italic select-text">
+                        “{quoteText}”
+                      </p>
+                      {firstEvUrl && (
+                        <a
+                          href={firstEvUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#ff6600] hover:text-white transition-colors"
+                        >
+                          <XLogo className="w-3 h-3 text-current" />
+                          <span>Their reply on X ↗</span>
+                        </a>
+                      )}
+                    </div>
+                  ) : a.public_rationale ? (
                     <p className="body-6 mt-2.5 text-zinc-400 line-clamp-2">
                       {a.public_rationale}
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="mt-4 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
@@ -376,15 +418,17 @@ export function ActionableHub({
                     <button
                       type="button"
                       onClick={() => setInspectingAccount(item)}
-                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                      className="button-xsm inline-flex items-center gap-1.5 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                      title="View all flagged X tweets"
                     >
-                      <Eye size={12} weight="bold" />
-                      <span>Inspect</span>
+                      <ChatCircleText size={13} weight="bold" className="text-[#ff6600]" />
+                      <span>View Tweets ({a.evidence_count})</span>
                     </button>
 
                     <Link
                       href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
                       className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-[#ff6600] hover:text-white transition-colors"
+                      title="Open full account profile"
                     >
                       <ArrowRight size={12} weight="bold" />
                     </Link>
@@ -451,40 +495,29 @@ export function ActionableHub({
               </div>
 
               <div>
-                <span className="caption-4 font-mono uppercase text-zinc-400 block mb-2">
-                  Behavioral Evidence URLs ({inspectingAccount.evidence.length})
-                </span>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="caption-4 font-mono uppercase text-zinc-400">
+                    Flagged X Tweets &amp; Evidence ({inspectingAccount.evidence.length})
+                  </span>
+                  <span className="caption-5 font-mono text-[#ff6600]">
+                    Authentic X Thread View
+                  </span>
+                </div>
                 {inspectingAccount.evidence.length === 0 ? (
                   <p className="body-6 text-zinc-500">
                     Zero public evidence URLs attached upstream. Account is quarantined as unverified.
                   </p>
                 ) : (
-                  <ul className="space-y-2">
+                  <div className="space-y-3">
                     {inspectingAccount.evidence.map((ev) => (
-                      <li
+                      <TweetEvidenceCard
                         key={ev.platform_post_id}
-                        className="rounded-lg border border-[#272727] bg-[#1f1f1f] p-3 text-left"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <a
-                            href={ev.public_post_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="caption-4 inline-flex items-center gap-1 font-mono text-zinc-200 hover:text-[#ff6600] truncate"
-                          >
-                            <LinkSimple size={14} weight="bold" />
-                            <span className="truncate">{ev.public_post_url}</span>
-                          </a>
-                          <span className="caption-5 font-mono text-zinc-500 shrink-0">
-                            {ev.signal_type}
-                          </span>
-                        </div>
-                        <p className="caption-5 mt-1 font-mono text-zinc-500 truncate">
-                          sha256: {ev.content_hash_sha256.slice(0, 24)}...
-                        </p>
-                      </li>
+                        evidence={ev}
+                        username={inspectingAccount.account.username}
+                        platform={inspectingAccount.account.platform}
+                      />
                     ))}
-                  </ul>
+                  </div>
                 )}
               </div>
 

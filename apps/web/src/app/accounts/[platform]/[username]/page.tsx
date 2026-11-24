@@ -18,6 +18,7 @@ import {
 import { ShareButton } from "@/components/ShareButton";
 import { VerifiedTick } from "@/components/VerifiedTick";
 import { AutoReportButton } from "@/components/AutoReportButton";
+import { TweetEvidenceCard } from "@/components/TweetEvidenceCard";
 
 async function fetchAccount(platform: string, username: string): Promise<AccountPayload | null> {
   try {
@@ -210,9 +211,14 @@ export default async function AccountDetailPage({
         </div>
 
         <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
-          <h2 className="title-2 text-white mb-4">
-            Canonical behavioral URLs ({record.evidence.length})
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="title-2 text-white">
+              Flagged X Tweets &amp; Evidence ({record.evidence.length})
+            </h2>
+            <span className="caption-5 font-mono text-[#ff6600]">
+              Authentic X Thread View
+            </span>
+          </div>
           {record.evidence.length === 0 ? (
             <div className="rounded-xl border border-[#272727] bg-[#000000] p-4 flex items-start gap-3">
               <WarningCircle size={20} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
@@ -227,28 +233,12 @@ export default async function AccountDetailPage({
           ) : (
             <div className="space-y-3">
               {record.evidence.map((ev) => (
-                <div
+                <TweetEvidenceCard
                   key={ev.platform_post_id}
-                  className="rounded-xl border border-[#272727] bg-[#000000] p-4"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <a
-                      href={ev.public_post_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="caption-4 inline-flex items-center gap-1.5 font-mono text-white hover:text-[#ff6600]"
-                    >
-                      <LinkSimple size={14} weight="bold" />
-                      <span>{ev.public_post_url}</span>
-                    </a>
-                    <span className="caption-5 font-mono text-zinc-400">
-                      {ev.source_deleted ? "Tombstoned" : "Active"}
-                    </span>
-                  </div>
-                  <p className="caption-5 mt-2 font-mono text-zinc-500 break-all">
-                    SHA-256: {ev.content_hash_sha256}
-                  </p>
-                </div>
+                  evidence={ev}
+                  username={a.username}
+                  platform={a.platform}
+                />
               ))}
             </div>
           )}
