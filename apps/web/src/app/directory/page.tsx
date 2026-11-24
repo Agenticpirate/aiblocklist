@@ -20,6 +20,7 @@ import {
 } from "@/lib/api";
 import { UserAvatar } from "@/components/UserAvatar";
 import { VerifiedTick } from "@/components/VerifiedTick";
+import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 
 export default function DirectoryPage() {
   const [search, setSearch] = useState("");
@@ -250,32 +251,47 @@ export default function DirectoryPage() {
                     className="group flex flex-col justify-between rounded-xl border border-[#262626] bg-[#0c0c0c] hover:bg-[#121212] hover:border-[#383838] p-3.5 transition-all duration-200"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-2.5">
-                        <div className="flex items-start gap-2.5 min-w-0">
-                          <UserAvatar
-                            username={a.username}
-                            platform={a.platform}
-                            size="md"
-                            className="shrink-0 mt-0.5"
-                          />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
+                      {/* Author Header */}
+                      <div className="flex items-start gap-3">
+                        <UserAvatar
+                          username={a.username}
+                          platform={a.platform}
+                          size="md"
+                          className="shrink-0 mt-0.5"
+                        />
+
+                        <div className="flex-1 min-w-0">
+                          {/* Row 1: @username + Verified blue rosette tick + Platform Logo + Status */}
+                          <div className="flex items-center justify-between gap-1.5">
+                            <div className="flex items-center gap-1.5 min-w-0">
                               <p className="font-bold text-white text-[14px] truncate group-hover:text-[#ff6600] transition-colors">
                                 @{a.username}
                               </p>
                               <VerifiedTick type={a.verified_badge || "blue"} size={15} />
-                              <span className="text-[10px] uppercase font-mono px-1 py-0.2 rounded border border-[#272727] bg-[#161616] text-zinc-400">
-                                {a.platform}
-                              </span>
+                              {a.platform === "threads" ? (
+                                <ThreadsLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                              ) : (
+                                <XLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                              )}
                             </div>
-                            <p className="text-[11px] font-mono text-zinc-500 truncate mt-0.5">
-                              ID: {a.platform_account_id || "unassigned"}
-                            </p>
+
+                            <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold shrink-0 whitespace-nowrap">
+                              {formatVerificationLabel(a.verification_status)}
+                            </span>
+                          </div>
+
+                          {/* Row 2: Metadata - ID & Date on the SAME line */}
+                          <div className="flex items-center justify-between gap-1.5 mt-1 text-[11px] font-mono text-zinc-400 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 min-w-0 truncate">
+                              <span className="text-zinc-500">ID:</span>
+                              <span className="text-zinc-300 font-mono select-all truncate">{a.platform_account_id || "unassigned"}</span>
+                            </div>
+
+                            <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#1e1e1e] text-zinc-400 whitespace-nowrap">
+                              {formatClassificationLabel(a.classification)}
+                            </span>
                           </div>
                         </div>
-                        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold shrink-0 whitespace-nowrap">
-                          {formatVerificationLabel(a.verification_status)}
-                        </span>
                       </div>
 
                       <div className="mt-2.5 flex flex-wrap gap-1">

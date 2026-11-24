@@ -26,7 +26,7 @@ import {
   formatClassificationLabel,
   formatVerificationLabel,
 } from "@/lib/api";
-import { PlatformSlideControl, XLogo } from "./PlatformSlideControl";
+import { PlatformSlideControl, XLogo, ThreadsLogo } from "./PlatformSlideControl";
 import { PremiumStatCards } from "./PremiumStatCards";
 import { VerifiedTick } from "./VerifiedTick";
 import { PlatformReportModal } from "./PlatformReportModal";
@@ -331,9 +331,9 @@ export function ActionableHub({
                   />
 
                   <div className="flex-1 min-w-0">
-                    {/* Row 1: @username + Verified blue rosette tick + Status */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                    {/* Row 1: @username + Verified blue rosette tick + Platform Logo + Status */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
                         <Link
                           href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
                           className="font-bold text-white text-[15px] hover:underline truncate"
@@ -341,22 +341,30 @@ export function ActionableHub({
                           @{a.username}
                         </Link>
                         <VerifiedTick type={a.verified_badge || "blue"} size={15} />
-                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded border border-[#272727] bg-[#121212] text-zinc-400">
-                          {a.platform}
-                        </span>
+                        {a.platform === "threads" ? (
+                          <ThreadsLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                        ) : (
+                          <XLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                        )}
                       </div>
+
                       <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold shrink-0 whitespace-nowrap">
                         {formatVerificationLabel(a.verification_status)}
                       </span>
                     </div>
 
-                    {/* Row 2: Metadata / ID & Status subtitle */}
-                    <div className="flex items-center gap-2 mt-0.5 text-xs font-mono text-zinc-500 flex-wrap">
-                      <span>ID: {a.platform_account_id || "unassigned"}</span>
-                      <span>·</span>
-                      <span className="text-zinc-400">{firstEv?.post_date || "Nov 24"}</span>
-                      <span>·</span>
-                      <span className="text-zinc-400">{formatClassificationLabel(a.classification)}</span>
+                    {/* Row 2: Metadata - ID & Date cleanly aligned on the SAME single line */}
+                    <div className="flex items-center justify-between gap-1.5 mt-1 text-[11px] font-mono text-zinc-400 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 min-w-0 truncate">
+                        <span className="text-zinc-500">ID:</span>
+                        <span className="text-zinc-300 font-mono select-all truncate">{a.platform_account_id || "unassigned"}</span>
+                        <span className="text-zinc-600">·</span>
+                        <span className="text-zinc-400 shrink-0">{firstEv?.post_date || "Nov 24, 2026"}</span>
+                      </div>
+
+                      <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#1e1e1e] text-zinc-400 whitespace-nowrap">
+                        {formatClassificationLabel(a.classification)}
+                      </span>
                     </div>
 
                     {/* Row 3: Quoted tweet reply text */}
@@ -447,17 +455,18 @@ export function ActionableHub({
                 >
                   <div>
                     {/* Tweet Author & Metadata Header */}
-                    <div className="flex items-start justify-between gap-2.5">
-                      <div className="flex items-start gap-2.5 min-w-0">
-                        <UserAvatar
-                          username={a.username}
-                          platform={a.platform}
-                          size="md"
-                          className="shrink-0 mt-0.5"
-                        />
+                    <div className="flex items-start gap-3">
+                      <UserAvatar
+                        username={a.username}
+                        platform={a.platform}
+                        size="md"
+                        className="shrink-0 mt-0.5"
+                      />
 
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
+                      <div className="flex-1 min-w-0">
+                        {/* Row 1: @username + Verified blue rosette tick + Platform Logo + Status */}
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <Link
                               href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
                               className="font-bold text-white text-[14px] hover:underline truncate"
@@ -465,27 +474,31 @@ export function ActionableHub({
                               @{a.username}
                             </Link>
                             <VerifiedTick type={a.verified_badge || "blue"} size={15} />
-                            <span className="text-[10px] uppercase font-mono px-1 py-0.2 rounded border border-[#272727] bg-[#161616] text-zinc-400">
-                              {a.platform}
-                            </span>
+                            {a.platform === "threads" ? (
+                              <ThreadsLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                            ) : (
+                              <XLogo className="w-3.5 h-3.5 text-zinc-400 shrink-0" shiny />
+                            )}
                           </div>
 
-                          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] font-mono text-zinc-500">
-                            <span>ID: {a.platform_account_id || "unassigned"}</span>
-                            <span>·</span>
-                            <span>{firstEv?.post_date || "Nov 24"}</span>
-                          </div>
+                          <span className="shrink-0 text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold whitespace-nowrap">
+                            {formatVerificationLabel(a.verification_status)}
+                          </span>
                         </div>
-                      </div>
 
-                      {/* Status Pills */}
-                      <div className="shrink-0 flex flex-col items-end gap-1">
-                        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold whitespace-nowrap">
-                          {formatVerificationLabel(a.verification_status)}
-                        </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#1e1e1e] text-zinc-400 whitespace-nowrap">
-                          {formatClassificationLabel(a.classification)}
-                        </span>
+                        {/* Row 2: Metadata - ID & Date cleanly aligned on the SAME single line */}
+                        <div className="flex items-center justify-between gap-1.5 mt-1 text-[11px] font-mono text-zinc-400 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 min-w-0 truncate">
+                            <span className="text-zinc-500">ID:</span>
+                            <span className="text-zinc-300 font-mono select-all truncate">{a.platform_account_id || "unassigned"}</span>
+                            <span className="text-zinc-600">·</span>
+                            <span className="text-zinc-400 shrink-0">{firstEv?.post_date || "Nov 24, 2026"}</span>
+                          </div>
+
+                          <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#1e1e1e] text-zinc-400 whitespace-nowrap">
+                            {formatClassificationLabel(a.classification)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
