@@ -21,7 +21,7 @@ export function PremiumStatCards({
   meetingTwoUrls,
 }: PremiumStatCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4 font-mono">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 font-mono">
       {/* CARD 1: INDEXED ACCOUNTS */}
       <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#101010] p-3.5 sm:p-4 shadow-md transition-all duration-300 hover:border-[#383838]">
         <div>

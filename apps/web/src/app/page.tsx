@@ -45,22 +45,22 @@ export default async function HomePage() {
   return (
     <div className="pb-12">
       {/* ACTIONABLE HERO & INTELLIGENCE COMMAND CENTER */}
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8 space-y-8">
+      <section className="mx-auto max-w-6xl px-4 pt-4 sm:pt-6 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         {/* Top Header Block */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#272727] pb-8">
-          <div className="space-y-4 max-w-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6 border-b border-[#272727] pb-6 sm:pb-8">
+          <div className="space-y-3.5 sm:space-y-4 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-[#272727] bg-[#181818] px-2.5 py-1 text-xs">
                 <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-                <span className="caption-4 font-mono text-zinc-300">
-                  Policy v1.0.0 · Open Source Trust &amp; Safety Infrastructure
+                <span className="font-mono text-zinc-300 text-[11px] sm:text-xs">
+                  <span className="hidden sm:inline">Policy v1.0.0 · </span>Trust &amp; Safety Infra
                 </span>
               </div>
               <a
                 href="https://x.com/Agenticpirate"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#313131] bg-[#181818] px-3 py-1 caption-4 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#313131] bg-[#181818] px-2.5 py-1 text-[11px] sm:text-xs font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
                 title="Built by @Agenticpirate"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />
@@ -70,8 +70,8 @@ export default async function HomePage() {
             </div>
 
             {/* Prominent Logo & Heading Lockup */}
-            <div className="flex items-center gap-4">
-              <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-[#313131] bg-[#181818] p-1.5 shadow-xl shadow-[#ff6600]/10 transition-transform duration-300 hover:scale-105">
+            <div className="flex items-center gap-3.5 sm:gap-4">
+              <div className="relative flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-[#313131] bg-[#181818] p-1.5 shadow-xl shadow-[#ff6600]/10 transition-transform duration-300 hover:scale-105">
                 <Image
                   src="/logo.png"
                   alt="AIBlockList Official Logo"
@@ -83,33 +83,33 @@ export default async function HomePage() {
               </div>
 
               <div>
-                <h1 className="heading-1 hero-heading-gradient tracking-tight">
+                <h1 className="text-3xl sm:heading-1 hero-heading-gradient tracking-tight font-bold">
                   AIBlockList<span className="text-[#ff6600]">.</span>
                 </h1>
               </div>
             </div>
 
-            <p className="body-3 text-zinc-400">
+            <p className="body-4 sm:body-3 text-zinc-400 leading-relaxed">
               Identify, verify, and filter abusive automated social media behavior across X and
               Threads. Verifiable behavioral evidence, human dual-review, and zero AI text detector bias.
             </p>
           </div>
 
-          {/* Cleanly Aligned Action Buttons */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-            <QuickCheckTriggerButton label="Am I Blocked?" />
+          {/* Cleanly Aligned Action Buttons (2x2 on mobile, flex row on desktop) */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-nowrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto shrink-0 self-start lg:self-center">
+            <QuickCheckTriggerButton label="Am I Blocked?" className="w-full text-center" />
 
             <Link
               href="/extension"
-              className="button-sm inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff6600] px-4 py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all whitespace-nowrap shadow-lg shadow-[#ff6600]/20"
+              className="button-sm inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#ff6600] px-3.5 sm:px-4 py-2 sm:py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all whitespace-nowrap shadow-lg shadow-[#ff6600]/20 text-xs sm:text-sm text-center"
             >
-              <ShieldCheck size={17} weight="bold" />
+              <ShieldCheck size={16} weight="bold" />
               <span>Get Extension</span>
             </Link>
 
             <Link
               href="/report"
-              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-4 py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap"
+              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 sm:px-4 py-2 sm:py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap text-xs sm:text-sm text-center"
             >
               <span>Report Spammer</span>
               <ArrowRight size={13} weight="bold" />
@@ -117,7 +117,7 @@ export default async function HomePage() {
 
             <Link
               href="/appeals"
-              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-4 py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap"
+              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 sm:px-4 py-2 sm:py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap text-xs sm:text-sm text-center"
             >
               <span>File Appeal</span>
             </Link>

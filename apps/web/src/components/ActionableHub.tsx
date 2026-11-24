@@ -31,6 +31,7 @@ import { PremiumStatCards } from "./PremiumStatCards";
 import { VerifiedTick } from "./VerifiedTick";
 import { PlatformReportModal } from "./PlatformReportModal";
 import { TweetEvidenceCard } from "./TweetEvidenceCard";
+import { UserAvatar } from "./UserAvatar";
 
 interface ActionableHubProps {
   initialTotal: number;
@@ -265,7 +266,7 @@ export function ActionableHub({
         <span>Showing {items.length.toLocaleString()} loaded · Real-time verification</span>
       </div>
 
-      {/* Live Directory Grid */}
+      {/* Live Directory Feed / Grid */}
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
           {Array.from({ length: 9 }).map((_, i) => (
@@ -306,138 +307,245 @@ export function ActionableHub({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => {
-            const a = item.account;
-            const initial = (a.username.replace(/^@/, "")[0] || "?").toUpperCase();
-            const quoteText =
-              a.primary_quote ||
-              item.evidence.find((e) => e.post_text)?.post_text ||
-              (item.evidence[0]?.metrics?.post_text as string) ||
-              null;
-            const firstEv = item.evidence[0];
-            const firstEvUrl = firstEv?.public_post_url;
+        <>
+          {/* MOBILE STREAM: Clean, flat Twitter/𝕏 style matching blockedforaireply.com */}
+          <div className="block sm:hidden divide-y divide-[#222] border-y border-[#222] bg-[#000000] -mx-4">
+            {items.map((item) => {
+              const a = item.account;
+              const quoteText =
+                a.primary_quote ||
+                item.evidence.find((e) => e.post_text)?.post_text ||
+                (item.evidence[0]?.metrics?.post_text as string) ||
+                null;
+              const firstEv = item.evidence[0];
+              const firstEvUrl = firstEv?.public_post_url;
 
-            return (
-              <div
-                key={a.id}
-                className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#121212] p-4 sm:p-5 transition-all duration-300 hover:border-[#383838] hover:bg-[#1a1a1a] shadow-md"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex items-start gap-3 min-w-0">
-                      {/* Avatar Circle with Initials Fallback */}
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#252525] to-[#3a3a3a] border border-[#444] font-mono text-sm font-bold text-white shadow-inner group-hover:border-[#ff6600]/40 transition-colors">
-                        {initial}
-                      </div>
+              return (
+                <div key={`mob-${a.id}`} className="p-3.5 flex items-start gap-3 hover:bg-[#080808] transition-colors">
+                  {/* Real circular avatar with unavatar fallback */}
+                  <UserAvatar
+                    username={a.username}
+                    platform={a.platform}
+                    size="md"
+                    className="shrink-0 mt-0.5"
+                  />
 
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Link
-                            href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                            className="font-mono text-base font-bold text-white truncate hover:text-[#ff6600] transition-colors"
-                          >
-                            @{a.username}
-                          </Link>
-                          {/* Verified Blue Tick Rosette (Exact blockedforaireply.com SVG) */}
-                          <VerifiedTick type={a.verified_badge || "blue"} size={16} />
-                          <span className="caption-5 rounded border border-[#313131] bg-[#0c0c0c] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
-                            {a.platform}
-                          </span>
-                        </div>
-                        <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
-                          ID: {a.platform_account_id || "unassigned"}
-                        </p>
-                      </div>
+                  <div className="flex-1 min-w-0">
+                    {/* Row 1: @username + Verified blue rosette tick */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Link
+                        href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                        className="font-bold text-white text-[15px] hover:underline"
+                      >
+                        @{a.username}
+                      </Link>
+                      <VerifiedTick type={a.verified_badge || "blue"} size={16} />
+                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded border border-[#272727] bg-[#121212] text-zinc-400">
+                        {a.platform}
+                      </span>
                     </div>
 
-                    <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
-                      {formatVerificationLabel(a.verification_status)}
-                    </span>
-                  </div>
+                    {/* Row 2: Metadata / Date subtitle */}
+                    <p className="text-xs text-zinc-400 mt-0.5 leading-snug">
+                      Blocked for AI reply on {firstEv?.post_date || "Nov 24, 2026"} · {formatClassificationLabel(a.classification)}
+                    </p>
 
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    <span className="caption-5 rounded bg-[#272727] px-2 py-0.5 text-zinc-200">
-                      {formatClassificationLabel(a.classification)}
-                    </span>
-                    {a.has_source_conflict && (
-                      <span className="caption-5 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 text-[#ff6600]">
-                        Conflict
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Quoted AI Reply Snippet styled like blockedforaireply.com */}
-                  {quoteText ? (
-                    <div className="mt-3 rounded-xl border border-[#2f3336] bg-[#0c0c0c] p-3 shadow-inner">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1.5">
-                        <span className="font-bold text-[#ff6600]">Flagged AI Reply:</span>
-                        <span className="text-zinc-500">{firstEv?.post_date || "Observed on X"}</span>
-                      </div>
-                      <p className="font-sans text-xs text-zinc-100 line-clamp-3 leading-relaxed border-l-2 border-[#ff6600] pl-2.5 italic select-text">
+                    {/* Row 3: Quoted tweet reply text */}
+                    {quoteText ? (
+                      <div className="mt-2 text-zinc-200 text-sm leading-relaxed border-l-2 border-[#ff6600]/80 pl-2.5 py-0.5 select-text">
                         “{quoteText}”
+                      </div>
+                    ) : a.public_rationale ? (
+                      <p className="mt-2 text-zinc-300 text-xs leading-relaxed">
+                        {a.public_rationale}
                       </p>
-                      {firstEvUrl && (
+                    ) : null}
+
+                    {/* Row 4: Compact action links */}
+                    <div className="mt-2.5 flex items-center gap-2.5 text-xs font-mono text-zinc-400">
+                      {firstEvUrl ? (
                         <a
                           href={firstEvUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-2 inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#ff6600] hover:text-white transition-colors"
+                          className="inline-flex items-center gap-1 text-[#ff6600] font-bold hover:underline"
                         >
                           <XLogo className="w-3 h-3 text-current" />
                           <span>Their reply on X ↗</span>
                         </a>
+                      ) : (
+                        <a
+                          href={`https://x.com/${a.username.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white"
+                        >
+                          <XLogo className="w-3 h-3 text-current" />
+                          <span>Profile on X ↗</span>
+                        </a>
                       )}
+
+                      <span className="text-zinc-600">·</span>
+
+                      <button
+                        type="button"
+                        onClick={() => setReportingAccount(item)}
+                        className="text-[#ff6600] hover:underline font-bold"
+                      >
+                        Auto-Report
+                      </button>
+
+                      <span className="text-zinc-600">·</span>
+
+                      <Link
+                        href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                        className="text-zinc-300 hover:text-white"
+                      >
+                        Inspect →
+                      </Link>
                     </div>
-                  ) : a.public_rationale ? (
-                    <p className="body-6 mt-2.5 text-zinc-400 line-clamp-2">
-                      {a.public_rationale}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="mt-4 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
-                  <span className="inline-flex items-center gap-1">
-                    <LinkSimple size={13} weight="bold" />
-                    <span>
-                      {a.evidence_count} {a.evidence_count === 1 ? "URL" : "URLs"}
-                    </span>
-                  </span>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setReportingAccount(item)}
-                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#ff6600]/30 bg-[#ff6600]/10 px-2.5 py-1 text-xs font-bold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer shadow-sm"
-                      title="Auto-Report this spammer directly to the platform"
-                    >
-                      <ShieldWarning size={13} weight="bold" />
-                      <span>Auto-Report</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setInspectingAccount(item)}
-                      className="button-xsm inline-flex items-center gap-1.5 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                      title="View all flagged X tweets"
-                    >
-                      <ChatCircleText size={13} weight="bold" className="text-[#ff6600]" />
-                      <span>View Tweets ({a.evidence_count})</span>
-                    </button>
-
-                    <Link
-                      href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-[#ff6600] hover:text-white transition-colors"
-                      title="Open full account profile"
-                    >
-                      <ArrowRight size={12} weight="bold" />
-                    </Link>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {/* TABLET & DESKTOP GRID: Rich cards with real avatars */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {items.map((item) => {
+              const a = item.account;
+              const quoteText =
+                a.primary_quote ||
+                item.evidence.find((e) => e.post_text)?.post_text ||
+                (item.evidence[0]?.metrics?.post_text as string) ||
+                null;
+              const firstEv = item.evidence[0];
+              const firstEvUrl = firstEv?.public_post_url;
+
+              return (
+                <div
+                  key={a.id}
+                  className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#121212] p-4 sm:p-5 transition-all duration-300 hover:border-[#383838] hover:bg-[#1a1a1a] shadow-md"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-start gap-3 min-w-0">
+                        {/* Real circular avatar with fallback */}
+                        <UserAvatar
+                          username={a.username}
+                          platform={a.platform}
+                          size="md"
+                          className="shrink-0 group-hover:ring-1 group-hover:ring-[#ff6600]/40 transition-all"
+                        />
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Link
+                              href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                              className="font-mono text-base font-bold text-white truncate hover:text-[#ff6600] transition-colors"
+                            >
+                              @{a.username}
+                            </Link>
+                            {/* Verified Blue Tick Rosette */}
+                            <VerifiedTick type={a.verified_badge || "blue"} size={16} />
+                            <span className="caption-5 rounded border border-[#313131] bg-[#0c0c0c] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
+                              {a.platform}
+                            </span>
+                          </div>
+                          <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
+                            ID: {a.platform_account_id || "unassigned"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
+                        {formatVerificationLabel(a.verification_status)}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <span className="caption-5 rounded bg-[#272727] px-2 py-0.5 text-zinc-200">
+                        {formatClassificationLabel(a.classification)}
+                      </span>
+                      {a.has_source_conflict && (
+                        <span className="caption-5 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 text-[#ff6600]">
+                          Conflict
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Quoted AI Reply Snippet styled like blockedforaireply.com */}
+                    {quoteText ? (
+                      <div className="mt-3 rounded-xl border border-[#2f3336] bg-[#0c0c0c] p-3 shadow-inner">
+                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1.5">
+                          <span className="font-bold text-[#ff6600]">Flagged AI Reply:</span>
+                          <span className="text-zinc-500">{firstEv?.post_date || "Observed on X"}</span>
+                        </div>
+                        <p className="font-sans text-xs text-zinc-100 line-clamp-3 leading-relaxed border-l-2 border-[#ff6600] pl-2.5 italic select-text">
+                          “{quoteText}”
+                        </p>
+                        {firstEvUrl && (
+                          <a
+                            href={firstEvUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#ff6600] hover:text-white transition-colors"
+                          >
+                            <XLogo className="w-3 h-3 text-current" />
+                            <span>Their reply on X ↗</span>
+                          </a>
+                        )}
+                      </div>
+                    ) : a.public_rationale ? (
+                      <p className="body-6 mt-2.5 text-zinc-400 line-clamp-2">
+                        {a.public_rationale}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
+                    <span className="inline-flex items-center gap-1">
+                      <LinkSimple size={13} weight="bold" />
+                      <span>
+                        {a.evidence_count} {a.evidence_count === 1 ? "URL" : "URLs"}
+                      </span>
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setReportingAccount(item)}
+                        className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#ff6600]/30 bg-[#ff6600]/10 px-2.5 py-1 text-xs font-bold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer shadow-sm"
+                        title="Auto-Report this spammer directly to the platform"
+                      >
+                        <ShieldWarning size={13} weight="bold" />
+                        <span>Auto-Report</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setInspectingAccount(item)}
+                        className="button-xsm inline-flex items-center gap-1.5 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                        title="View all flagged X tweets"
+                      >
+                        <ChatCircleText size={13} weight="bold" className="text-[#ff6600]" />
+                        <span>View Tweets ({a.evidence_count})</span>
+                      </button>
+
+                      <Link
+                        href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                        className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-[#ff6600] hover:text-white transition-colors"
+                        title="Open full account profile"
+                      >
+                        <ArrowRight size={12} weight="bold" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* Pagination Load More Button */}
@@ -460,20 +568,27 @@ export function ActionableHub({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[#272727] bg-[#181818] p-6 shadow-2xl space-y-5">
             <div className="flex items-start justify-between gap-3 border-b border-[#272727] pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="caption-4 rounded border border-[#313131] bg-[#000000] px-2 py-0.5 font-mono uppercase text-zinc-400">
-                    {inspectingAccount.account.platform}
-                  </span>
-                  <h3 className="heading-4 font-mono text-white">
-                    @{inspectingAccount.account.username}
-                  </h3>
-                  <VerifiedTick type={inspectingAccount.account.verified_badge || "blue"} size={18} />
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  username={inspectingAccount.account.username}
+                  platform={inspectingAccount.account.platform}
+                  size="lg"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="caption-4 rounded border border-[#313131] bg-[#000000] px-2 py-0.5 font-mono uppercase text-zinc-400">
+                      {inspectingAccount.account.platform}
+                    </span>
+                    <h3 className="heading-4 font-mono text-white">
+                      @{inspectingAccount.account.username}
+                    </h3>
+                    <VerifiedTick type={inspectingAccount.account.verified_badge || "blue"} size={18} />
+                  </div>
+                  <p className="caption-5 font-mono text-zinc-500 mt-1">
+                    Platform ID: {inspectingAccount.account.platform_account_id || "unassigned"} · Policy:{" "}
+                    {inspectingAccount.account.policy_version}
+                  </p>
                 </div>
-                <p className="caption-5 font-mono text-zinc-500 mt-1">
-                  Platform ID: {inspectingAccount.account.platform_account_id || "unassigned"} · Policy:{" "}
-                  {inspectingAccount.account.policy_version}
-                </p>
               </div>
 
               <button

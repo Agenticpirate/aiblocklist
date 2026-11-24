@@ -4,6 +4,7 @@ import { LinkSimple, WarningCircle, CheckCircle, ArrowUpRight, ShieldWarning } f
 import { EvidenceRecord } from "@/lib/api";
 import { VerifiedTick } from "./VerifiedTick";
 import { XLogo } from "./PlatformSlideControl";
+import { UserAvatar } from "./UserAvatar";
 
 interface TweetEvidenceCardProps {
   evidence: EvidenceRecord;
@@ -29,9 +30,7 @@ export function TweetEvidenceCard({
       {/* Tweet Author & Tag Header */}
       <div className="flex items-center justify-between gap-3 border-b border-[#222] pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#252525] to-[#3a3a3a] border border-[#444] font-mono text-xs font-bold text-white shadow-inner">
-            {initial}
-          </div>
+          <UserAvatar username={username} platform={platform} size="sm" />
           <div className="min-w-0 flex items-center gap-1.5 flex-wrap">
             <span className="font-mono font-bold text-sm text-white truncate">
               @{username.replace(/^@/, "")}

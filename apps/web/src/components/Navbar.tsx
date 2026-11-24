@@ -28,6 +28,18 @@ export function Navbar() {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <>
       <a
@@ -37,11 +49,11 @@ export function Navbar() {
         Skip to content
       </a>
 
-      {/* B7 Floating translucent centered navigation bar */}
-      <header className="fixed top-4 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none">
+      {/* Top Navigation Bar: flush header on mobile, floating pill on tablet/desktop */}
+      <header className="fixed top-0 sm:top-4 left-0 right-0 z-40 flex justify-center px-0 sm:px-4 pointer-events-none">
         <nav
           aria-label="Primary navigation"
-          className="pointer-events-auto flex items-center gap-4 rounded-2xl border border-[#272727] bg-[#181818]/85 px-3 py-2 backdrop-blur-md transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="pointer-events-auto flex items-center justify-between sm:justify-start w-full sm:w-auto rounded-none sm:rounded-2xl border-b sm:border border-[#272727] bg-[#000000]/95 sm:bg-[#181818]/85 px-4 sm:px-3 py-2.5 sm:py-2 backdrop-blur-md transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
         >
           <Link
             href="/"
@@ -103,69 +115,97 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile menu toggle (animated icon transition per B7) */}
+          {/* Mobile menu toggle */}
           <button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((prev) => !prev)}
-            className="md:hidden relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#272727] bg-[#1f1f1f] text-white transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#272727] active:scale-[0.98]"
+            className="md:hidden relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#272727] bg-[#1a1a1a] text-white transition-colors duration-300 hover:bg-[#272727] active:scale-[0.98]"
           >
             <span
-              className={`absolute transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`absolute transition-all duration-300 ${
                 menuOpen ? "opacity-0 rotate-90 scale-75" : "opacity-100 rotate-0 scale-100"
               }`}
             >
-              <List size={18} weight="bold" />
+              <List size={20} weight="bold" />
             </span>
             <span
-              className={`absolute transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`absolute transition-all duration-300 ${
                 menuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-75"
               }`}
             >
-              <X size={18} weight="bold" />
+              <X size={20} weight="bold" />
             </span>
           </button>
         </nav>
       </header>
 
-      {/* B7 Full height mobile menu panel with staggered link entrance */}
+      {/* Full-screen mobile menu drawer with dedicated top bar (z-50) */}
       <div
         aria-hidden={!menuOpen}
-        className={`fixed inset-0 z-30 md:hidden bg-[#000000]/95 backdrop-blur-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed inset-0 z-50 md:hidden bg-[#000000] transition-opacity duration-300 overflow-y-auto ${
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex h-full flex-col justify-center px-8 pt-24 pb-12 gap-4">
-          {NAV_ITEMS.map((item, idx) => {
+        {/* Mobile drawer header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#222] bg-[#000000]/95 px-5 py-3.5 backdrop-blur-md">
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2.5"
+          >
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-md overflow-hidden border border-[#313131] bg-[#000000]">
+              <Image
+                src="/logo.png"
+                alt="AIBlockList Logo"
+                width={28}
+                height={28}
+                priority
+                className="h-full w-full object-contain"
+              />
+            </span>
+            <span className="font-bold text-white text-base tracking-tight">AIBlockList</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#272727] bg-[#181818] text-zinc-300 hover:text-white"
+          >
+            <X size={20} weight="bold" />
+          </button>
+        </div>
+
+        {/* Drawer Links */}
+        <div className="flex flex-col px-5 py-6 space-y-1.5">
+          {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
-            const delayMs = Math.min(idx * 60, 400);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                style={{ transitionDelay: menuOpen ? `${delayMs}ms` : "0ms" }}
-                className={`heading-4 rounded-xl px-4 py-3 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  menuOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-                } ${active ? "bg-[#1f1f1f] text-[#ff6600]" : "text-zinc-200 hover:bg-[#181818]"}`}
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center justify-between rounded-xl px-4 py-3 text-lg font-medium transition-colors ${
+                  active
+                    ? "bg-[#1f1f1f] text-[#ff6600] font-bold"
+                    : "text-zinc-200 hover:bg-[#151515] hover:text-white"
+                }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {active && <span className="h-2 w-2 rounded-full bg-[#ff6600]" />}
               </Link>
             );
           })}
-          <div
-            style={{ transitionDelay: menuOpen ? "320ms" : "0ms" }}
-            className={`pt-4 space-y-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              menuOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-            }`}
-          >
+
+          <div className="pt-6 space-y-3 border-t border-[#222] mt-4">
             <button
               type="button"
               onClick={() => {
                 setMenuOpen(false);
                 setQuickCheckOpen(true);
               }}
-              className="button-md flex w-full items-center justify-center gap-2 rounded-xl border border-[#ff6600]/40 bg-[#131209] px-3 py-2.5 font-mono text-[#ff6600] font-bold"
+              className="button-md flex w-full items-center justify-center gap-2 rounded-xl border border-[#ff6600]/40 bg-[#131209] px-4 py-3 font-mono text-[#ff6600] font-bold text-sm"
             >
               <span className="h-2 w-2 rounded-full bg-[#ff6600] animate-pulse" />
               <span>Am I Blocked? Quick Status Check</span>
@@ -173,9 +213,10 @@ export function Navbar() {
 
             <Link
               href="/directory"
-              className="button-md flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-3 py-2 text-black"
+              onClick={() => setMenuOpen(false)}
+              className="button-md flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-4 py-3 text-black font-bold text-sm"
             >
-              <span>Inspect account</span>
+              <span>Inspect Account Directory</span>
               <ArrowUpRight size={16} weight="bold" />
             </Link>
           </div>

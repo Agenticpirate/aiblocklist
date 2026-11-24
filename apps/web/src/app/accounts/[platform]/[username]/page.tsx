@@ -19,6 +19,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { VerifiedTick } from "@/components/VerifiedTick";
 import { AutoReportButton } from "@/components/AutoReportButton";
 import { TweetEvidenceCard } from "@/components/TweetEvidenceCard";
+import { UserAvatar } from "@/components/UserAvatar";
 
 async function fetchAccount(platform: string, username: string): Promise<AccountPayload | null> {
   try {
@@ -96,29 +97,37 @@ export default async function AccountDetailPage({
       </Link>
 
       {/* Account Header Card */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-5 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="caption-4 rounded border border-[#313131] bg-[#000000] px-2 py-0.5 font-mono uppercase text-zinc-300">
-                {a.platform}
-              </span>
-              <span className="caption-4 rounded border border-[#ff6600]/40 bg-[#131209] px-2.5 py-0.5 font-mono text-[#ff6600]">
-                {formatVerificationLabel(a.verification_status)}
-              </span>
-              <span className="caption-4 rounded border border-[#313131] bg-[#1f1f1f] px-2.5 py-0.5 text-zinc-200">
-                {formatClassificationLabel(a.classification)}
-              </span>
-            </div>
+          <div className="flex items-start gap-4">
+            <UserAvatar
+              username={a.username}
+              platform={a.platform}
+              size="lg"
+              className="mt-1"
+            />
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="caption-4 rounded border border-[#313131] bg-[#000000] px-2 py-0.5 font-mono uppercase text-zinc-300">
+                  {a.platform}
+                </span>
+                <span className="caption-4 rounded border border-[#ff6600]/40 bg-[#131209] px-2.5 py-0.5 font-mono text-[#ff6600]">
+                  {formatVerificationLabel(a.verification_status)}
+                </span>
+                <span className="caption-4 rounded border border-[#313131] bg-[#1f1f1f] px-2.5 py-0.5 text-zinc-200">
+                  {formatClassificationLabel(a.classification)}
+                </span>
+              </div>
 
-            <div className="flex items-center gap-2 mt-3">
-              <h1 className="heading-3 font-mono text-white">@{a.username}</h1>
-              <VerifiedTick type={a.verified_badge || "blue"} size={20} />
+              <div className="flex items-center gap-2 mt-2.5">
+                <h1 className="heading-3 font-mono text-white">@{a.username}</h1>
+                <VerifiedTick type={a.verified_badge || "blue"} size={20} />
+              </div>
+              <p className="caption-4 mt-1 font-mono text-zinc-400">
+                Immutable platform ID: {a.platform_account_id || "Unavailable"} · Confidence:{" "}
+                {a.identity_confidence}
+              </p>
             </div>
-            <p className="caption-4 mt-1 font-mono text-zinc-400">
-              Immutable platform ID: {a.platform_account_id || "Unavailable"} · Confidence:{" "}
-              {a.identity_confidence}
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

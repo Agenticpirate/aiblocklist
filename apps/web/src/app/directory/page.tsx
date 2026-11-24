@@ -18,6 +18,8 @@ import {
   formatClassificationLabel,
   formatVerificationLabel,
 } from "@/lib/api";
+import { UserAvatar } from "@/components/UserAvatar";
+import { VerifiedTick } from "@/components/VerifiedTick";
 
 export default function DirectoryPage() {
   const [search, setSearch] = useState("");
@@ -248,14 +250,25 @@ export default function DirectoryPage() {
                     className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-[#181818] p-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#313131] hover:bg-[#1f1f1f] active:scale-[0.99]"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="title-3 font-mono text-white truncate group-hover:text-[#ff6600] transition-colors duration-300">
-                            @{a.username}
-                          </p>
-                          <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
-                            ID {a.platform_account_id || "unassigned"}
-                          </p>
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <UserAvatar
+                            username={a.username}
+                            platform={a.platform}
+                            size="md"
+                            className="shrink-0 group-hover:ring-1 group-hover:ring-[#ff6600]/40 transition-all"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="title-3 font-mono text-white truncate group-hover:text-[#ff6600] transition-colors duration-300">
+                                @{a.username}
+                              </p>
+                              <VerifiedTick type={a.verified_badge || "blue"} size={16} />
+                            </div>
+                            <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
+                              ID {a.platform_account_id || "unassigned"}
+                            </p>
+                          </div>
                         </div>
                         <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
                           {formatVerificationLabel(a.verification_status)}

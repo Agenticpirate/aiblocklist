@@ -19,6 +19,7 @@ import {
 import { AccountPayload, API_BASE_URL } from "@/lib/api";
 import { VerifiedTick } from "./VerifiedTick";
 import { XLogo, ThreadsLogo } from "./PlatformSlideControl";
+import { UserAvatar } from "./UserAvatar";
 
 interface PlatformReportModalProps {
   account: AccountPayload;
@@ -164,9 +165,7 @@ Timestamp: ${new Date().toISOString()}
         {/* Top Header */}
         <div className="flex items-start justify-between gap-3 border-b border-[#272727] pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#ff6600]/20 to-[#ff6600]/60 border border-[#ff6600]/40 font-mono text-lg font-bold text-white shadow-inner">
-              {initial}
-            </div>
+            <UserAvatar username={cleanUser} platform={a.platform} size="lg" />
             <div>
               <div className="flex items-center gap-2">
                 <h3 id="report-modal-title" className="title-2 text-white font-mono">
