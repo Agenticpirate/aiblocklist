@@ -24,12 +24,20 @@ import {
   formatClassificationLabel,
   formatVerificationLabel,
 } from "@/lib/api";
+import { PlatformSlideControl } from "./PlatformSlideControl";
+import { PremiumStatCards } from "./PremiumStatCards";
 
 interface ActionableHubProps {
   initialTotal: number;
+  totalIndexed?: number;
+  meetingTwoUrls?: number;
 }
 
-export function ActionableHub({ initialTotal }: ActionableHubProps) {
+export function ActionableHub({
+  initialTotal,
+  totalIndexed = 3621,
+  meetingTwoUrls = 754,
+}: ActionableHubProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string>("all");
@@ -86,6 +94,14 @@ export function ActionableHub({ initialTotal }: ActionableHubProps) {
 
   return (
     <div className="space-y-6">
+      {/* Premium Interactive Stat KPI Cards with Live Platform Sliding Control */}
+      <PremiumStatCards
+        totalIndexed={totalIndexed}
+        meetingTwoUrls={meetingTwoUrls}
+        activePlatform={platformFilter}
+        onPlatformChange={setPlatformFilter}
+      />
+
       {/* Search & Filter Command Bar */}
       <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-5 space-y-4">
         {/* Search Input */}
@@ -130,28 +146,15 @@ export function ActionableHub({ initialTotal }: ActionableHubProps) {
           </div>
         </form>
 
-        {/* Platform Tabs */}
+        {/* Platform Sliding Segmented Control with Official Logos */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="caption-5 font-mono text-zinc-500 uppercase mr-1">Platform:</span>
-            {[
-              { id: "all", label: "All Platforms" },
-              { id: "x", label: "X / Twitter" },
-              { id: "threads", label: "Threads" },
-            ].map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setPlatformFilter(p.id)}
-                className={`caption-4 rounded-lg px-3 py-1.5 font-mono transition-colors ${
-                  platformFilter === p.id
-                    ? "bg-[#ff6600] text-black font-bold"
-                    : "border border-[#272727] bg-[#000000] text-zinc-400 hover:border-[#313131] hover:text-white"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+            <PlatformSlideControl
+              activePlatform={platformFilter}
+              onChange={setPlatformFilter}
+              size="md"
+            />
           </div>
 
           {/* Export Actions Bar */}

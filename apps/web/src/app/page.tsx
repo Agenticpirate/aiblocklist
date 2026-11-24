@@ -95,28 +95,12 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Live Stat KPI Ticker Bar */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 font-mono">
-          <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5">
-            <p className="caption-5 uppercase text-zinc-500">Indexed Accounts</p>
-            <p className="heading-4 text-white mt-1">{totalIndexed.toLocaleString()}</p>
-          </div>
-          <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5">
-            <p className="caption-5 uppercase text-zinc-500">≥ 2 Evidence URLs</p>
-            <p className="heading-4 text-[#ff6600] mt-1">{meetingTwoUrls.toLocaleString()}</p>
-          </div>
-          <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5">
-            <p className="caption-5 uppercase text-zinc-500">Supported Platforms</p>
-            <p className="heading-4 text-white mt-1">X & Threads</p>
-          </div>
-          <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5">
-            <p className="caption-5 uppercase text-zinc-500">AI Text Detectors</p>
-            <p className="heading-4 text-white mt-1">Zero (Banned)</p>
-          </div>
-        </div>
-
-        {/* THE ACTIONABLE INTELLIGENCE HUB (SEARCH, FILTERS, DIRECTORY GRID) */}
-        <ActionableHub initialTotal={totalIndexed} />
+        {/* THE ACTIONABLE INTELLIGENCE HUB (PREMIUM STATS, SLIDING PLATFORM CONTROL, SEARCH, FILTERS, DIRECTORY GRID) */}
+        <ActionableHub
+          initialTotal={totalIndexed}
+          totalIndexed={totalIndexed}
+          meetingTwoUrls={meetingTwoUrls}
+        />
       </section>
 
       {/* THREE ESSENTIAL PILLARS (DEEP DIVE CALLOUTS) */}
