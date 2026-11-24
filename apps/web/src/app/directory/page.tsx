@@ -255,6 +255,7 @@ export default function DirectoryPage() {
                       <div className="flex items-start gap-3">
                         <UserAvatar
                           username={a.username}
+                          platformAccountId={a.platform_account_id}
                           platform={a.platform}
                           size="md"
                           className="shrink-0 mt-0.5"

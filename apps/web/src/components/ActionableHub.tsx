@@ -329,6 +329,7 @@ export function ActionableHub({
                   {/* Real circular avatar with unavatar fallback */}
                   <UserAvatar
                     username={a.username}
+                    platformAccountId={a.platform_account_id}
                     platform={a.platform}
                     size="md"
                     className="shrink-0 mt-0.5"
@@ -462,6 +463,7 @@ export function ActionableHub({
                     <div className="flex items-start gap-3">
                       <UserAvatar
                         username={a.username}
+                        platformAccountId={a.platform_account_id}
                         platform={a.platform}
                         size="md"
                         className="shrink-0 mt-0.5"
@@ -674,6 +676,7 @@ export function ActionableHub({
               <div className="flex items-center gap-3">
                 <UserAvatar
                   username={inspectingAccount.account.username}
+                  platformAccountId={inspectingAccount.account.platform_account_id}
                   platform={inspectingAccount.account.platform}
                   size="lg"
                 />

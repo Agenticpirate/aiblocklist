@@ -102,6 +102,7 @@ export default async function AccountDetailPage({
           <div className="flex items-start gap-4">
             <UserAvatar
               username={a.username}
+              platformAccountId={a.platform_account_id}
               platform={a.platform}
               size="lg"
               className="mt-1"

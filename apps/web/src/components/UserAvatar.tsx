@@ -4,6 +4,7 @@ import { useState } from "react";
 
 interface UserAvatarProps {
   username: string;
+  platformAccountId?: string | null;
   platform?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -11,6 +12,7 @@ interface UserAvatarProps {
 
 export function UserAvatar({
   username,
+  platformAccountId,
   platform = "x",
   size = "md",
   className = "",
@@ -26,11 +28,11 @@ export function UserAvatar({
       ? "w-12 h-12 text-base"
       : "w-10 h-10 text-sm";
 
-  // unavatar.io provides live Twitter/X and Threads profile photos
-  const avatarUrl =
-    platform === "threads"
-      ? `https://unavatar.io/threads/${cleanUser}`
-      : `https://unavatar.io/x/${cleanUser}`;
+  const params = new URLSearchParams();
+  if (platformAccountId) params.set("id", platformAccountId);
+  if (cleanUser) params.set("username", cleanUser);
+  if (platform) params.set("platform", platform);
+  const avatarUrl = `/api/avatar?${params.toString()}`;
 
   return (
     <div
@@ -42,7 +44,7 @@ export function UserAvatar({
           src={avatarUrl}
           alt={`@${cleanUser}'s profile picture`}
           loading="lazy"
-          referrerPolicy="no-referrer"
+          decoding="async"
           onError={() => setHasError(true)}
           className="h-full w-full object-cover rounded-full"
         />

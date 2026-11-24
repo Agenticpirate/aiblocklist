@@ -165,7 +165,7 @@ Timestamp: ${new Date().toISOString()}
         {/* Top Header */}
         <div className="flex items-start justify-between gap-3 border-b border-[#272727] pb-4">
           <div className="flex items-center gap-3">
-            <UserAvatar username={cleanUser} platform={a.platform} size="lg" />
+            <UserAvatar username={cleanUser} platformAccountId={a.platform_account_id} platform={a.platform} size="lg" />
             <div>
               <div className="flex items-center gap-2">
                 <h3 id="report-modal-title" className="title-2 text-white font-mono">
