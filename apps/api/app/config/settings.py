@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     # External seed path
     external_seed_path: str = str(ROOT_DIR / "database" / "seeds" / "external_blockedforaireply.json")
 
+    # External federation sync
+    external_sync_enabled: bool = True
+    external_sync_interval_hours: int = 6
+    blockedforaireply_accounts_url: str = "https://blockedforaireply.com/api/accounts.json"
+    blockedforaireply_removed_url: str = "https://blockedforaireply.com/api/removed-ids.txt"
+
     # Rate limits & governance thresholds
     api_rate_limit_anonymous: int = 60
     api_rate_limit_registered: int = 600

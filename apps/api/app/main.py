@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +12,9 @@ from app.core.errors import register_exception_handlers
 from app.modules.accounts.router import router as accounts_router
 from app.modules.appeals.router import router as appeals_router
 from app.modules.federation.ingest_external import ingest_blockedforaireply_seed
+from app.modules.federation.sync_service import run_periodic_federation_sync
 from app.modules.reports.router import router as reports_router
+from app.modules.sources.router import router as sources_router
 
 
 @asynccontextmanager
@@ -20,7 +23,19 @@ async def lifespan(_app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     async with AsyncSessionLocal() as db:
         await ingest_blockedforaireply_seed(db)
-    yield
+
+    # Launch periodic external federation synchronization worker
+    worker_task: asyncio.Task | None = None
+    if settings.external_sync_enabled:
+        worker_task = asyncio.create_task(run_periodic_federation_sync())
+
+    try:
+        yield
+    finally:
+        if worker_task:
+            worker_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await worker_task
 
 
 app = FastAPI(
@@ -46,6 +61,7 @@ register_exception_handlers(app)
 app.include_router(accounts_router)
 app.include_router(reports_router)
 app.include_router(appeals_router)
+app.include_router(sources_router)
 
 
 @app.get("/api/v1/health", tags=["System"])
