@@ -85,19 +85,16 @@ export function PremiumStatCards({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 mt-2">
-            <div className="flex items-center gap-1.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#313131] bg-[#141414] shadow-inner transition-transform group-hover:scale-105">
-                <XLogo className="w-4 h-4 text-white" shiny />
-              </div>
-              <span className="text-zinc-500 font-mono text-sm">&amp;</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#313131] bg-[#141414] shadow-inner transition-transform group-hover:scale-105">
-                <ThreadsLogo className="w-4 h-4 text-white" shiny />
-              </div>
+          <div className="flex items-center gap-2 mt-2.5">
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1 shadow-inner transition-colors group-hover:border-[#444444]">
+              <XLogo className="w-3.5 h-3.5 text-white" shiny />
+              <span className="text-xs sm:text-sm font-bold text-white font-mono">X</span>
             </div>
-            <p className="text-lg sm:text-xl font-bold text-white tracking-tight font-mono">
-              X &amp; Threads
-            </p>
+            <span className="text-zinc-600 font-mono text-xs">&amp;</span>
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1 shadow-inner transition-colors group-hover:border-[#444444]">
+              <ThreadsLogo className="w-3.5 h-3.5 text-white" shiny />
+              <span className="text-xs sm:text-sm font-bold text-white font-mono">Threads</span>
+            </div>
           </div>
         </div>
 
