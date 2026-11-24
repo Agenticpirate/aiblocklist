@@ -7,20 +7,18 @@ import {
   ShieldCheck,
   CheckCircle,
 } from "@phosphor-icons/react";
-import { PlatformSlideControl, XLogo, ThreadsLogo } from "./PlatformSlideControl";
+import { XLogo, ThreadsLogo } from "./PlatformSlideControl";
 
 interface PremiumStatCardsProps {
   totalIndexed: number;
   meetingTwoUrls: number;
-  activePlatform: string;
-  onPlatformChange: (platform: string) => void;
+  activePlatform?: string;
+  onPlatformChange?: (platform: string) => void;
 }
 
 export function PremiumStatCards({
   totalIndexed,
   meetingTwoUrls,
-  activePlatform,
-  onPlatformChange,
 }: PremiumStatCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4 font-mono">
@@ -72,39 +70,40 @@ export function PremiumStatCards({
         </p>
       </div>
 
-      {/* CARD 3: SUPPORTED PLATFORMS (SLEEK SLIDING TOGGLE WITH SHINY LOGOS) */}
-      <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#2e2e2e] bg-gradient-to-b from-[#1c1c1c] to-[#121212] p-3.5 sm:p-4 shadow-lg transition-all duration-300 hover:border-[#ff6600]/50 ring-1 ring-white/5">
+      {/* CARD 3: SUPPORTED PLATFORMS (CLEAN KPI WITH SHINY BRAND MARKS) */}
+      <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#101010] p-3.5 sm:p-4 shadow-md transition-all duration-300 hover:border-[#383838]">
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-zinc-400">
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />
-              <span className="text-[11px] uppercase tracking-wider text-zinc-300 font-bold">
-                Platforms
+              <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold">
+                Supported Platforms
               </span>
             </div>
-
-            <div className="flex items-center gap-1.5 text-zinc-400">
-              <XLogo className="w-3.5 h-3.5 text-white" shiny />
-              <span className="text-[10px] text-zinc-500 font-mono">&amp;</span>
-              <ThreadsLogo className="w-3.5 h-3.5 text-white" shiny />
-            </div>
+            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded border border-[#313131] bg-[#1a1a1a] text-zinc-400">
+              Active
+            </span>
           </div>
 
-          {/* The sleek, compact sliding toggle */}
-          <div className="mt-2">
-            <PlatformSlideControl
-              activePlatform={activePlatform}
-              onChange={onPlatformChange}
-              size="sm"
-            />
+          <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-1.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#313131] bg-[#141414] shadow-inner transition-transform group-hover:scale-105">
+                <XLogo className="w-4 h-4 text-white" shiny />
+              </div>
+              <span className="text-zinc-500 font-mono text-sm">&amp;</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#313131] bg-[#141414] shadow-inner transition-transform group-hover:scale-105">
+                <ThreadsLogo className="w-4 h-4 text-white" shiny />
+              </div>
+            </div>
+            <p className="text-lg sm:text-xl font-bold text-white tracking-tight font-mono">
+              X &amp; Threads
+            </p>
           </div>
         </div>
 
-        <p className="text-[11px] text-zinc-400 mt-2.5 flex items-center gap-1.5 truncate">
-          <span className="text-zinc-500">Filtered:</span>
-          <span className="text-[#ff6600] font-bold uppercase truncate">
-            {activePlatform === "all" ? "All Platforms" : activePlatform === "x" ? "X (Twitter)" : "Threads"}
-          </span>
+        <p className="text-[11px] text-zinc-500 mt-2.5 flex items-center gap-1.5 truncate">
+          <CheckCircle size={12} weight="bold" className="text-[#ff6600] shrink-0" />
+          <span className="truncate">Cross-platform intelligence</span>
         </p>
       </div>
 

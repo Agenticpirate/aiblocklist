@@ -94,12 +94,10 @@ export function ActionableHub({
 
   return (
     <div className="space-y-6">
-      {/* Premium Interactive Stat KPI Cards with Live Platform Sliding Control */}
+      {/* Premium Stat KPI Cards */}
       <PremiumStatCards
         totalIndexed={totalIndexed}
         meetingTwoUrls={meetingTwoUrls}
-        activePlatform={platformFilter}
-        onPlatformChange={setPlatformFilter}
       />
 
       {/* Search & Filter Command Bar */}
@@ -154,7 +152,7 @@ export function ActionableHub({
               activePlatform={platformFilter}
               onChange={setPlatformFilter}
               size="sm"
-              className="w-64"
+              className="w-72 sm:w-80"
             />
           </div>
 
