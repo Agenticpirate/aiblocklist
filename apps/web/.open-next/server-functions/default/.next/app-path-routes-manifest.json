@@ -1,19 +1,19 @@
 {
-  "/_not-found/page": "/_not-found",
   "/api/avatar/route": "/api/avatar",
   "/icon.png/route": "/icon.png",
+  "/_not-found/page": "/_not-found",
   "/account-health/page": "/account-health",
-  "/directory/page": "/directory",
-  "/appeals/page": "/appeals",
-  "/page": "/",
   "/accounts/[platform]/[username]/page": "/accounts/[platform]/[username]",
+  "/appeals/page": "/appeals",
   "/api-docs/page": "/api-docs",
+  "/page": "/",
   "/report/page": "/report",
+  "/directory/page": "/directory",
+  "/transparency/page": "/transparency",
   "/about/page": "/about",
   "/contact/page": "/contact",
-  "/privacy/page": "/privacy",
-  "/terms/page": "/terms",
-  "/methodology/page": "/methodology",
   "/extension/page": "/extension",
-  "/transparency/page": "/transparency"
+  "/methodology/page": "/methodology",
+  "/privacy/page": "/privacy",
+  "/terms/page": "/terms"
 }
