@@ -240,57 +240,57 @@ export default function DirectoryPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((item) => {
                 const a = item.account;
                 return (
                   <Link
                     key={a.id}
                     href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                    className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-[#181818] p-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-[#313131] hover:bg-[#1f1f1f] active:scale-[0.99]"
+                    className="group flex flex-col justify-between rounded-xl border border-[#262626] bg-[#0c0c0c] hover:bg-[#121212] hover:border-[#383838] p-3.5 transition-all duration-200"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2.5">
-                        <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex items-start gap-2.5 min-w-0">
                           <UserAvatar
                             username={a.username}
                             platform={a.platform}
                             size="md"
-                            className="shrink-0 group-hover:ring-1 group-hover:ring-[#ff6600]/40 transition-all"
+                            className="shrink-0 mt-0.5"
                           />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <p className="title-3 font-mono text-white truncate group-hover:text-[#ff6600] transition-colors duration-300">
+                              <p className="font-bold text-white text-[14px] truncate group-hover:text-[#ff6600] transition-colors">
                                 @{a.username}
                               </p>
-                              <VerifiedTick type={a.verified_badge || "blue"} size={16} />
+                              <VerifiedTick type={a.verified_badge || "blue"} size={15} />
+                              <span className="text-[10px] uppercase font-mono px-1 py-0.2 rounded border border-[#272727] bg-[#161616] text-zinc-400">
+                                {a.platform}
+                              </span>
                             </div>
-                            <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
-                              ID {a.platform_account_id || "unassigned"}
+                            <p className="text-[11px] font-mono text-zinc-500 truncate mt-0.5">
+                              ID: {a.platform_account_id || "unassigned"}
                             </p>
                           </div>
                         </div>
-                        <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
+                        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold shrink-0 whitespace-nowrap">
                           {formatVerificationLabel(a.verification_status)}
                         </span>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        <span className="caption-5 rounded bg-[#272727] px-2 py-0.5 text-zinc-200">
+                      <div className="mt-2.5 flex flex-wrap gap-1">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1e1e1e] text-zinc-300">
                           {formatClassificationLabel(a.classification)}
                         </span>
                         {a.has_source_conflict && (
-                          <span className="caption-5 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 text-[#ff6600]">
+                          <span className="text-[10px] font-mono rounded border border-[#ff6600]/40 bg-[#131209] px-1.5 py-0.5 text-[#ff6600]">
                             Conflict
                           </span>
                         )}
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {item.source_assertions.map((sa, idx) => (
                           <span
                             key={`${sa.source_slug}-${idx}`}
-                            className="caption-5 rounded border border-[#272727] bg-[#000000] px-2 py-0.5 font-mono text-zinc-400"
+                            className="text-[10px] font-mono rounded border border-[#272727] bg-[#000000] px-1.5 py-0.5 text-zinc-400"
                           >
                             {sa.source_slug}
                           </span>
@@ -298,16 +298,16 @@ export default function DirectoryPage() {
                       </div>
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
+                    <div className="mt-3 flex items-center justify-between border-t border-[#222222] pt-2 text-[11px] font-mono text-zinc-400">
                       <span className="inline-flex items-center gap-1">
-                        <LinkSimple size={13} weight="bold" />
+                        <LinkSimple size={12} weight="bold" />
                         <span>
                           {a.evidence_count} {a.evidence_count === 1 ? "URL" : "URLs"}
                         </span>
                       </span>
-                      <span className="inline-flex items-center gap-1 text-zinc-300 group-hover:text-white">
+                      <span className="inline-flex items-center gap-1 text-zinc-400 group-hover:text-white transition-colors">
                         <span>Inspect</span>
-                        <ArrowRight size={13} weight="bold" />
+                        <ArrowRight size={11} weight="bold" />
                       </span>
                     </div>
                   </Link>

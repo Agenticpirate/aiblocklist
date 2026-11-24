@@ -331,77 +331,95 @@ export function ActionableHub({
                   />
 
                   <div className="flex-1 min-w-0">
-                    {/* Row 1: @username + Verified blue rosette tick */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <Link
-                        href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                        className="font-bold text-white text-[15px] hover:underline"
-                      >
-                        @{a.username}
-                      </Link>
-                      <VerifiedTick type={a.verified_badge || "blue"} size={16} />
-                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded border border-[#272727] bg-[#121212] text-zinc-400">
-                        {a.platform}
+                    {/* Row 1: @username + Verified blue rosette tick + Status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                        <Link
+                          href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                          className="font-bold text-white text-[15px] hover:underline truncate"
+                        >
+                          @{a.username}
+                        </Link>
+                        <VerifiedTick type={a.verified_badge || "blue"} size={15} />
+                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded border border-[#272727] bg-[#121212] text-zinc-400">
+                          {a.platform}
+                        </span>
+                      </div>
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold shrink-0 whitespace-nowrap">
+                        {formatVerificationLabel(a.verification_status)}
                       </span>
                     </div>
 
-                    {/* Row 2: Metadata / Date subtitle */}
-                    <p className="text-xs text-zinc-400 mt-0.5 leading-snug">
-                      Blocked for AI reply on {firstEv?.post_date || "Nov 24, 2026"} · {formatClassificationLabel(a.classification)}
-                    </p>
+                    {/* Row 2: Metadata / ID & Status subtitle */}
+                    <div className="flex items-center gap-2 mt-0.5 text-xs font-mono text-zinc-500 flex-wrap">
+                      <span>ID: {a.platform_account_id || "unassigned"}</span>
+                      <span>·</span>
+                      <span className="text-zinc-400">{firstEv?.post_date || "Nov 24"}</span>
+                      <span>·</span>
+                      <span className="text-zinc-400">{formatClassificationLabel(a.classification)}</span>
+                    </div>
 
                     {/* Row 3: Quoted tweet reply text */}
                     {quoteText ? (
-                      <div className="mt-2 text-zinc-200 text-sm leading-relaxed border-l-2 border-[#ff6600]/80 pl-2.5 py-0.5 select-text">
+                      <p className="mt-2 text-zinc-100 text-[13px] leading-relaxed italic select-text">
                         “{quoteText}”
-                      </div>
+                      </p>
                     ) : a.public_rationale ? (
-                      <p className="mt-2 text-zinc-300 text-xs leading-relaxed">
+                      <p className="mt-2 text-zinc-400 text-xs leading-relaxed">
                         {a.public_rationale}
                       </p>
                     ) : null}
 
-                    {/* Row 4: Compact action links */}
-                    <div className="mt-2.5 flex items-center gap-2.5 text-xs font-mono text-zinc-400">
-                      {firstEvUrl ? (
-                        <a
-                          href={firstEvUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-[#ff6600] font-bold hover:underline"
+                    {/* Row 4: Action bar */}
+                    <div className="mt-2.5 flex items-center justify-between text-xs font-mono text-zinc-400 pt-1.5 border-t border-[#1a1a1a]">
+                      <div className="flex items-center gap-3">
+                        {firstEvUrl ? (
+                          <a
+                            href={firstEvUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap text-xs"
+                          >
+                            <XLogo className="w-3 h-3 text-current" />
+                            <span>Reply ↗</span>
+                          </a>
+                        ) : (
+                          <a
+                            href={`https://x.com/${a.username.replace(/^@/, "")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap text-xs"
+                          >
+                            <XLogo className="w-3 h-3 text-current" />
+                            <span>Profile ↗</span>
+                          </a>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setInspectingAccount(item)}
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap cursor-pointer text-xs"
                         >
-                          <XLogo className="w-3 h-3 text-current" />
-                          <span>Their reply on X ↗</span>
-                        </a>
-                      ) : (
-                        <a
-                          href={`https://x.com/${a.username.replace(/^@/, "")}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white"
+                          <ChatCircleText size={13} weight="bold" className="text-zinc-500" />
+                          <span>{a.evidence_count} {a.evidence_count === 1 ? "Tweet" : "Tweets"}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setReportingAccount(item)}
+                          className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap cursor-pointer text-xs"
                         >
-                          <XLogo className="w-3 h-3 text-current" />
-                          <span>Profile on X ↗</span>
-                        </a>
-                      )}
-
-                      <span className="text-zinc-600">·</span>
-
-                      <button
-                        type="button"
-                        onClick={() => setReportingAccount(item)}
-                        className="text-[#ff6600] hover:underline font-bold"
-                      >
-                        Auto-Report
-                      </button>
-
-                      <span className="text-zinc-600">·</span>
+                          <ShieldWarning size={13} weight="bold" />
+                          <span>Report</span>
+                        </button>
+                      </div>
 
                       <Link
                         href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                        className="text-zinc-300 hover:text-white"
+                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap text-xs"
                       >
-                        Inspect →
+                        <span>Inspect</span>
+                        <ArrowRight size={11} weight="bold" />
                       </Link>
                     </div>
                   </div>
@@ -410,8 +428,8 @@ export function ActionableHub({
             })}
           </div>
 
-          {/* TABLET & DESKTOP GRID: Rich cards with real avatars */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* TABLET & DESKTOP GRID: Authentic Tweet Card Layout */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {items.map((item) => {
               const a = item.account;
               const quoteText =
@@ -425,121 +443,125 @@ export function ActionableHub({
               return (
                 <div
                   key={a.id}
-                  className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#121212] p-4 sm:p-5 transition-all duration-300 hover:border-[#383838] hover:bg-[#1a1a1a] shadow-md"
+                  className="group flex flex-col justify-between rounded-xl border border-[#262626] bg-[#0c0c0c] hover:bg-[#121212] hover:border-[#383838] p-3.5 transition-all duration-200 shadow-sm"
                 >
                   <div>
+                    {/* Tweet Author & Metadata Header */}
                     <div className="flex items-start justify-between gap-2.5">
-                      <div className="flex items-start gap-3 min-w-0">
-                        {/* Real circular avatar with fallback */}
+                      <div className="flex items-start gap-2.5 min-w-0">
                         <UserAvatar
                           username={a.username}
                           platform={a.platform}
                           size="md"
-                          className="shrink-0 group-hover:ring-1 group-hover:ring-[#ff6600]/40 transition-all"
+                          className="shrink-0 mt-0.5"
                         />
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <Link
                               href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                              className="font-mono text-base font-bold text-white truncate hover:text-[#ff6600] transition-colors"
+                              className="font-bold text-white text-[14px] hover:underline truncate"
                             >
                               @{a.username}
                             </Link>
-                            {/* Verified Blue Tick Rosette */}
-                            <VerifiedTick type={a.verified_badge || "blue"} size={16} />
-                            <span className="caption-5 rounded border border-[#313131] bg-[#0c0c0c] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
+                            <VerifiedTick type={a.verified_badge || "blue"} size={15} />
+                            <span className="text-[10px] uppercase font-mono px-1 py-0.2 rounded border border-[#272727] bg-[#161616] text-zinc-400">
                               {a.platform}
                             </span>
                           </div>
-                          <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
-                            ID: {a.platform_account_id || "unassigned"}
-                          </p>
+
+                          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] font-mono text-zinc-500">
+                            <span>ID: {a.platform_account_id || "unassigned"}</span>
+                            <span>·</span>
+                            <span>{firstEv?.post_date || "Nov 24"}</span>
+                          </div>
                         </div>
                       </div>
 
-                      <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
-                        {formatVerificationLabel(a.verification_status)}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="caption-5 rounded bg-[#272727] px-2 py-0.5 text-zinc-200">
-                        {formatClassificationLabel(a.classification)}
-                      </span>
-                      {a.has_source_conflict && (
-                        <span className="caption-5 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 text-[#ff6600]">
-                          Conflict
+                      {/* Status Pills */}
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-[#ff6600]/40 bg-[#ff6600]/10 text-[#ff6600] font-bold whitespace-nowrap">
+                          {formatVerificationLabel(a.verification_status)}
                         </span>
-                      )}
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#1e1e1e] text-zinc-400 whitespace-nowrap">
+                          {formatClassificationLabel(a.classification)}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Quoted AI Reply Snippet styled like blockedforaireply.com */}
-                    {quoteText ? (
-                      <div className="mt-3 rounded-xl border border-[#2f3336] bg-[#0c0c0c] p-3 shadow-inner">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1.5">
-                          <span className="font-bold text-[#ff6600]">Flagged AI Reply:</span>
-                          <span className="text-zinc-500">{firstEv?.post_date || "Observed on X"}</span>
-                        </div>
-                        <p className="font-sans text-xs text-zinc-100 line-clamp-3 leading-relaxed border-l-2 border-[#ff6600] pl-2.5 italic select-text">
+                    {/* Tweet Text (Direct tweet typography, clean & readable) */}
+                    <div className="mt-2.5 text-zinc-200 text-xs sm:text-[13px] leading-relaxed font-sans select-text">
+                      {quoteText ? (
+                        <p className="line-clamp-4 italic text-zinc-100">
                           “{quoteText}”
                         </p>
-                        {firstEvUrl && (
-                          <a
-                            href={firstEvUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#ff6600] hover:text-white transition-colors"
-                          >
-                            <XLogo className="w-3 h-3 text-current" />
-                            <span>Their reply on X ↗</span>
-                          </a>
-                        )}
-                      </div>
-                    ) : a.public_rationale ? (
-                      <p className="body-6 mt-2.5 text-zinc-400 line-clamp-2">
-                        {a.public_rationale}
-                      </p>
-                    ) : null}
+                      ) : a.public_rationale ? (
+                        <p className="line-clamp-3 text-zinc-400">
+                          {a.public_rationale}
+                        </p>
+                      ) : (
+                        <p className="text-zinc-500 italic text-[11px]">
+                          Observed automated behavioral pattern logged.
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
-                    <span className="inline-flex items-center gap-1">
-                      <LinkSimple size={13} weight="bold" />
-                      <span>
-                        {a.evidence_count} {a.evidence_count === 1 ? "URL" : "URLs"}
-                      </span>
-                    </span>
-
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setReportingAccount(item)}
-                        className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#ff6600]/30 bg-[#ff6600]/10 px-2.5 py-1 text-xs font-bold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer shadow-sm"
-                        title="Auto-Report this spammer directly to the platform"
-                      >
-                        <ShieldWarning size={13} weight="bold" />
-                        <span>Auto-Report</span>
-                      </button>
+                  {/* Tweet Action Bar (Single slim row, compact & premium) */}
+                  <div className="mt-3 pt-2.5 border-t border-[#222222] flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                    <div className="flex items-center gap-3">
+                      {firstEvUrl ? (
+                        <a
+                          href={firstEvUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[#ff6600] hover:text-white transition-colors whitespace-nowrap font-medium"
+                          title="Open original reply on X"
+                        >
+                          <XLogo className="w-3 h-3 text-current" />
+                          <span>Reply ↗</span>
+                        </a>
+                      ) : (
+                        <a
+                          href={`https://x.com/${a.username.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap"
+                        >
+                          <XLogo className="w-3 h-3 text-current" />
+                          <span>Profile ↗</span>
+                        </a>
+                      )}
 
                       <button
                         type="button"
                         onClick={() => setInspectingAccount(item)}
-                        className="button-xsm inline-flex items-center gap-1.5 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                        title="View all flagged X tweets"
+                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap cursor-pointer"
+                        title="Inspect flagged tweets"
                       >
-                        <ChatCircleText size={13} weight="bold" className="text-[#ff6600]" />
-                        <span>View Tweets ({a.evidence_count})</span>
+                        <ChatCircleText size={13} weight="bold" className="text-zinc-500 hover:text-[#ff6600]" />
+                        <span>{a.evidence_count} {a.evidence_count === 1 ? "Tweet" : "Tweets"}</span>
                       </button>
 
-                      <Link
-                        href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                        className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-[#ff6600] hover:text-white transition-colors"
-                        title="Open full account profile"
+                      <button
+                        type="button"
+                        onClick={() => setReportingAccount(item)}
+                        className="inline-flex items-center gap-1 text-[#ff6600] hover:text-[#ff8833] transition-colors whitespace-nowrap font-medium cursor-pointer"
+                        title="Auto-Report this account"
                       >
-                        <ArrowRight size={12} weight="bold" />
-                      </Link>
+                        <ShieldWarning size={13} weight="bold" />
+                        <span>Report</span>
+                      </button>
                     </div>
+
+                    <Link
+                      href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                      className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap"
+                      title="Inspect full intelligence dossier"
+                    >
+                      <span>Inspect</span>
+                      <ArrowRight size={11} weight="bold" />
+                    </Link>
                   </div>
                 </div>
               );
