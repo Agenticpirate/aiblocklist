@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   ShieldCheck,
@@ -32,8 +33,8 @@ export default async function HomePage() {
       {/* ACTIONABLE HERO & INTELLIGENCE COMMAND CENTER */}
       <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8 space-y-8">
         {/* Top Header Block */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#272727] pb-8">
-          <div className="max-w-2xl space-y-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#272727] pb-8">
+          <div className="space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
               <span className="caption-4 font-mono text-zinc-300">
@@ -41,30 +42,45 @@ export default async function HomePage() {
               </span>
             </div>
 
-            <h1 className="heading-1 hero-heading-gradient">
-              AIBlockList
-              <span className="text-[#ff6600]">.</span>
-            </h1>
+            {/* Prominent Logo & Heading Lockup */}
+            <div className="flex items-center gap-4">
+              <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-[#313131] bg-[#181818] p-1.5 shadow-xl shadow-[#ff6600]/10 transition-transform duration-300 hover:scale-105">
+                <Image
+                  src="/logo.png"
+                  alt="AIBlockList Official Logo"
+                  width={64}
+                  height={64}
+                  priority
+                  className="h-full w-full object-contain"
+                />
+              </div>
+
+              <div>
+                <h1 className="heading-1 hero-heading-gradient tracking-tight">
+                  AIBlockList<span className="text-[#ff6600]">.</span>
+                </h1>
+              </div>
+            </div>
 
             <p className="body-3 text-zinc-400">
               Identify, verify, and filter abusive automated social media behavior across X and
-              Threads. Behavioral evidence, human dual-review, and zero AI text detector bias.
+              Threads. Verifiable behavioral evidence, human dual-review, and zero AI text detector bias.
             </p>
           </div>
 
-          {/* Quick Action Badges / CTAs */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* Cleanly Aligned Action Buttons */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 self-start lg:self-center">
             <Link
               href="/extension"
-              className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3.5 py-2 font-bold text-black hover:bg-[#e55c00] transition-colors"
+              className="button-sm inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff6600] px-4 py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all whitespace-nowrap shadow-lg shadow-[#ff6600]/20"
             >
-              <ShieldCheck size={16} weight="bold" />
+              <ShieldCheck size={17} weight="bold" />
               <span>Get Extension</span>
             </Link>
 
             <Link
               href="/report"
-              className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-2 text-zinc-200 hover:bg-[#272727] hover:text-white transition-colors"
+              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-4 py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <span>Report Spammer</span>
               <ArrowRight size={13} weight="bold" />
@@ -72,7 +88,7 @@ export default async function HomePage() {
 
             <Link
               href="/appeals"
-              className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-2 text-zinc-200 hover:bg-[#272727] hover:text-white transition-colors"
+              className="button-sm inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-4 py-2.5 text-zinc-200 hover:bg-[#272727] hover:text-white active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <span>File Appeal</span>
             </Link>
