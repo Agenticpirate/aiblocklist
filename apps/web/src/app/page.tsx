@@ -56,14 +56,17 @@ export default async function HomePage() {
                   Policy v1.0.0 · Open Source Trust &amp; Safety Infrastructure
                 </span>
               </div>
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#ff6600]/30 bg-[#ff6600]/10 px-3 py-1 caption-4 font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors"
-                title="Inspired by Pieter Levels (@levelsio)'s pioneer community defense project"
+              <a
+                href="https://x.com/Agenticpirate"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#313131] bg-[#181818] px-3 py-1 caption-4 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+                title="Built by @Agenticpirate"
               >
-                <span>Inspired by @levelsio</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />
+                <span>Built by @Agenticpirate</span>
                 <span className="text-[10px]">↗</span>
-              </Link>
+              </a>
             </div>
 
             {/* Prominent Logo & Heading Lockup */}

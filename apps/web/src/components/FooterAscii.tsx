@@ -40,31 +40,34 @@ export function FooterAscii() {
               Code: Apache 2.0 · Public verified dataset: ODC-By 1.0
             </p>
 
-            {/* Community Inspiration & Credits to @levelsio */}
-            <div className="mt-4 rounded-xl border border-[#313131] bg-[#141414] p-3 text-xs text-zinc-300 max-w-md">
+            {/* Creator & Community Lineage Credits */}
+            <div className="mt-4 rounded-xl border border-[#313131] bg-[#141414] p-3.5 text-xs text-zinc-300 max-w-md">
               <span className="font-mono text-[10px] uppercase text-[#ff6600] font-bold block mb-1">
-                Community Lineage &amp; Inspiration
+                Creator &amp; Architecture
               </span>
               <p className="leading-relaxed">
-                Inspired by{" "}
+                Built by{" "}
                 <a
-                  href="https://x.com/levelsio"
+                  href="https://x.com/Agenticpirate"
                   target="_blank"
                   rel="noreferrer"
                   className="font-mono font-bold text-white hover:text-[#ff6600] underline"
                 >
-                  @levelsio
+                  @Agenticpirate
                 </a>
-                &apos;s pioneer defense project{" "}
+                . Independent open-source intelligence infrastructure for social networks.
+              </p>
+              <p className="mt-2 text-[11px] text-zinc-500 border-t border-[#222] pt-2">
+                Concept lineage: Credited to early community initiatives including{" "}
                 <a
                   href="https://blockedforaireply.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono font-bold text-white hover:text-[#ff6600] underline"
+                  className="text-zinc-400 hover:text-white underline"
                 >
                   blockedforaireply.com
-                </a>
-                .
+                </a>{" "}
+                by Pieter Levels (@levelsio).
               </p>
             </div>
           </div>
@@ -89,7 +92,7 @@ export function FooterAscii() {
               </li>
               <li>
                 <Link href="/about" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  About &amp; @levelsio credits
+                  About &amp; project credits
                 </Link>
               </li>
               <li>
@@ -185,7 +188,17 @@ export function FooterAscii() {
         </div>
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between caption-5 text-zinc-500">
-          <span>AIBlockList.com · Public interest trust and safety infrastructure</span>
+          <span>
+            AIBlockList.com · Built by{" "}
+            <a
+              href="https://x.com/Agenticpirate"
+              target="_blank"
+              rel="noreferrer"
+              className="text-zinc-300 hover:text-[#ff6600] font-mono font-bold"
+            >
+              @Agenticpirate
+            </a>
+          </span>
           <span>Classifications reflect observable behavior under Policy v1.0.0, never AI authorship.</span>
         </div>
       </div>
