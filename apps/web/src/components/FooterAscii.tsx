@@ -72,6 +72,11 @@ export function FooterAscii() {
                 </Link>
               </li>
               <li>
+                <Link href="/directory" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Account directory
+                </Link>
+              </li>
+              <li>
                 <Link href="/extension" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
                   Browser extension
                 </Link>
