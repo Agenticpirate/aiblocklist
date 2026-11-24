@@ -1,0 +1,19 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/avatar/route": "/api/avatar",
+  "/icon.png/route": "/icon.png",
+  "/appeals/page": "/appeals",
+  "/directory/page": "/directory",
+  "/api-docs/page": "/api-docs",
+  "/page": "/",
+  "/accounts/[platform]/[username]/page": "/accounts/[platform]/[username]",
+  "/account-health/page": "/account-health",
+  "/report/page": "/report",
+  "/about/page": "/about",
+  "/methodology/page": "/methodology",
+  "/extension/page": "/extension",
+  "/privacy/page": "/privacy",
+  "/contact/page": "/contact",
+  "/terms/page": "/terms",
+  "/transparency/page": "/transparency"
+}
