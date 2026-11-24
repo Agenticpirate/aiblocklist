@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd apps/api && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"],
+      "port": 8000
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd apps/web && npx next dev --port 3001"],
+      "port": 3001,
+      "autoPort": false
+    }
+  ]
+}
