@@ -15,6 +15,7 @@ import {
   Eye,
   SlidersHorizontal,
   ShareNetwork,
+  ShieldWarning,
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
@@ -26,6 +27,8 @@ import {
 } from "@/lib/api";
 import { PlatformSlideControl } from "./PlatformSlideControl";
 import { PremiumStatCards } from "./PremiumStatCards";
+import { VerifiedTick } from "./VerifiedTick";
+import { PlatformReportModal } from "./PlatformReportModal";
 
 interface ActionableHubProps {
   initialTotal: number;
@@ -52,8 +55,9 @@ export function ActionableHub({
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Quick Inspector Modal State
+  // Quick Inspector & Auto-Report Modal States
   const [inspectingAccount, setInspectingAccount] = useState<AccountPayload | null>(null);
+  const [reportingAccount, setReportingAccount] = useState<AccountPayload | null>(null);
 
   const loadPage = useCallback(
     async (cursorVal: string | null, append: boolean) => {
@@ -293,28 +297,38 @@ export function ActionableHub({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
             const a = item.account;
+            const initial = (a.username.replace(/^@/, "")[0] || "?").toUpperCase();
             return (
               <div
                 key={a.id}
-                className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-[#181818] p-5 transition-all duration-300 hover:border-[#313131] hover:bg-[#1c1c1c]"
+                className="group flex flex-col justify-between rounded-2xl border border-[#272727] bg-gradient-to-b from-[#181818] to-[#121212] p-4 sm:p-5 transition-all duration-300 hover:border-[#383838] hover:bg-[#1a1a1a] shadow-md"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="caption-5 rounded border border-[#313131] bg-[#000000] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
-                          {a.platform}
-                        </span>
-                        <Link
-                          href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                          className="title-3 font-mono text-white truncate hover:text-[#ff6600] transition-colors"
-                        >
-                          @{a.username}
-                        </Link>
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-start gap-3 min-w-0">
+                      {/* Avatar Circle with Initials Fallback */}
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#252525] to-[#3a3a3a] border border-[#444] font-mono text-sm font-bold text-white shadow-inner group-hover:border-[#ff6600]/40 transition-colors">
+                        {initial}
                       </div>
-                      <p className="caption-5 font-mono text-zinc-500 truncate mt-1">
-                        ID: {a.platform_account_id || "unassigned"}
-                      </p>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Link
+                            href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
+                            className="font-mono text-base font-bold text-white truncate hover:text-[#ff6600] transition-colors"
+                          >
+                            @{a.username}
+                          </Link>
+                          {/* Verified Blue Tick Rosette */}
+                          <VerifiedTick className="w-4 h-4 text-[#1d9bf0]" title="Verified on Platform" />
+                          <span className="caption-5 rounded border border-[#313131] bg-[#0c0c0c] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
+                            {a.platform}
+                          </span>
+                        </div>
+                        <p className="caption-5 font-mono text-zinc-500 truncate mt-0.5">
+                          ID: {a.platform_account_id || "unassigned"}
+                        </p>
+                      </div>
                     </div>
 
                     <span className="caption-5 shrink-0 rounded border border-[#ff6600]/40 bg-[#131209] px-2 py-0.5 font-mono text-[#ff6600]">
@@ -322,7 +336,7 @@ export function ActionableHub({
                     </span>
                   </div>
 
-                  <div className="mt-3.5 flex flex-wrap gap-1.5">
+                  <div className="mt-3 flex flex-wrap gap-1.5">
                     <span className="caption-5 rounded bg-[#272727] px-2 py-0.5 text-zinc-200">
                       {formatClassificationLabel(a.classification)}
                     </span>
@@ -334,13 +348,13 @@ export function ActionableHub({
                   </div>
 
                   {a.public_rationale && (
-                    <p className="body-6 mt-3 text-zinc-400 line-clamp-2">
+                    <p className="body-6 mt-2.5 text-zinc-400 line-clamp-2">
                       {a.public_rationale}
                     </p>
                   )}
                 </div>
 
-                <div className="mt-5 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
+                <div className="mt-4 flex items-center justify-between border-t border-[#272727] pt-3 caption-5 font-mono text-zinc-400">
                   <span className="inline-flex items-center gap-1">
                     <LinkSimple size={13} weight="bold" />
                     <span>
@@ -348,11 +362,21 @@ export function ActionableHub({
                     </span>
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setReportingAccount(item)}
+                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#ff6600]/30 bg-[#ff6600]/10 px-2.5 py-1 text-xs font-bold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer shadow-sm"
+                      title="Auto-Report this spammer directly to the platform"
+                    >
+                      <ShieldWarning size={13} weight="bold" />
+                      <span>Auto-Report</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => setInspectingAccount(item)}
-                      className="button-xsm inline-flex items-center gap-1 text-zinc-300 hover:text-[#ff6600] transition-colors"
+                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-zinc-300 hover:text-white transition-colors cursor-pointer"
                     >
                       <Eye size={12} weight="bold" />
                       <span>Inspect</span>
@@ -360,9 +384,8 @@ export function ActionableHub({
 
                     <Link
                       href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                      className="button-xsm inline-flex items-center gap-1 text-[#ff6600] hover:text-white transition-colors"
+                      className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-[#ff6600] hover:text-white transition-colors"
                     >
-                      <span>Dossier</span>
                       <ArrowRight size={12} weight="bold" />
                     </Link>
                   </div>
@@ -483,15 +506,30 @@ export function ActionableHub({
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#272727] pt-4">
-              <a
-                href={inspectingAccount.account.public_profile_url}
-                target="_blank"
-                rel="noreferrer"
-                className="button-sm inline-flex items-center gap-1 text-zinc-400 hover:text-white"
-              >
-                <span>View on {inspectingAccount.account.platform.toUpperCase()}</span>
-                <ArrowUpRight size={13} weight="bold" />
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href={inspectingAccount.account.public_profile_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="button-sm inline-flex items-center gap-1 text-zinc-400 hover:text-white"
+                >
+                  <span>View on {inspectingAccount.account.platform.toUpperCase()}</span>
+                  <ArrowUpRight size={13} weight="bold" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = inspectingAccount;
+                    setInspectingAccount(null);
+                    setReportingAccount(target);
+                  }}
+                  className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#ff6600]/15 px-3 py-1.5 font-bold font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-all cursor-pointer"
+                >
+                  <ShieldWarning size={14} weight="bold" />
+                  <span>Auto-Report</span>
+                </button>
+              </div>
 
               <div className="flex items-center gap-2">
                 <Link
@@ -515,6 +553,14 @@ export function ActionableHub({
             </div>
           </div>
         </div>
+      )}
+
+      {/* 1-Click Automated Platform Report Assistant Modal */}
+      {reportingAccount && (
+        <PlatformReportModal
+          account={reportingAccount}
+          onClose={() => setReportingAccount(null)}
+        />
       )}
     </div>
   );

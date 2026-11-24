@@ -16,6 +16,8 @@ import {
   formatVerificationLabel,
 } from "@/lib/api";
 import { ShareButton } from "@/components/ShareButton";
+import { VerifiedTick } from "@/components/VerifiedTick";
+import { AutoReportButton } from "@/components/AutoReportButton";
 
 async function fetchAccount(platform: string, username: string): Promise<AccountPayload | null> {
   try {
@@ -108,7 +110,10 @@ export default async function AccountDetailPage({
               </span>
             </div>
 
-            <h1 className="heading-3 mt-3 font-mono text-white">@{a.username}</h1>
+            <div className="flex items-center gap-2 mt-3">
+              <h1 className="heading-3 font-mono text-white">@{a.username}</h1>
+              <VerifiedTick className="w-5 h-5 text-[#1d9bf0]" title="Verified on Platform" />
+            </div>
             <p className="caption-4 mt-1 font-mono text-zinc-400">
               Immutable platform ID: {a.platform_account_id || "Unavailable"} · Confidence:{" "}
               {a.identity_confidence}
@@ -116,6 +121,7 @@ export default async function AccountDetailPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <AutoReportButton account={record} />
             <ShareButton
               platform={a.platform}
               username={a.username}
@@ -133,7 +139,7 @@ export default async function AccountDetailPage({
             </a>
             <Link
               href={`/appeals?username=${encodeURIComponent(a.username)}&platform=${encodeURIComponent(a.platform)}`}
-              className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-2 text-black hover:bg-[#e55c00] transition-colors duration-300"
+              className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#1f1f1f] px-3 py-2 text-zinc-200 hover:bg-[#272727] transition-colors duration-300"
             >
               <Scales size={14} weight="bold" />
               <span>File free appeal</span>

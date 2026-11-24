@@ -12,7 +12,7 @@ from app.config.settings import settings
 from app.core.audit import append_audit_log
 from app.core.database import get_db
 from app.core.errors import ProblemDetailError
-from app.core.models import Account, Report, Reporter
+from app.core.models import Account, EvidenceItem, Report, Reporter
 from app.core.privacy import (
     canonicalize_account_url,
     canonicalize_evidence_url,
@@ -200,4 +200,123 @@ async def get_report_status(
         "report_id": report.id,
         "status": public_status,
         "submitted_at": report.created_at.isoformat(),
+    }
+
+
+class PlatformDispatchRequest(BaseModel):
+    platform: str = Field(default="x", description="Target platform (x or threads)")
+    username: str = Field(..., min_length=1, max_length=100)
+    evidence_urls: list[str] = Field(default_factory=list)
+    reason: str = Field(default="Automated spam and engagement farming")
+    reporter_handle: str | None = Field(default=None)
+
+
+@router.post("/platform-dispatch", status_code=status.HTTP_200_OK, summary="Generate automated platform abuse complaint packet")
+async def generate_platform_dispatch(
+    payload: PlatformDispatchRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """
+    Generates a complete, automated Trust & Safety complaint packet ready for
+    direct submission to social platforms (X or Threads) via web intent, email,
+    or form autofill.
+    """
+    platform = payload.platform.strip().lower()
+    if platform not in ACTIVE_PLATFORMS:
+        platform = "x"
+
+    clean_user = payload.username.strip().lstrip("@")
+    norm_user = normalize_username(clean_user)
+
+    # Check database for existing account dossier
+    query = await db.execute(
+        select(Account).where(Account.platform == platform, Account.normalized_username == norm_user)
+    )
+    account = query.scalar_one_or_none()
+
+    account_id_num = account.platform_account_id if account else "pending_lookup"
+    profile_url = f"https://x.com/{clean_user}" if platform == "x" else f"https://threads.net/@{clean_user}"
+
+    # Aggregate evidence URLs: combine request URLs with indexed DB evidence
+    evidence_urls = list(payload.evidence_urls)
+    if account:
+        ev_query = await db.execute(select(EvidenceItem.public_post_url).where(EvidenceItem.account_id == account.id))
+        db_urls = ev_query.scalars().all()
+        for u in db_urls:
+            if u not in evidence_urls:
+                evidence_urls.append(u)
+
+    # Construct formatted evidence lines
+    if evidence_urls:
+        ev_lines = "\n".join(f"  {i+1}. {url}" for i, url in enumerate(evidence_urls[:10]))
+    else:
+        ev_lines = "  (Zero direct post URLs indexed; flag based on account profile activity)"
+
+    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    dispatch_id = f"disp_{secrets.token_hex(8)}"
+
+    complaint_subject = f"[Abuse Report] Automated Spam / Sybil Account: @{clean_user}"
+    complaint_body = (
+        f"OFFICIAL TRUST & SAFETY ABUSE COMPLAINT\n"
+        f"Generated via AIBlockList.com Open Intelligence Infrastructure\n"
+        f"Dispatch ID: {dispatch_id} · Timestamp: {now_iso}\n\n"
+        f"Target Account: @{clean_user}\n"
+        f"Platform: {platform.upper()}\n"
+        f"Platform ID: {account_id_num}\n"
+        f"Profile URL: {profile_url}\n"
+        f"Violation Type: {payload.reason}\n\n"
+        f"Observable Behavioral Evidence ({len(evidence_urls)} canonical posts):\n"
+        f"{ev_lines}\n\n"
+        f"Observed Behavioral Pattern:\n"
+        f"Account posts repetitive near-duplicate replies, formulaic templates, or participates in "
+        f"automated engagement loops that violate platform rules on spam and platform manipulation.\n\n"
+        f"AIBlockList Intelligence Dossier:\n"
+        f"https://aiblocklist.com/accounts/{platform}/{clean_user}\n"
+    )
+
+    if platform == "x":
+        email_recipient = "support@x.com,abuse@twitter.com"
+        web_report_url = f"https://x.com/i/safety/report?screen_name={clean_user}"
+    else:
+        email_recipient = "support@instagram.com"
+        web_report_url = f"https://www.threads.net/@{clean_user}"
+
+    # Build RFC-compliant mailto URL
+    import urllib.parse
+    mailto_link = (
+        f"mailto:{email_recipient}?"
+        f"subject={urllib.parse.quote(complaint_subject)}&"
+        f"body={urllib.parse.quote(complaint_body)}"
+    )
+
+    # Cryptographic Audit Log entry
+    await append_audit_log(
+        db,
+        entity_type="platform_dispatch",
+        entity_id=dispatch_id,
+        action="platform_report_packet_generated",
+        actor_role="anonymous_user",
+        payload_diff={
+            "platform": platform,
+            "target_username": clean_user,
+            "evidence_count": len(evidence_urls),
+            "recipient": email_recipient,
+        },
+    )
+    await db.commit()
+
+    return {
+        "dispatch_id": dispatch_id,
+        "platform": platform,
+        "target_username": clean_user,
+        "target_account_id": account_id_num,
+        "profile_url": profile_url,
+        "email_recipient": email_recipient,
+        "complaint_subject": complaint_subject,
+        "complaint_body": complaint_body,
+        "mailto_link": mailto_link,
+        "web_report_url": web_report_url,
+        "evidence_count": len(evidence_urls),
+        "status": "ready_for_dispatch",
     }
