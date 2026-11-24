@@ -24,3 +24,5 @@ references/
 # OS & Logs
 .DS_Store
 *.log
+.wrangler/
+scratch/
