@@ -86,13 +86,16 @@ export function PremiumStatCards({
           </div>
 
           <div className="flex items-center gap-2 mt-2.5">
-            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1 shadow-inner transition-colors group-hover:border-[#444444]">
-              <XLogo className="w-3.5 h-3.5 text-white" shiny />
-              <span className="text-xs sm:text-sm font-bold text-white font-mono">X</span>
+            {/* Just the X logo - clean and unmistakable */}
+            <div className="inline-flex items-center justify-center rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1.5 shadow-inner transition-colors group-hover:border-[#444444]">
+              <XLogo className="w-4 h-4 text-white" shiny />
             </div>
+
             <span className="text-zinc-600 font-mono text-xs">&amp;</span>
-            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1 shadow-inner transition-colors group-hover:border-[#444444]">
-              <ThreadsLogo className="w-3.5 h-3.5 text-white" shiny />
+
+            {/* Official Meta Threads logo with brand name */}
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#141414] px-2.5 py-1.5 shadow-inner transition-colors group-hover:border-[#444444]">
+              <ThreadsLogo className="w-4 h-4 text-white" shiny />
               <span className="text-xs sm:text-sm font-bold text-white font-mono">Threads</span>
             </div>
           </div>
