@@ -159,7 +159,7 @@ export default function ContactPage() {
           >
             @Agenticpirate
           </a>{" "}
-          as an open-source public good. The project recognizes the early conceptual lineage sparked by Pieter Levels (
+          as an open-source public good. The project was inspired by early automated AI-reply defense and anti-spam research pioneered by Pieter Levels (
           <a
             href="https://x.com/levelsio"
             target="_blank"
@@ -168,16 +168,7 @@ export default function ContactPage() {
           >
             @levelsio
           </a>
-          ) with{" "}
-          <a
-            href="https://blockedforaireply.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-zinc-200 font-mono hover:underline"
-          >
-            blockedforaireply.com
-          </a>
-          .
+          ).
         </p>
         <Link
           href="/about"

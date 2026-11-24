@@ -84,16 +84,7 @@ export default function AboutPage() {
             >
               @levelsio
             </a>
-            ) who first started cataloging automated AI reply loops on 𝕏 with his project{" "}
-            <a
-              href="https://blockedforaireply.com"
-              target="_blank"
-              rel="noreferrer"
-              className="text-zinc-200 hover:underline font-mono"
-            >
-              blockedforaireply.com
-            </a>
-            .
+            ) who first started cataloging and combating automated AI reply loops on 𝕏.
           </p>
           <p>
             AIBlockList acknowledges that early spark and formalizes the ecosystem with:

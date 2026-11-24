@@ -58,16 +58,7 @@ export function FooterAscii() {
                 . Independent open-source intelligence infrastructure for social networks.
               </p>
               <p className="mt-2 text-[11px] text-zinc-500 border-t border-[#222] pt-2">
-                Concept lineage: Credited to early community initiatives including{" "}
-                <a
-                  href="https://blockedforaireply.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-zinc-400 hover:text-white underline"
-                >
-                  blockedforaireply.com
-                </a>{" "}
-                by Pieter Levels (@levelsio).
+                Concept lineage: Inspired by early automated reply classification research and community initiatives.
               </p>
             </div>
           </div>
@@ -92,7 +83,7 @@ export function FooterAscii() {
               </li>
               <li>
                 <Link href="/methodology" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Methodology & signals
+                  Methodology &amp; signals
                 </Link>
               </li>
               <li>
@@ -140,16 +131,6 @@ export function FooterAscii() {
                 <Link href="/terms" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
                   Terms of service
                 </Link>
-              </li>
-              <li>
-                <a
-                  href="https://blockedforaireply.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="body-6 text-[#ff6600] hover:text-white transition-colors duration-300 inline-flex items-center gap-1 font-mono text-xs"
-                >
-                  <span>blockedforaireply.com ↗</span>
-                </a>
               </li>
             </ul>
           </div>

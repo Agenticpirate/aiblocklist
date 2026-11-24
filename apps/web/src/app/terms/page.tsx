@@ -101,15 +101,7 @@ export default function TermsPage() {
             </li>
             <li>
               <strong className="text-zinc-200">Upstream Project Attribution:</strong> External intelligence lists
-              (such as the pioneer AI-reply defense list curated by Pieter Levels at{" "}
-              <a
-                href="https://blockedforaireply.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#ff6600] hover:underline"
-              >
-                blockedforaireply.com
-              </a>) retain full attribution to their respective original curators.
+              and pioneer AI-reply defense lists retain full attribution to their respective original curators.
             </li>
           </ul>
         </section>

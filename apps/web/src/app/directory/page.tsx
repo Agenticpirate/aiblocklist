@@ -138,7 +138,7 @@ export default function DirectoryPage() {
             >
               <option value="all">All sources</option>
               <option value="aiblocklist_core">Core verified</option>
-              <option value="blockedforaireply">blockedforaireply</option>
+              <option value="blockedforaireply">Community Upstream</option>
               <option value="clankwall">Clankwall</option>
             </select>
           </div>

@@ -60,7 +60,6 @@ export function QuickCheckModal({
     }
   };
 
-  const levelsioCheckUrl = `https://blockedforaireply.com/#all`;
   const xSuspensionAppealUrl = `https://help.x.com/en/managing-your-account/suspended-x-accounts`;
   const xLockedAccountUrl = `https://help.x.com/en/managing-your-account/locked-or-limited-account`;
   const metaStatusAppealUrl = `https://help.instagram.com/contact/606967319425038`;
@@ -259,26 +258,7 @@ export function QuickCheckModal({
                     </a>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-2 rounded-lg border border-[#222] bg-[#121212] p-2.5">
-                  <div>
-                    <p className="font-bold text-zinc-200">
-                      Blocked by Pieter Levels (@levelsio) on 𝕏?
-                    </p>
-                    <p className="text-[11px] text-zinc-400">
-                      Check your handle on Pieter&apos;s independent upstream blocklist at
-                      blockedforaireply.com to request unblocking.
-                    </p>
-                  </div>
-                  <a
-                    href={levelsioCheckUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors shrink-0"
-                  >
-                    <span>blockedforaireply.com</span>
-                    <ArrowSquareOut size={11} weight="bold" />
-                  </a>
-                </div>
+
 
                 {/* 2. Platform Account Suspension / Lock */}
                 {platform === "x" ? (
@@ -354,7 +334,7 @@ export function QuickCheckModal({
               </li>
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />
-                <span>Direct unblock links for Pieter Levels&apos; blockedforaireply.com and platform appeals</span>
+                <span>Direct links to official platform suspension &amp; lock recovery appeals</span>
               </li>
             </ul>
           </div>

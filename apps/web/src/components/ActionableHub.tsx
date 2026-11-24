@@ -312,7 +312,7 @@ export function ActionableHub({
         </div>
       ) : (
         <>
-          {/* MOBILE STREAM: Clean, flat Twitter/𝕏 style matching blockedforaireply.com */}
+          {/* MOBILE STREAM: Clean, flat native Twitter/𝕏 post style */}
           <div className="block sm:hidden divide-y divide-[#222] border-y border-[#222] bg-[#000000] -mx-4">
             {items.map((item) => {
               const a = item.account;

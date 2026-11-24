@@ -192,23 +192,13 @@ function AppealsContent() {
               <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
             </p>
             <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
-              <span className="text-zinc-500 font-mono">Quick Platform Unblock Links:</span>
-              <a
-                href="https://blockedforaireply.com/#all"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-zinc-300 font-mono"
-              >
-                <span>Pieter Levels (@levelsio) unblock</span>
-                <ArrowSquareOut size={11} weight="bold" />
-              </a>
-              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-500 font-mono">Platform Recovery Links:</span>
               <button
                 type="button"
                 onClick={() => setActiveTab("x_suspension")}
-                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-[#ff6600] font-mono cursor-pointer"
+                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-[#ff6600] font-mono cursor-pointer font-bold"
               >
-                <span>𝕏 Suspension Appeal Guide →</span>
+                <span>𝕏 Official Suspension Recovery Guide →</span>
               </button>
               <span className="text-zinc-600">·</span>
               <a
