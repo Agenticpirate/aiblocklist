@@ -130,6 +130,7 @@ export default async function HomePage() {
           totalIndexed={totalIndexed}
           meetingTwoUrls={meetingTwoUrls}
           initialItems={blocklistData?.items || []}
+          initialNextCursor={blocklistData?.next_cursor || null}
         />
       </section>
 

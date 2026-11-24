@@ -38,6 +38,7 @@ interface ActionableHubProps {
   totalIndexed?: number;
   meetingTwoUrls?: number;
   initialItems?: AccountPayload[];
+  initialNextCursor?: string | null;
 }
 
 export function ActionableHub({
@@ -45,6 +46,7 @@ export function ActionableHub({
   totalIndexed = 3680,
   meetingTwoUrls = 884,
   initialItems = [],
+  initialNextCursor = null,
 }: ActionableHubProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
@@ -55,7 +57,8 @@ export function ActionableHub({
 
   const [items, setItems] = useState<AccountPayload[]>(initialItems);
   const [totalMatching, setTotalMatching] = useState<number>(initialTotal);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
+  const [batchSize, setBatchSize] = useState<number>(24);
   const [loading, setLoading] = useState<boolean>(initialItems.length === 0);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +70,8 @@ export function ActionableHub({
   const isFirstMount = useRef(true);
 
   const loadPage = useCallback(
-    async (cursorVal: string | null, append: boolean) => {
+    async (cursorVal: string | null, append: boolean, customLimit?: number) => {
+      const limitVal = customLimit || batchSize;
       if (append) {
         setLoadingMore(true);
       } else {
@@ -82,7 +86,7 @@ export function ActionableHub({
         if (evidenceFilter === "with") params.set("has_evidence", "true");
         if (evidenceFilter === "silent") params.set("has_evidence", "false");
         if (submittedSearch.trim()) params.set("q", submittedSearch.trim());
-        params.set("limit", "24");
+        params.set("limit", String(limitVal));
         if (cursorVal) params.set("cursor", cursorVal);
 
         const data = await fetchApi<BlocklistResponse>(`/blocklists?${params.toString()}`);
@@ -96,18 +100,18 @@ export function ActionableHub({
         setLoadingMore(false);
       }
     },
-    [submittedSearch, platformFilter, categoryFilter, sourceFilter, evidenceFilter]
+    [submittedSearch, platformFilter, categoryFilter, sourceFilter, evidenceFilter, batchSize]
   );
 
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      if (initialItems.length > 0) {
+      if (initialItems.length > 0 && initialNextCursor) {
         return;
       }
     }
     loadPage(null, false);
-  }, [loadPage, initialItems.length]);
+  }, [loadPage, initialItems.length, initialNextCursor]);
 
   return (
     <div className="space-y-6">
@@ -583,18 +587,82 @@ export function ActionableHub({
         </>
       )}
 
-      {/* Pagination Load More Button */}
-      {nextCursor && !loading && (
-        <div className="pt-4 text-center">
-          <button
-            type="button"
-            disabled={loadingMore}
-            onClick={() => loadPage(nextCursor, true)}
-            className="button-md inline-flex items-center gap-2 rounded-xl border border-[#313131] bg-[#181818] px-5 py-2.5 text-white hover:bg-[#272727] active:scale-[0.98] transition-all disabled:opacity-50"
-          >
-            <span>{loadingMore ? "Loading more records..." : "Load more accounts"}</span>
-            <ArrowRight size={14} weight="bold" />
-          </button>
+      {/* Comprehensive Pagination & Infinite Browse Command Center */}
+      {!loading && items.length > 0 && (
+        <div className="mt-8 rounded-2xl border border-[#272727] bg-[#121212] p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-zinc-400">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
+              <span className="text-white font-bold">{items.length.toLocaleString()}</span>
+              <span>of</span>
+              <span className="text-white font-bold">{totalMatching.toLocaleString()}</span>
+              <span>indexed accounts loaded</span>
+              <span className="text-zinc-500">
+                ({Math.min(100, Math.round((items.length / Math.max(1, totalMatching)) * 100))}%)
+              </span>
+            </div>
+
+            {/* Batch Size Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-500 uppercase text-[10px]">Per Batch:</span>
+              {[24, 48, 96].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setBatchSize(size)}
+                  className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all cursor-pointer ${
+                    batchSize === size
+                      ? "bg-[#ff6600] text-black font-bold"
+                      : "border border-[#272727] bg-[#1a1a1a] text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#222]">
+            <div
+              className="h-full bg-gradient-to-r from-[#ff6600] to-[#ffaa44] transition-all duration-300"
+              style={{
+                width: `${Math.min(100, Math.round((items.length / Math.max(1, totalMatching)) * 100))}%`,
+              }}
+            />
+          </div>
+
+          {/* Pagination Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {nextCursor ? (
+              <>
+                <button
+                  type="button"
+                  disabled={loadingMore}
+                  onClick={() => loadPage(nextCursor, true)}
+                  className="button-sm inline-flex items-center gap-2 rounded-xl bg-[#ff6600] px-5 py-2.5 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-[#ff6600]/20"
+                >
+                  <span>{loadingMore ? "Loading more accounts..." : `Load Next ${batchSize} Accounts`}</span>
+                  <ArrowRight size={14} weight="bold" />
+                </button>
+
+                <button
+                  type="button"
+                  disabled={loadingMore}
+                  onClick={() => loadPage(nextCursor, true, 48)}
+                  className="button-sm inline-flex items-center gap-2 rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 font-mono text-xs text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+                  title="Quickly fetch next 48 accounts"
+                >
+                  <span>+ Load 48 More</span>
+                </button>
+              </>
+            ) : (
+              <div className="inline-flex items-center gap-2 rounded-xl border border-[#272727] bg-[#181818] px-4 py-2 font-mono text-xs text-zinc-400">
+                <CheckCircle size={15} weight="bold" className="text-[#ff6600]" />
+                <span>All {totalMatching.toLocaleString()} accounts matching current filters are loaded</span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
