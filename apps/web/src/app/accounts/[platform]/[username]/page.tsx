@@ -113,7 +113,7 @@ export default async function AccountDetailPage({
 
             <div className="flex items-center gap-2 mt-3">
               <h1 className="heading-3 font-mono text-white">@{a.username}</h1>
-              <VerifiedTick className="w-5 h-5 text-[#1d9bf0]" title="Verified on Platform" />
+              <VerifiedTick type={a.verified_badge || "blue"} size={20} />
             </div>
             <p className="caption-4 mt-1 font-mono text-zinc-400">
               Immutable platform ID: {a.platform_account_id || "Unavailable"} · Confidence:{" "}

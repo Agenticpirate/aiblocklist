@@ -47,6 +47,7 @@ export interface AccountPayload {
     has_source_conflict: boolean;
     evidence_count: number;
     primary_quote?: string | null;
+    verified_badge?: string | null;
   };
   evidence: EvidenceRecord[];
   source_assertions: SourceAssertion[];

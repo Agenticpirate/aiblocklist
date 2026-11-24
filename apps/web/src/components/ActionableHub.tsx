@@ -339,8 +339,8 @@ export function ActionableHub({
                           >
                             @{a.username}
                           </Link>
-                          {/* Verified Blue Tick Rosette */}
-                          <VerifiedTick className="w-4 h-4 text-[#1d9bf0]" title="Verified on Platform" />
+                          {/* Verified Blue Tick Rosette (Exact blockedforaireply.com SVG) */}
+                          <VerifiedTick type={a.verified_badge || "blue"} size={16} />
                           <span className="caption-5 rounded border border-[#313131] bg-[#0c0c0c] px-1.5 py-0.5 font-mono uppercase text-zinc-400">
                             {a.platform}
                           </span>
@@ -468,6 +468,7 @@ export function ActionableHub({
                   <h3 className="heading-4 font-mono text-white">
                     @{inspectingAccount.account.username}
                   </h3>
+                  <VerifiedTick type={inspectingAccount.account.verified_badge || "blue"} size={18} />
                 </div>
                 <p className="caption-5 font-mono text-zinc-500 mt-1">
                   Platform ID: {inspectingAccount.account.platform_account_id || "unassigned"} · Policy:{" "}

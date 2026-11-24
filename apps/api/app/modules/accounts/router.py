@@ -160,6 +160,7 @@ def _serialize_account_public(account: Account, include_sources: bool = True) ->
             "has_source_conflict": account.has_source_conflict,
             "evidence_count": len(evidence_rows),
             "primary_quote": primary_quote,
+            "verified_badge": getattr(account, "verified_badge", None) or "blue",
         },
         "evidence": evidence_rows,
         "source_assertions": assertions,
