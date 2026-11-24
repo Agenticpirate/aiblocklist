@@ -7,7 +7,10 @@ import { useEffect, useState } from "react";
 import { List, X, ArrowUpRight } from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
-  { href: "/directory", label: "Directory" },
+  { href: "/", label: "Intelligence" },
+  { href: "/extension", label: "Extension" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/about", label: "About" },
   { href: "/transparency", label: "Transparency" },
   { href: "/api-docs", label: "API" },
   { href: "/report", label: "Report" },

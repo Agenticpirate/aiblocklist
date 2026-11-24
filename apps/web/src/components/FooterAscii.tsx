@@ -45,18 +45,23 @@ export function FooterAscii() {
             <h3 className="title-4 text-white mb-3">Platform</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/directory" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Account directory
+                <Link href="/" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Intelligence feed
                 </Link>
               </li>
               <li>
-                <Link href="/report" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Submit report
+                <Link href="/extension" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Browser extension
                 </Link>
               </li>
               <li>
-                <Link href="/appeals" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Independent appeals
+                <Link href="/methodology" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Methodology & signals
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  About & charter
                 </Link>
               </li>
               <li>
@@ -76,18 +81,23 @@ export function FooterAscii() {
             <h3 className="title-4 text-white mb-3">Governance</h3>
             <ul className="space-y-2">
               <li>
+                <Link href="/appeals" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Independent appeals
+                </Link>
+              </li>
+              <li>
+                <Link href="/report" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Submit report
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacy" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
                   Privacy policy
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Terms and charter
-                </Link>
-              </li>
-              <li>
-                <Link href="/transparency#audit-chain" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  Audit chain integrity
+                  Terms of service
                 </Link>
               </li>
               <li>
@@ -97,7 +107,7 @@ export function FooterAscii() {
                   rel="noreferrer"
                   className="body-6 text-zinc-400 hover:text-white transition-colors duration-300"
                 >
-                  External source: blockedforaireply
+                  External: blockedforaireply
                 </a>
               </li>
             </ul>
