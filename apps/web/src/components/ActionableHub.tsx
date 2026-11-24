@@ -153,7 +153,8 @@ export function ActionableHub({
             <PlatformSlideControl
               activePlatform={platformFilter}
               onChange={setPlatformFilter}
-              size="md"
+              size="sm"
+              className="w-64"
             />
           </div>
 
