@@ -7,6 +7,8 @@ import {
   Scales,
   ArrowRight,
   GitBranch,
+  ArrowUpRight,
+  Heart,
 } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata = {
@@ -32,6 +34,80 @@ export default function AboutPage() {
           filtering abusive automated social media behavior across X and Threads — without AI text
           detection fallacies or automated retaliation.
         </p>
+      </div>
+
+      {/* Community Inspiration & Upstream Credits to @levelsio */}
+      <div className="rounded-2xl border border-[#ff6600]/40 bg-gradient-to-b from-[#1b150c] to-[#12100a] p-6 sm:p-8 space-y-6 shadow-xl">
+        <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#2d2215] pb-5">
+          <div className="space-y-1">
+            <span className="caption-4 font-mono uppercase text-[#ff6600] font-bold tracking-wider">
+              Community Lineage &amp; Inspiration
+            </span>
+            <h2 className="heading-3 text-white">Inspired by Pieter Levels &amp; Blocked for AI Reply</h2>
+          </div>
+          <a
+            href="https://x.com/levelsio"
+            target="_blank"
+            rel="noreferrer"
+            className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#ff6600]/15 px-3 py-1.5 font-mono text-sm font-bold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors"
+          >
+            <span>Follow @levelsio on 𝕏</span>
+            <ArrowUpRight size={14} weight="bold" />
+          </a>
+        </div>
+
+        <div className="space-y-4 body-4 text-zinc-300 leading-relaxed">
+          <p>
+            AIBlockList owes its inspiration directly to the pioneering community defense work of{" "}
+            <a
+              href="https://x.com/levelsio"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#ff6600] font-bold font-mono hover:underline"
+            >
+              Pieter Levels (@levelsio)
+            </a>{" "}
+            and his ground-breaking project{" "}
+            <a
+              href="https://blockedforaireply.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#ff6600] font-bold font-mono hover:underline"
+            >
+              blockedforaireply.com
+            </a>
+            .
+          </p>
+          <p>
+            When generative AI models unleashed an unprecedented wave of unsolicited, automated reply bots, sybil accounts,
+            and engagement farmers across social networks, Pieter took decisive action: publicly cataloging, documenting,
+            and blocking thousands of bot accounts. His transparent data-sharing showed the world the staggering scale
+            of programmatic spam polluting real human conversation.
+          </p>
+          <p>
+            AIBlockList was conceived to build upon and honor that trailblazing effort—taking the community-driven insights
+            from <a href="https://blockedforaireply.com" target="_blank" rel="noreferrer" className="text-zinc-200 hover:text-white underline">blockedforaireply.com</a>,{" "}
+            <a href="https://clankwall.vogel.dev" target="_blank" rel="noreferrer" className="text-zinc-200 hover:text-white underline">Clankwall by @ryanvogel</a>, and{" "}
+            <a href="https://x.com/dillon_mulroy" target="_blank" rel="noreferrer" className="text-zinc-200 hover:text-white underline">@dillon_mulroy</a>, and formalizing them into:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 font-mono text-xs">
+            <div className="rounded-xl border border-[#332616] bg-[#0c0a06] p-3.5 space-y-1">
+              <strong className="text-white block font-sans text-sm">Deterministic Verification</strong>
+              <p className="text-zinc-400">SIG-01 to SIG-05 behavioral criteria requiring 2+ canonical evidence URLs with SHA-256 provenance.</p>
+            </div>
+            <div className="rounded-xl border border-[#332616] bg-[#0c0a06] p-3.5 space-y-1">
+              <strong className="text-white block font-sans text-sm">Cross-Platform Standard</strong>
+              <p className="text-zinc-400">Unified intelligence defense extending across both 𝕏 and Meta Threads.</p>
+            </div>
+            <div className="rounded-xl border border-[#332616] bg-[#0c0a06] p-3.5 space-y-1">
+              <strong className="text-white block font-sans text-sm">Automated Abuse Dispatch</strong>
+              <p className="text-zinc-400">1-click official Trust &amp; Safety reporting packets direct to platform abuse desks.</p>
+            </div>
+          </div>
+          <p className="caption-4 text-zinc-400 pt-2 border-t border-[#2d2215]">
+            We salute Pieter Levels for sparking this vital movement for internet authenticity and community-driven spam defense.
+          </p>
+        </div>
       </div>
 
       {/* Core Philosophy Section */}

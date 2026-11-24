@@ -48,11 +48,21 @@ export default async function HomePage() {
         {/* Top Header Block */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#272727] pb-8">
           <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-              <span className="caption-4 font-mono text-zinc-300">
-                Policy v1.0.0 · Open Source Trust & Safety Infrastructure
-              </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
+                <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
+                <span className="caption-4 font-mono text-zinc-300">
+                  Policy v1.0.0 · Open Source Trust &amp; Safety Infrastructure
+                </span>
+              </div>
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#ff6600]/30 bg-[#ff6600]/10 px-3 py-1 caption-4 font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors"
+                title="Inspired by Pieter Levels (@levelsio)'s pioneer community defense project"
+              >
+                <span>Inspired by @levelsio</span>
+                <span className="text-[10px]">↗</span>
+              </Link>
             </div>
 
             {/* Prominent Logo & Heading Lockup */}

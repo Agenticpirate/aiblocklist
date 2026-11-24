@@ -39,6 +39,34 @@ export function FooterAscii() {
             <p className="caption-5 mt-4 font-mono text-zinc-500">
               Code: Apache 2.0 · Public verified dataset: ODC-By 1.0
             </p>
+
+            {/* Community Inspiration & Credits to @levelsio */}
+            <div className="mt-4 rounded-xl border border-[#313131] bg-[#141414] p-3 text-xs text-zinc-300 max-w-md">
+              <span className="font-mono text-[10px] uppercase text-[#ff6600] font-bold block mb-1">
+                Community Lineage &amp; Inspiration
+              </span>
+              <p className="leading-relaxed">
+                Inspired by{" "}
+                <a
+                  href="https://x.com/levelsio"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono font-bold text-white hover:text-[#ff6600] underline"
+                >
+                  @levelsio
+                </a>
+                &apos;s pioneer defense project{" "}
+                <a
+                  href="https://blockedforaireply.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono font-bold text-white hover:text-[#ff6600] underline"
+                >
+                  blockedforaireply.com
+                </a>
+                .
+              </p>
+            </div>
           </div>
 
           <div>
@@ -61,7 +89,7 @@ export function FooterAscii() {
               </li>
               <li>
                 <Link href="/about" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
-                  About & charter
+                  About &amp; @levelsio credits
                 </Link>
               </li>
               <li>
@@ -91,6 +119,11 @@ export function FooterAscii() {
                 </Link>
               </li>
               <li>
+                <Link href="/contact" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
+                  Contact &amp; governance
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacy" className="body-6 text-zinc-400 hover:text-white transition-colors duration-300">
                   Privacy policy
                 </Link>
@@ -105,9 +138,9 @@ export function FooterAscii() {
                   href="https://blockedforaireply.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="body-6 text-zinc-400 hover:text-white transition-colors duration-300"
+                  className="body-6 text-[#ff6600] hover:text-white transition-colors duration-300 inline-flex items-center gap-1 font-mono text-xs"
                 >
-                  External: blockedforaireply
+                  <span>blockedforaireply.com ↗</span>
                 </a>
               </li>
             </ul>
