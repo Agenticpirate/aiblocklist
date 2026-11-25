@@ -17,6 +17,7 @@ import {
   ShareNetwork,
   ShieldWarning,
   ChatCircleText,
+  Scales,
 } from "@phosphor-icons/react";
 import {
   AccountPayload,
@@ -571,6 +572,19 @@ export function ActionableHub({
                         <ShieldWarning size={13} weight="bold" />
                         <span>Report</span>
                       </button>
+
+                      <Link
+                        href={`/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
+                          item.evidence?.[0]?.public_post_url
+                            ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
+                            : ""
+                        }`}
+                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] transition-colors whitespace-nowrap font-medium"
+                        title="Submit public appeal for this account"
+                      >
+                        <Scales size={13} weight="bold" />
+                        <span>Appeal</span>
+                      </Link>
                     </div>
 
                     <Link
