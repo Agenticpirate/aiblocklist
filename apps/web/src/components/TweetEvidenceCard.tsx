@@ -1,9 +1,10 @@
 "use client";
 
-import { LinkSimple, WarningCircle, CheckCircle, ArrowUpRight, ShieldWarning } from "@phosphor-icons/react";
+import Link from "next/link";
+import { ShieldWarning, Scales } from "@phosphor-icons/react";
 import { EvidenceRecord } from "@/lib/api";
 import { VerifiedTick } from "./VerifiedTick";
-import { XLogo } from "./PlatformSlideControl";
+import { XLogo, ThreadsLogo } from "./PlatformSlideControl";
 import { UserAvatar } from "./UserAvatar";
 
 interface TweetEvidenceCardProps {
@@ -21,7 +22,7 @@ export function TweetEvidenceCard({
   platform = "x",
   showVerified = true,
 }: TweetEvidenceCardProps) {
-  const initial = (username.replace(/^@/, "")[0] || "?").toUpperCase();
+  const cleanUser = username.replace(/^@/, "");
   const postText = evidence.post_text || (evidence.metrics?.post_text as string) || null;
   const postDate = evidence.post_date || (evidence.metrics?.post_date as string) || evidence.collected_at?.slice(0, 10);
   const responseText = evidence.response_text || (evidence.metrics?.response_text as string) || null;
@@ -86,22 +87,26 @@ export function TweetEvidenceCard({
 
       {/* Tweet Footer & Action Links */}
       <div className="mt-2 flex items-center justify-between border-t border-[#1e1e1e] pt-2.5 font-mono text-xs">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-3">
           <a
             href={evidence.public_post_url}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 font-bold text-[#ff6600] hover:text-white transition-colors"
           >
-            <XLogo className="w-3 h-3 text-current" />
-            <span>Their reply on X ↗</span>
+            {platform === "threads" ? (
+              <ThreadsLogo className="w-3 h-3 text-current" />
+            ) : (
+              <XLogo className="w-3 h-3 text-current" />
+            )}
+            <span>{platform === "threads" ? "Their reply on Threads ↗" : "Their reply on X ↗"}</span>
           </a>
 
           <a
             href={
               platform === "x"
-                ? `https://x.com/i/safety/report?screen_name=${username.replace(/^@/, "")}`
-                : `https://threads.net/@${username.replace(/^@/, "")}`
+                ? `https://x.com/i/safety/report?screen_name=${cleanUser}`
+                : `https://threads.net/@${cleanUser}`
             }
             target="_blank"
             rel="noreferrer"
@@ -111,6 +116,15 @@ export function TweetEvidenceCard({
             <ShieldWarning size={12} weight="bold" />
             <span>Report</span>
           </a>
+
+          <Link
+            href={`/appeals?platform=${encodeURIComponent(platform)}&username=${encodeURIComponent(cleanUser)}&post_url=${encodeURIComponent(evidence.public_post_url)}`}
+            className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-[#ff6600] transition-colors"
+            title="Appeal this flagged tweet (human owners & remediated accounts only)"
+          >
+            <Scales size={12} weight="bold" />
+            <span>Appeal</span>
+          </Link>
         </div>
 
         <span className="caption-5 text-zinc-600 truncate max-w-[160px]" title={`SHA-256: ${evidence.content_hash_sha256}`}>

@@ -53,25 +53,66 @@ interface AppealStatusRecord {
 const APPEAL_GROUNDS = [
   {
     id: "false_positive",
-    label: "False positive / Human account",
-    hint: "I am a human or legitimate creator and my replies are not automated spam.",
+    label: "False positive / Human-written",
+    hint: "I am a human creator and my replies were manually written, not automated bot spam.",
+  },
+  {
+    id: "disputed_context",
+    label: "Disputed tweet / Missing context",
+    hint: "The flagged post was satire, a quote/excerpt, or taken out of surrounding thread context.",
+  },
+  {
+    id: "compromised_resolved",
+    label: "Compromised account (secured)",
+    hint: "Unauthorized third-party automation posted while hacked; apps revoked and 2FA enabled.",
   },
   {
     id: "unverified_import",
     label: "Unverified external listing",
-    hint: "This account was imported from an external list without independent AIBlockList verification.",
+    hint: "Imported from an external list without independent AIBlockList verification or evidence.",
   },
   {
     id: "remediation",
-    label: "30-day behavioral remediation",
-    hint: "Automated reply behavior has been stopped for 30+ consecutive days.",
+    label: "Automation stopped (30+ days)",
+    hint: "Former automated reply tooling has been permanently disconnected for 30+ consecutive days.",
   },
+] as const;
+
+const USAGE_HISTORY_OPTIONS = [
+  {
+    id: "never",
+    label: "Never used automated reply tools",
+    hint: "100% manual replies written by me.",
+  },
+  {
+    id: "assist_only",
+    label: "Manual AI drafting / grammar / translation",
+    hint: "Used AI for writing help or translation, never auto-posted.",
+  },
+  {
+    id: "past_tool_stopped",
+    label: "Past automation / AI-reply tool (stopped)",
+    hint: "Previously tested or used an automated tool, now permanently removed.",
+  },
+  {
+    id: "compromised",
+    label: "Unauthorized third-party app / hacked",
+    hint: "A compromised session or third-party app posted without permission.",
+  },
+] as const;
+
+const FORWARD_COMMITMENTS = [
+  "100% manual, human-written replies only",
+  "Revoked all third-party OAuth & automation apps",
+  "Enabled 2FA & rotated account credentials",
+  "Zero automated reply or engagement-farming scripts",
 ] as const;
 
 function AppealsContent() {
   const searchParams = useSearchParams();
   const paramUsername = searchParams.get("username") || "";
   const paramPlatform = (searchParams.get("platform") || "x") as "x" | "threads";
+  const paramPostUrl = searchParams.get("post_url") || "";
 
   const [platform, setPlatform] = useState<"x" | "threads">(paramPlatform);
   const [activeTab, setActiveTab] = useState<"aiblocklist" | "x_suspension">(
@@ -82,8 +123,17 @@ function AppealsContent() {
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [ground, setGround] = useState<string>("false_positive");
+  const [usageHistory, setUsageHistory] = useState<string>("never");
+  const [usageReason, setUsageReason] = useState("");
+  const [forwardCommitments, setForwardCommitments] = useState<string[]>([
+    "100% manual, human-written replies only",
+  ]);
+  const [goingForward, setGoingForward] = useState("");
+  const [humanAttested, setHumanAttested] = useState(false);
   const [statement, setStatement] = useState("");
-  const [supportingUrls, setSupportingUrls] = useState<string[]>([""]);
+  const [supportingUrls, setSupportingUrls] = useState<string[]>(
+    paramPostUrl ? [paramPostUrl] : [""]
+  );
   const [confirmation, setConfirmation] = useState<AppealConfirmation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,7 +153,14 @@ function AppealsContent() {
     if (paramPlatform === "x" || paramPlatform === "threads") {
       setPlatform(paramPlatform);
     }
-  }, [paramUsername, paramPlatform]);
+    if (paramPostUrl) {
+      setSupportingUrls((prev) => {
+        if (prev.includes(paramPostUrl)) return prev;
+        const nonEmpty = prev.filter((u) => u.trim().length > 0);
+        return [paramPostUrl, ...nonEmpty].slice(0, 5);
+      });
+    }
+  }, [paramUsername, paramPlatform, paramPostUrl]);
 
   async function startChallenge(e: React.FormEvent) {
     e.preventDefault();
@@ -151,13 +208,29 @@ function AppealsContent() {
   async function submitAppeal(e: React.FormEvent) {
     e.preventDefault();
     if (!challenge || !sessionToken) return;
+    if (!humanAttested) {
+      setError("You must confirm the human ownership & non-bot attestation before submitting.");
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
       const selectedGround = APPEAL_GROUNDS.find((g) => g.id === ground);
-      const formattedStatement = selectedGround
-        ? `[${selectedGround.label}] ${statement.trim()}`
-        : statement.trim();
+      const selectedUsage = USAGE_HISTORY_OPTIONS.find((u) => u.id === usageHistory);
+      const sections = [
+        `[${selectedGround?.label || ground}]`,
+        `Usage History: ${selectedUsage?.label || usageHistory}`,
+        `Why used / Context: ${usageReason.trim()}`,
+        `Going Forward Plan: ${goingForward.trim()}${
+          forwardCommitments.length > 0
+            ? ` (Commitments: ${forwardCommitments.join("; ")})`
+            : ""
+        }`,
+      ];
+      if (statement.trim()) {
+        sections.push(`Additional Evidence: ${statement.trim()}`);
+      }
+      const formattedStatement = sections.join("\n").slice(0, 2950);
       const cleanedUrls = supportingUrls.map((u) => u.trim()).filter(Boolean);
 
       const res = await fetchApi<AppealConfirmation>("/appeals", {
@@ -315,7 +388,24 @@ function AppealsContent() {
                 <ArrowSquareOut size={11} weight="bold" />
               </a>
             </div>
+            <p className="border-t border-[#272727] pt-2 text-xs text-zinc-400">
+              <strong className="text-[#ff6600]">Anti-Bot Policy:</strong> Appeals are strictly for human account owners or accounts that have permanently stopped automation. Active reply bots and engagement-farming scripts are ineligible and rejected.
+            </p>
           </div>
+
+          {paramPostUrl && (
+            <div className="rounded-xl border border-[#ff6600]/40 bg-[#131209] p-3 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <span className="text-[#ff6600] font-semibold">Contested tweet pre-attached:</span>
+              <a
+                href={paramPostUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-zinc-200 hover:text-white underline truncate max-w-full"
+              >
+                {paramPostUrl}
+              </a>
+            </div>
+          )}
 
           {/* Step Progress Indicator */}
           {!confirmation && (
@@ -479,8 +569,8 @@ function AppealsContent() {
 
               {/* Appeal Ground Selector */}
               <div className="space-y-2">
-                <label className="title-4 block text-white">Primary appeal ground</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <label className="title-4 block text-white">1. Primary appeal ground</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {APPEAL_GROUNDS.map((g) => (
                     <button
                       key={g.id}
@@ -501,22 +591,112 @@ function AppealsContent() {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="appeal-statement" className="title-4 block text-white mb-2">
-                  Counter evidence or remediation statement (minimum 20 characters)
+              {/* AI / Automation Usage Disclosure */}
+              <div className="space-y-2 border-t border-[#272727] pt-4">
+                <label className="title-4 block text-white">
+                  2. Have you used AI or automation tools, and why?
                 </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {USAGE_HISTORY_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setUsageHistory(opt.id)}
+                      className={`text-left rounded-xl border p-2.5 transition-colors cursor-pointer ${
+                        usageHistory === opt.id
+                          ? "border-[#ff6600] bg-[#131209]"
+                          : "border-[#272727] bg-[#000000] hover:border-[#383838]"
+                      }`}
+                    >
+                      <p className={`caption-4 font-mono font-semibold ${usageHistory === opt.id ? "text-[#ff6600]" : "text-white"}`}>
+                        {opt.label}
+                      </p>
+                      <p className="caption-5 text-zinc-400 mt-0.5">{opt.hint}</p>
+                    </button>
+                  ))}
+                </div>
                 <textarea
-                  id="appeal-statement"
+                  id="usage-reason"
                   required
-                  minLength={20}
-                  maxLength={3000}
-                  rows={4}
-                  value={statement}
-                  onChange={(e) => setStatement(e.target.value)}
-                  placeholder="Explain why the behavioral signals do not apply, identify any mistaken handle ownership, or confirm 30 consecutive days without automated reply spam."
+                  minLength={15}
+                  maxLength={1000}
+                  rows={3}
+                  value={usageReason}
+                  onChange={(e) => setUsageReason(e.target.value)}
+                  placeholder="Share why you used or use this workflow (e.g. grammar/translation assistance, accessibility, a former scheduler you turned off, or clarify that all replies were written manually)."
                   className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
                 />
               </div>
+
+              {/* Going Forward Plan */}
+              <div className="space-y-2 border-t border-[#272727] pt-4">
+                <label className="title-4 block text-white">
+                  3. How will you continue going forward?
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {FORWARD_COMMITMENTS.map((item) => {
+                    const active = forwardCommitments.includes(item);
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() =>
+                          setForwardCommitments((prev) =>
+                            prev.includes(item) ? prev.filter((x) => x !== item) : [...prev, item]
+                          )
+                        }
+                        className={`rounded-lg border px-2.5 py-1 text-xs font-mono transition-colors cursor-pointer ${
+                          active
+                            ? "border-[#ff6600] bg-[#131209] text-[#ff6600]"
+                            : "border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        {active ? "✓ " : "+ "}
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+                <textarea
+                  id="going-forward"
+                  required
+                  minLength={15}
+                  maxLength={1000}
+                  rows={3}
+                  value={goingForward}
+                  onChange={(e) => setGoingForward(e.target.value)}
+                  placeholder="Describe how you will run your account going forward (e.g. revoked third-party automation apps, enabled 2FA, and will write all replies manually)."
+                  className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
+                />
+              </div>
+
+              <div className="border-t border-[#272727] pt-4">
+                <label htmlFor="appeal-statement" className="title-4 block text-white mb-2">
+                  4. Additional counter-evidence or tweet context <span className="caption-5 text-zinc-500 font-normal">(optional)</span>
+                </label>
+                <textarea
+                  id="appeal-statement"
+                  maxLength={1000}
+                  rows={3}
+                  value={statement}
+                  onChange={(e) => setStatement(e.target.value)}
+                  placeholder="Add any extra context about the flagged tweet(s), mistaken handle ownership, or thread context."
+                  className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
+                />
+              </div>
+
+              {/* Anti-Bot Human Attestation */}
+              <label className="flex items-start gap-2.5 rounded-xl border border-[#ff6600]/30 bg-[#131209] p-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={humanAttested}
+                  onChange={(e) => setHumanAttested(e.target.checked)}
+                  className="mt-0.5 accent-[#ff6600]"
+                />
+                <span className="caption-4 text-zinc-300 leading-relaxed">
+                  I attest that I am the human owner of this account, I am <strong className="text-white">not</strong> operating an active automated reply bot or engagement-farming script, and the explanations above are accurate. (Active bot accounts are rejected and logged.)
+                </span>
+              </label>
 
               {/* Optional Supporting Counter-Evidence URLs */}
               <div className="space-y-2">
