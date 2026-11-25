@@ -108,17 +108,26 @@ export default function AboutPage() {
 
       {/* Core Philosophy Section */}
       <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
-        <h2 className="heading-3 text-white">The Core Philosophy</h2>
+        <div className="space-y-2">
+          <h2 className="heading-3 text-white">The Core Philosophy — Use AI Wisely</h2>
+          <p className="body-4 text-zinc-300 leading-relaxed">
+            Using AI in everyday life is a good thing: it makes individual work easier, improves
+            accessibility, and helps people communicate across languages. What harms online
+            communities is deploying automated bot replies solely to chase traction, impressions, or
+            monetization payouts. Our goal is simple — let&apos;s use AI wisely without penalizing
+            genuine people.
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           <div className="rounded-xl border border-[#272727] bg-[#000000] p-5 space-y-3">
             <div className="flex items-center gap-2 text-[#ff6600]">
               <CheckCircle size={20} weight="bold" />
-              <h3 className="title-3 text-white">What We Target</h3>
+              <h3 className="title-3 text-white">What We Filter</h3>
             </div>
             <p className="body-5 text-zinc-400">
-              Repetitive automated spam, engagement farming reply loops, synchronized botnet
-              campaigns, deceptive impersonation scripts, and programmatic manipulation across
-              unrelated public threads.
+              Automated reply bots farming impressions or monetization, engagement-loop scripts,
+              synchronized botnet campaigns, and repetitive programmatic spam across unrelated
+              public threads.
             </p>
           </div>
 
@@ -128,9 +137,9 @@ export default function AboutPage() {
               <h3 className="title-3 text-white">What We Never Penalize</h3>
             </div>
             <p className="body-5 text-zinc-400">
-              People using ChatGPT or Claude to polish their English, non-native English speakers,
-              formal grammar, enthusiastic conversationalists, or legitimate automation clearly
-              disclosed and adhering to platform rules.
+              People using AI in their daily work, polishing grammar or translating across languages,
+              accessibility tools, thoughtful creators, or anyone using AI responsibly to support
+              authentic human conversation.
             </p>
           </div>
         </div>

@@ -58,6 +58,9 @@ export default async function HomePage() {
               </span>
               <span className="text-[#ff6600]">Keep Your Feed Human.</span>
             </h1>
+            <p className="caption-2 sm:body-6 text-zinc-400 mt-1.5 leading-relaxed">
+              Using AI in everyday work is great — we only filter automated reply bots farming impressions and monetization. Let&apos;s use AI wisely.
+            </p>
           </div>
 
           {/* Right-Aligned Compact Actions */}
@@ -130,12 +133,12 @@ export default async function HomePage() {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
                   <Scales size={17} weight="bold" />
                 </div>
-                <h3 className="title-3 text-white">Fast-track appeals</h3>
+                <h3 className="title-3 text-white">Public appeals</h3>
               </div>
               <ArrowRight size={14} weight="bold" className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
             </div>
             <p className="caption-2 text-zinc-400 mt-2">
-              Automated 60-second dispute token generation with 72-hour dual human review guarantee.
+              Bio-token ownership verification and transparent independent review for responsible AI users.
             </p>
           </Link>
 

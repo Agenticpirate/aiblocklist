@@ -308,7 +308,7 @@ function AppealsContent() {
           Public Account Appeal
         </h1>
         <p className="body-6 text-zinc-400">
-          AIBlockList supports people who use AI responsibly for writing, translation, and accessibility — we only filter automated reply spam. Submit a public appeal explaining why you use AI and how you will operate moving forward.
+          Using AI in everyday life makes work easier and helps people communicate — we only filter automated reply bots built to farm traction, impressions, or monetization. Let&apos;s use AI wisely. Submit a public appeal sharing why you use AI and how you will operate moving forward.
         </p>
       </div>
 
