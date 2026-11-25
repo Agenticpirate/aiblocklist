@@ -562,10 +562,10 @@ export function ActionableHub({
                         type="button"
                         onClick={() => setInspectingAccount(item)}
                         className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap cursor-pointer"
-                        title="Inspect flagged tweets"
+                        title={`Inspect ${a.evidence_count} flagged ${a.evidence_count === 1 ? "tweet" : "tweets"}`}
                       >
                         <ChatCircleText size={13} weight="bold" className="text-zinc-500 hover:text-[#ff6600]" />
-                        <span>{a.evidence_count} {a.evidence_count === 1 ? "Tweet" : "Tweets"}</span>
+                        <span>{a.evidence_count}</span>
                       </button>
 
                       <button
