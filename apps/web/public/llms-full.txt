@@ -1,0 +1,42 @@
+# AIBlockList — Complete Reference for AI Systems & Search Engines
+
+> AIBlockList (https://aiblocklist.com) is an open-source behavioral trust and safety registry for X (Twitter) and Meta Threads. Created by @Agenticpirate, it filters automated reply bots built to farm traction, impressions, or monetization while protecting people who use AI responsibly in everyday life.
+
+## 1. Philosophy: Use AI Wisely
+
+- Everyday AI use is positive: it helps people write more clearly, translate across languages, improve accessibility, and work faster.
+- AIBlockList never penalizes someone for using ChatGPT, Claude, Grammarly, or translation tools in daily work.
+- What AIBlockList targets is **automated reply spam**: repetitive unsolicited reply loops, engagement-farming scripts, synchronized botnet campaigns, and programmatic manipulation designed solely to farm impressions or ad-revenue monetization.
+
+## 2. Deterministic Behavioral Methodology (Policy v1.0.0)
+
+AIBlockList strictly prohibits stylometric AI text detection scores (perplexity/burstiness heuristics), which misclassify non-native English writers. Instead, classifications require observable behavioral signals:
+
+- **SIG-01 (Near-Duplicate Unsolicited Replies):** 3+ replies with >= 0.90 cosine similarity across unrelated authors within 7 days.
+- **SIG-02 (Structural Template Loops):** 5+ replies in 14 days matching an identical structural clause skeleton.
+- **SIG-03 (Unsolicited Fan-Out Ratio):** >= 20 daily replies with >= 90% non-mutual targets and < 5% follow-up dialogue turns (corroborative only; must pair with SIG-01 or SIG-02).
+- **SIG-04 (Coordinated Campaign Cluster):** >= 3 distinct accounts posting synchronized payloads within a 30-minute window.
+- **SIG-05 (Cadence Anomaly & Velocity Burst):** Median reply latency < 15 seconds across >= 10 diverse authors, or flat 24-hour posting over 72 hours (supporting signal only).
+
+## 3. Public Appeals & Anti-Scam Verification
+
+- Any listed account owner can submit a public appeal at https://aiblocklist.com/appeals.
+- **Live Bio Ownership Verification:** The user receives a single-use `aibl-verify-*` token, places it in their public X or Threads bio, and the server verifies the live public bio before issuing a single-use, 1-hour appellant session.
+- **Public Accountability:** Appellants state their appeal ground, disclose how and why they use AI or automation (if at all), explain how they will operate moving forward, and attest that they are not running an active reply bot.
+- **Independence & SLA:** Original listing reviewers are barred from deciding appeals. Triage target is 24h–48h with a 7 business day resolution SLA and a 14-day cooldown between appeals.
+
+## 4. Public REST API (`https://aiblocklist.com/api/v1`)
+
+- `GET /api/v1/health` — Service health status.
+- `GET /api/v1/statistics` — Registry totals, evidence coverage, and platform breakdown.
+- `GET /api/v1/blocklists?platform=x|threads&limit=24&cursor=...` — Paginated blocklist records with evidence URLs.
+- `GET /api/v1/accounts/{platform}/{username}` — Full account dossier, behavioral rationale, source assertions, and evidence URLs.
+- `GET /api/v1/transparency` — Audit ledger integrity and SLA commitments.
+- `GET /api/v1/sources` — Upstream list sources and reliability scores.
+- `GET /api/v1/blocklists/export?format=json|csv|txt` — Exportable blocklist feeds.
+
+## 5. Licensing & Governance
+
+- **Source Code:** Apache License 2.0
+- **Open Data Registry:** Open Data Commons Attribution License (ODC-By 1.0)
+- **Repository:** https://github.com/Agenticpirate/aiblocklist

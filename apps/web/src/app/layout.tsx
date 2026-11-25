@@ -7,9 +7,40 @@ import { FooterAscii } from "@/components/FooterAscii";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aiblocklist.com"),
-  title: "AIBlockList — Open Source Behavioral Trust and Safety Infrastructure",
+  title: {
+    default: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
+    template: "%s | AIBlockList",
+  },
   description:
-    "Identify and filter automated social media spam while protecting people who use AI responsibly, backed by public behavioral evidence and transparent appeals.",
+    "Identify and filter automated social media reply bots on X and Threads while protecting people who use AI responsibly. Backed by behavioral evidence (SIG-01 to SIG-05) and public appeals.",
+  keywords: [
+    "AIBlockList",
+    "AI bot blocklist",
+    "X spam filter",
+    "Twitter AI reply bot list",
+    "Threads spam filter",
+    "account reach checker",
+    "behavioral spam verification",
+    "use AI wisely",
+    "open source trust and safety",
+  ],
+  authors: [{ name: "Agenticpirate", url: "https://x.com/Agenticpirate" }],
+  creator: "Agenticpirate",
+  publisher: "AIBlockList",
+  alternates: {
+    canonical: "https://aiblocklist.com",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
@@ -21,18 +52,82 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-    title: "AIBlockList — Identify. Verify. Filter.",
+    title: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
     description:
-      "Open source trust and safety infrastructure separating abusive automation from genuine human and AI assisted communication.",
+      "Using AI in everyday work is great — we only filter automated reply bots farming impressions and monetization. Open-source behavioral intelligence for X and Threads.",
+    url: "https://aiblocklist.com",
+    siteName: "AIBlockList",
+    locale: "en_US",
     type: "website",
     images: [{ url: "/logo.png", width: 1200, height: 1200, alt: "AIBlockList Logo" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
+    description:
+      "Open-source behavioral trust and safety registry for X and Threads. Protecting responsible AI users while filtering automated reply spam.",
+    creator: "@Agenticpirate",
+    images: ["/logo.png"],
+  },
+};
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://aiblocklist.com/#organization",
+      name: "AIBlockList",
+      url: "https://aiblocklist.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://aiblocklist.com/logo.png",
+      },
+      founder: {
+        "@type": "Person",
+        name: "Agenticpirate",
+        url: "https://x.com/Agenticpirate",
+      },
+      sameAs: [
+        "https://github.com/Agenticpirate/aiblocklist",
+        "https://x.com/Agenticpirate",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://aiblocklist.com/#website",
+      url: "https://aiblocklist.com",
+      name: "AIBlockList",
+      description:
+        "Open-source behavioral trust and safety infrastructure filtering automated reply bots on X and Threads while protecting people who use AI wisely.",
+      publisher: { "@id": "https://aiblocklist.com/#organization" },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://aiblocklist.com/directory?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "Dataset",
+      "@id": "https://aiblocklist.com/#dataset",
+      name: "AIBlockList Behavioral Bot & Spam Registry",
+      description:
+        "Public, evidence-backed registry of automated reply bot accounts across X and Meta Threads verified using deterministic behavioral signals SIG-01 through SIG-05.",
+      url: "https://aiblocklist.com/api/v1/blocklists",
+      license: "https://opendatacommons.org/licenses/by/1-0/",
+      creator: { "@id": "https://aiblocklist.com/#organization" },
+    },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} dark`}>
       <body className="min-h-screen bg-[#000000] text-zinc-100 antialiased selection:bg-[#ff6600] selection:text-black">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
         <Navbar />
         <main id="main-content" className="pt-16 sm:pt-24">
           {children}
