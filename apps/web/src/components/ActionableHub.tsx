@@ -373,26 +373,35 @@ export function ActionableHub({
                       </span>
                     </div>
 
-                    {/* Row 3: Quoted tweet reply text */}
-                    {quoteText ? (
-                      <p className="mt-2 text-zinc-100 text-[13px] leading-relaxed italic select-text">
-                        “{quoteText}”
-                      </p>
-                    ) : a.public_rationale ? (
-                      <p className="mt-2 text-zinc-400 text-xs leading-relaxed">
-                        {a.public_rationale}
-                      </p>
-                    ) : null}
+                    {/* Row 3: Clickable quoted tweet reply text */}
+                    {(quoteText || a.public_rationale) && (
+                      <button
+                        type="button"
+                        onClick={() => setInspectingAccount(item)}
+                        className="mt-2 w-full text-left rounded-lg p-1.5 -mx-1.5 hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                        title={`View all ${a.evidence_count} flagged ${a.evidence_count === 1 ? "tweet" : "tweets"} for @${a.username}`}
+                      >
+                        {quoteText ? (
+                          <p className="text-zinc-100 text-[13px] leading-relaxed italic">
+                            “{quoteText}”
+                          </p>
+                        ) : (
+                          <p className="text-zinc-400 text-xs leading-relaxed">
+                            {a.public_rationale}
+                          </p>
+                        )}
+                      </button>
+                    )}
 
                     {/* Row 4: Action bar */}
-                    <div className="mt-2.5 flex items-center justify-between text-xs font-mono text-zinc-400 pt-1.5 border-t border-[#1a1a1a]">
-                      <div className="flex items-center gap-3">
+                    <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 text-[11px] font-mono text-zinc-400 pt-1.5 border-t border-[#1a1a1a]">
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                         {firstEvUrl ? (
                           <a
                             href={firstEvUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap text-xs"
+                            className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap"
                           >
                             <XLogo className="w-3 h-3 text-current" />
                             <span>Reply ↗</span>
@@ -402,7 +411,7 @@ export function ActionableHub({
                             href={`https://x.com/${a.username.replace(/^@/, "")}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap text-xs"
+                            className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap"
                           >
                             <XLogo className="w-3 h-3 text-current" />
                             <span>Profile ↗</span>
@@ -412,25 +421,39 @@ export function ActionableHub({
                         <button
                           type="button"
                           onClick={() => setInspectingAccount(item)}
-                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap cursor-pointer text-xs"
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap cursor-pointer"
+                          title={`Inspect ${a.evidence_count} flagged ${a.evidence_count === 1 ? "tweet" : "tweets"}`}
                         >
                           <ChatCircleText size={13} weight="bold" className="text-zinc-500" />
-                          <span>{a.evidence_count} {a.evidence_count === 1 ? "Tweet" : "Tweets"}</span>
+                          <span>{a.evidence_count}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => setReportingAccount(item)}
-                          className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap cursor-pointer text-xs"
+                          className="inline-flex items-center gap-1 text-[#ff6600] font-medium hover:underline whitespace-nowrap cursor-pointer"
                         >
                           <ShieldWarning size={13} weight="bold" />
                           <span>Report</span>
                         </button>
+
+                        <Link
+                          href={`/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
+                            item.evidence?.[0]?.public_post_url
+                              ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
+                              : ""
+                          }`}
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] whitespace-nowrap font-medium"
+                          title="Submit public appeal for this account"
+                        >
+                          <Scales size={13} weight="bold" />
+                          <span>Appeal</span>
+                        </Link>
                       </div>
 
                       <Link
                         href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap text-xs"
+                        className="inline-flex shrink-0 items-center gap-1 text-zinc-400 hover:text-white whitespace-nowrap"
                       >
                         <span>Inspect</span>
                         <ArrowRight size={11} weight="bold" />
