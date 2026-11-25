@@ -1,0 +1,24 @@
+name: Auto-Sync AIBlockList Registry
+
+on:
+  schedule:
+    # Automatically sync upstream intelligence every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync-d1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Edge D1 Sync
+        run: |
+          status=$(curl -sS -o /tmp/sync_out.json -w "%{http_code}" \
+            -X POST "https://aiblocklist.com/api/v1/internal/sync" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_SECRET }}" \
+            -H "Content-Type: application/json")
+          cat /tmp/sync_out.json
+          echo ""
+          if [ "$status" -ge 400 ]; then
+            echo "Sync failed with HTTP $status"
+            exit 1
+          fi

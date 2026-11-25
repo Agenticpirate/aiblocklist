@@ -21,6 +21,7 @@ import { fetchApi } from "@/lib/api";
 import { QuickCheckModal } from "@/components/QuickCheckModal";
 import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 import { XSuspensionGuide } from "@/components/XSuspensionGuide";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 
 interface ChallengeInit {
   challenge_id: string;
@@ -151,6 +152,7 @@ function AppealsContent() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [quickCheckOpen, setQuickCheckOpen] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   // Appeal Status Tracker state
   const [trackId, setTrackId] = useState("");
@@ -176,6 +178,10 @@ function AppealsContent() {
 
   async function startChallenge(e: React.FormEvent) {
     e.preventDefault();
+    if (!turnstileToken) {
+      setError("Please complete the Cloudflare anti-bot verification check first.");
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -185,6 +191,7 @@ function AppealsContent() {
           platform,
           username: username.trim().replace(/^@/, ""),
           method: "bio_token",
+          turnstile_token: turnstileToken,
         }),
       });
       setChallenge(res);
@@ -528,9 +535,14 @@ function AppealsContent() {
                   className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
                 />
               </div>
+              <TurnstileWidget
+                onVerify={(tok) => setTurnstileToken(tok)}
+                onExpire={() => setTurnstileToken("")}
+              />
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !turnstileToken}
                 className="w-full sm:w-auto button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
               >
                 {loading ? "Generating challenge..." : "Continue to verification"}

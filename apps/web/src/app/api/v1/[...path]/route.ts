@@ -10,18 +10,49 @@ interface D1PreparedStatement {
 
 interface D1Database {
   prepare(query: string): D1PreparedStatement;
+  batch<T = unknown>(statements: D1PreparedStatement[]): Promise<T[]>;
+}
+
+interface WorkerEnv {
+  DB?: D1Database;
+  TURNSTILE_SECRET_KEY?: string;
+  SYNC_SECRET?: string;
 }
 
 const DIRECT_LOCAL_API = "http://127.0.0.1:8000/api/v1";
 
-async function getD1(): Promise<D1Database | null> {
+async function getWorkerEnv(): Promise<WorkerEnv> {
   try {
     const ctx = await getCloudflareContext({ async: true });
-    const env = ctx?.env as { DB?: D1Database } | undefined;
-    return env?.DB ?? null;
+    return (ctx?.env as WorkerEnv | undefined) ?? {};
   } catch {
-    return null;
+    return {};
   }
+}
+
+async function verifyTurnstileToken(
+  env: WorkerEnv,
+  token: string | undefined,
+  remoteIp: string | null
+): Promise<{ ok: boolean; error?: string }> {
+  if (!env.TURNSTILE_SECRET_KEY) return { ok: true };
+  if (!token || !token.trim()) {
+    return { ok: false, error: "Complete the Cloudflare human verification check first." };
+  }
+  const form = new URLSearchParams();
+  form.set("secret", env.TURNSTILE_SECRET_KEY);
+  form.set("response", token.trim());
+  if (remoteIp) form.set("remoteip", remoteIp);
+
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    body: form,
+  });
+  const data = (await res.json()) as { success?: boolean };
+  if (!data.success) {
+    return { ok: false, error: "Cloudflare anti-bot verification failed. Please retry the check." };
+  }
+  return { ok: true };
 }
 
 async function sha256Hex(input: string): Promise<string> {
@@ -361,7 +392,8 @@ async function handleProxyToLocal(req: NextRequest, pathParts: string[]) {
 }
 
 async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextResponse> {
-  const db = await getD1();
+  const env = await getWorkerEnv();
+  const db = env.DB ?? null;
   if (!db) {
     return handleProxyToLocal(req, pathParts);
   }
@@ -432,7 +464,16 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     return NextResponse.json(hydrated);
   }
   if (method === "POST" && route === "appeals/verify/init") {
-    const body = (await req.json()) as { platform?: string; username?: string; method?: string };
+    const body = (await req.json()) as {
+      platform?: string;
+      username?: string;
+      method?: string;
+      turnstile_token?: string;
+    };
+    const ts = await verifyTurnstileToken(env, body.turnstile_token, req.headers.get("cf-connecting-ip"));
+    if (!ts.ok) {
+      return jsonError(403, "TURNSTILE_FAILED", "Human Verification Required", ts.error || "Anti-bot check failed.");
+    }
     const platform = (body.platform || "x").toLowerCase();
     const norm = (body.username || "").trim().replace(/^@/, "").toLowerCase();
     const acc = await db
@@ -807,6 +848,139 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
       },
       { status: 202 }
     );
+  }
+
+  if (method === "POST" && route === "internal/sync") {
+    const auth = req.headers.get("authorization") || "";
+    const bearer = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+    if (!env.SYNC_SECRET || bearer !== env.SYNC_SECRET) {
+      return jsonError(401, "UNAUTHORIZED", "Invalid Sync Secret", "Missing or invalid bearer sync token.");
+    }
+
+    const [accRes, remRes] = await Promise.all([
+      fetch("https://blockedforaireply.com/api/accounts.json", {
+        headers: { "User-Agent": "AIBlockList-AutoSync/1.0" },
+      }),
+      fetch("https://blockedforaireply.com/api/removed-ids.txt", {
+        headers: { "User-Agent": "AIBlockList-AutoSync/1.0" },
+      }),
+    ]);
+
+    if (!accRes.ok) {
+      return jsonError(502, "UPSTREAM_SYNC_FAILED", "Upstream Fetch Failed", `HTTP ${accRes.status} from blockedforaireply.com`);
+    }
+
+    const payload = (await accRes.json()) as {
+      accounts?: Array<{
+        user_id?: string | number;
+        username?: string;
+        screen_name?: string;
+        status?: string;
+        tweets?: Array<{ tweet_id?: string | number; url?: string; text?: string; date?: string }>;
+      }>;
+    };
+    const upstreamAccounts = Array.isArray(payload.accounts) ? payload.accounts : [];
+    const removedText = remRes.ok ? await remRes.text() : "";
+    const removedIds = new Set(
+      removedText
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    );
+
+    const srcRow = await db
+      .prepare("SELECT id FROM external_sources WHERE slug = 'blockedforaireply' LIMIT 1")
+      .first<{ id: string }>();
+    const sourceId = srcRow?.id || null;
+
+    const existingRows = await db
+      .prepare("SELECT id, platform_account_id, normalized_username FROM accounts WHERE platform = 'x'")
+      .all<{ id: string; platform_account_id: string | null; normalized_username: string }>();
+    const byPid = new Map<string, string>();
+    const byUser = new Map<string, string>();
+    for (const r of existingRows.results) {
+      if (r.platform_account_id) byPid.set(String(r.platform_account_id), String(r.id));
+      byUser.set(String(r.normalized_username), String(r.id));
+    }
+
+    const nowIso = new Date().toISOString();
+    const stmts: D1PreparedStatement[] = [];
+    let newAccounts = 0;
+
+    for (const item of upstreamAccounts) {
+      const pid = item.user_id ? String(item.user_id) : "";
+      if (pid && removedIds.has(pid)) continue;
+      const uname = (item.username || item.screen_name || "").trim().replace(/^@/, "");
+      if (!uname) continue;
+      const norm = uname.toLowerCase();
+      if ((pid && byPid.has(pid)) || byUser.has(norm)) continue;
+
+      const accId = crypto.randomUUID();
+      const profileUrl = `https://x.com/${uname}`;
+      const rationale = `External unverified assertion imported from blockedforaireply (${item.status || "listed"}).`;
+      stmts.push(
+        db
+          .prepare(
+            `INSERT OR IGNORE INTO accounts (id, platform, platform_account_id, identity_confidence, username, normalized_username, is_handle_current, public_profile_url, classification, verification_status, confidence_level, is_high_impact, has_source_conflict, appeal_status, public_rationale, created_at, updated_at)
+             VALUES (?, 'x', ?, ?, ?, ?, 1, ?, 'under_review', 'unverified_external', 'low', 0, 0, 'none', ?, ?, ?)`
+          )
+          .bind(accId, pid || null, pid ? "immutable_id" : "handle_only", uname, norm, profileUrl, rationale, nowIso, nowIso)
+      );
+
+      if (sourceId) {
+        stmts.push(
+          db
+            .prepare(
+              `INSERT OR IGNORE INTO external_list_entries (id, account_id, source_id, source_classification, source_list_version, first_seen_at, last_seen_at)
+               VALUES (?, ?, ?, ?, 'live', ?, ?)`
+            )
+            .bind(crypto.randomUUID(), accId, sourceId, item.status || "listed", nowIso, nowIso)
+        );
+      }
+
+      for (const tw of (item.tweets || []).slice(0, 5)) {
+        const tid = tw.tweet_id ? String(tw.tweet_id) : "";
+        const turl = tw.url || (tid ? `https://x.com/i/status/${tid}` : "");
+        if (!tid || !turl) continue;
+        const metrics = JSON.stringify({
+          post_text: tw.text || null,
+          post_date: tw.date || null,
+        });
+        stmts.push(
+          db
+            .prepare(
+              `INSERT OR IGNORE INTO evidence_items (id, account_id, platform_post_id, public_post_url, signal_type, signal_metrics, content_hash_sha256, collected_at)
+               VALUES (?, ?, ?, ?, 'external_import', ?, ?, ?)`
+            )
+            .bind(crypto.randomUUID(), accId, tid, turl, metrics, await sha256Hex(`${tid}:${turl}`), nowIso)
+        );
+      }
+
+      newAccounts += 1;
+      if (stmts.length >= 180) {
+        await db.batch(stmts.splice(0, stmts.length));
+      }
+    }
+
+    if (sourceId) {
+      stmts.push(
+        db
+          .prepare("UPDATE external_sources SET last_synced_at = ? WHERE id = ?")
+          .bind(nowIso, sourceId)
+      );
+    }
+
+    if (stmts.length > 0) {
+      await db.batch(stmts);
+    }
+
+    return NextResponse.json({
+      status: "synced",
+      upstream_total: upstreamAccounts.length,
+      new_accounts_added: newAccounts,
+      removed_ids_checked: removedIds.size,
+      synced_at: nowIso,
+    });
   }
 
   return jsonError(404, "NOT_FOUND", "Endpoint Not Found", `Unknown API route: /api/v1/${route}`);
