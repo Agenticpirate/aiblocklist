@@ -872,11 +872,19 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
 
     const payload = (await accRes.json()) as {
       accounts?: Array<{
+        id?: string | number;
         user_id?: string | number;
         username?: string;
         screen_name?: string;
         status?: string;
-        tweets?: Array<{ tweet_id?: string | number; url?: string; text?: string; date?: string }>;
+        levelsio?: string;
+        evidence?: Array<{
+          their_post?: string;
+          their_reply?: string;
+          their_reply_status?: string;
+          date?: string;
+          levelsio_reply?: string;
+        }>;
       }>;
     };
     const upstreamAccounts = Array.isArray(payload.accounts) ? payload.accounts : [];
@@ -908,23 +916,26 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     let newAccounts = 0;
 
     for (const item of upstreamAccounts) {
-      const pid = item.user_id ? String(item.user_id) : "";
-      if (pid && removedIds.has(pid)) continue;
+      const pid = item.id ? String(item.id).trim() : item.user_id ? String(item.user_id).trim() : "";
+      if (!pid || removedIds.has(pid)) continue;
       const uname = (item.username || item.screen_name || "").trim().replace(/^@/, "");
       if (!uname) continue;
       const norm = uname.toLowerCase();
-      if ((pid && byPid.has(pid)) || byUser.has(norm)) continue;
+      if (byPid.has(pid) || byUser.has(norm)) continue;
+      byPid.set(pid, pid);
+      byUser.set(norm, pid);
 
       const accId = crypto.randomUUID();
       const profileUrl = `https://x.com/${uname}`;
-      const rationale = `External unverified assertion imported from blockedforaireply (${item.status || "listed"}).`;
+      const statusFlag = item.status || item.levelsio || "listed";
+      const rationale = `External unverified assertion imported from blockedforaireply (${statusFlag}).`;
       stmts.push(
         db
           .prepare(
             `INSERT OR IGNORE INTO accounts (id, platform, platform_account_id, identity_confidence, username, normalized_username, is_handle_current, public_profile_url, classification, verification_status, confidence_level, is_high_impact, has_source_conflict, appeal_status, public_rationale, created_at, updated_at)
-             VALUES (?, 'x', ?, ?, ?, ?, 1, ?, 'under_review', 'unverified_external', 'low', 0, 0, 'none', ?, ?, ?)`
+             VALUES (?, 'x', ?, 'immutable_id', ?, ?, 1, ?, 'under_review', 'unverified_external', 'low', 0, 0, 'none', ?, ?, ?)`
           )
-          .bind(accId, pid || null, pid ? "immutable_id" : "handle_only", uname, norm, profileUrl, rationale, nowIso, nowIso)
+          .bind(accId, pid, uname, norm, profileUrl, rationale, nowIso, nowIso)
       );
 
       if (sourceId) {
@@ -934,25 +945,30 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
               `INSERT OR IGNORE INTO external_list_entries (id, account_id, source_id, source_classification, source_list_version, first_seen_at, last_seen_at)
                VALUES (?, ?, ?, ?, 'live', ?, ?)`
             )
-            .bind(crypto.randomUUID(), accId, sourceId, item.status || "listed", nowIso, nowIso)
+            .bind(crypto.randomUUID(), accId, sourceId, statusFlag, nowIso, nowIso)
         );
       }
 
-      for (const tw of (item.tweets || []).slice(0, 5)) {
-        const tid = tw.tweet_id ? String(tw.tweet_id) : "";
-        const turl = tw.url || (tid ? `https://x.com/i/status/${tid}` : "");
-        if (!tid || !turl) continue;
+      for (const ev of (item.evidence || []).slice(0, 6)) {
+        const postUrl = ev.their_post || "";
+        const m = postUrl.match(/status\/(\d+)/);
+        if (!m) continue;
+        const tid = m[1];
+        const turl = `https://x.com/i/status/${tid}`;
         const metrics = JSON.stringify({
-          post_text: tw.text || null,
-          post_date: tw.date || null,
+          upstream_source: "blockedforaireply",
+          reply_status: ev.their_reply_status || "unknown",
+          post_text: ev.their_reply || null,
+          post_date: ev.date || null,
+          response_text: ev.levelsio_reply || null,
         });
         stmts.push(
           db
             .prepare(
               `INSERT OR IGNORE INTO evidence_items (id, account_id, platform_post_id, public_post_url, signal_type, signal_metrics, content_hash_sha256, collected_at)
-               VALUES (?, ?, ?, ?, 'external_import', ?, ?, ?)`
+               VALUES (?, ?, ?, ?, 'external_reported_reply', ?, ?, ?)`
             )
-            .bind(crypto.randomUUID(), accId, tid, turl, metrics, await sha256Hex(`${tid}:${turl}`), nowIso)
+            .bind(crypto.randomUUID(), accId, tid, turl, metrics, await sha256Hex(`${pid}:${tid}:${turl}`), nowIso)
         );
       }
 
