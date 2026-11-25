@@ -61,7 +61,7 @@ export default async function HomePage() {
               <span className="text-[#ff6600]">Keep Your Feed Human.</span>
             </h1>
             <p className="caption-2 sm:body-6 text-zinc-400 mt-1.5 leading-relaxed">
-              Using AI in everyday work is great — we only filter automated reply bots farming impressions and monetization. Let&apos;s use AI wisely.
+              Filter AI bot replies on X and Threads to keep your feed human. Using AI in everyday work is great — we only target automated spam farming impressions. Let&apos;s use AI wisely.
             </p>
           </div>
 

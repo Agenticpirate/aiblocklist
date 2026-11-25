@@ -10,11 +10,11 @@ import { WebMcpProvider } from "@/components/WebMcpProvider";
 export const metadata: Metadata = {
   metadataBase: new URL("https://aiblocklist.com"),
   title: {
-    default: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
+    default: "AIBlockList — Filter AI Bot Replies & Keep Feeds Human",
     template: "%s | AIBlockList",
   },
   description:
-    "Identify and filter automated social media reply bots on X and Threads while protecting people who use AI responsibly. Backed by behavioral evidence (SIG-01 to SIG-05) and public appeals.",
+    "Filter AI bot replies on X and Threads to keep your feed human. Public behavioral evidence, transparent appeals, and open-source spam protection.",
   keywords: [
     "AIBlockList",
     "AI bot blocklist",

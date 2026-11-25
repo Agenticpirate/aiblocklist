@@ -78,7 +78,17 @@ function buildMarkdown404(pathname: string): string {
 }
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
+  const host = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "").toLowerCase();
+  const proto = (req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")).toLowerCase();
+  const isLocal = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+
+  // 301 canonical redirect: enforce HTTPS and non-www (https://aiblocklist.com)
+  if (!isLocal && (host.startsWith("www.") || proto === "http")) {
+    const canonicalUrl = new URL(`https://aiblocklist.com${pathname}${search}`);
+    return NextResponse.redirect(canonicalUrl, 301);
+  }
+
   const accept = (req.headers.get("accept") || "").toLowerCase();
 
   // Structured JSON 404 for unknown /api/* paths outside /api/v1 and /api/avatar

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MagnifyingGlass,
@@ -49,6 +50,7 @@ export function ActionableHub({
   initialItems = [],
   initialNextCursor = null,
 }: ActionableHubProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string>("all");
@@ -437,18 +439,23 @@ export function ActionableHub({
                           <span>Report</span>
                         </button>
 
-                        <Link
-                          href={`/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
-                            item.evidence?.[0]?.public_post_url
-                              ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
-                              : ""
-                          }`}
-                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] whitespace-nowrap font-medium"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            router.push(
+                              `/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
+                                item.evidence?.[0]?.public_post_url
+                                  ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
+                                  : ""
+                              }`
+                            )
+                          }
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] whitespace-nowrap font-medium cursor-pointer"
                           title="Submit public appeal for this account"
                         >
                           <Scales size={13} weight="bold" />
                           <span>Appeal</span>
-                        </Link>
+                        </button>
                       </div>
 
                       <Link
@@ -601,18 +608,23 @@ export function ActionableHub({
                         <span>Report</span>
                       </button>
 
-                      <Link
-                        href={`/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
-                          item.evidence?.[0]?.public_post_url
-                            ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
-                            : ""
-                        }`}
-                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] transition-colors whitespace-nowrap font-medium"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          router.push(
+                            `/appeals?platform=${encodeURIComponent(a.platform)}&username=${encodeURIComponent(a.username)}${
+                              item.evidence?.[0]?.public_post_url
+                                ? `&post_url=${encodeURIComponent(item.evidence[0].public_post_url)}`
+                                : ""
+                            }`
+                          )
+                        }
+                        className="inline-flex items-center gap-1 text-zinc-400 hover:text-[#ff6600] transition-colors whitespace-nowrap font-medium cursor-pointer"
                         title="Submit public appeal for this account"
                       >
                         <Scales size={13} weight="bold" />
                         <span>Appeal</span>
-                      </Link>
+                      </button>
                     </div>
 
                     <Link
