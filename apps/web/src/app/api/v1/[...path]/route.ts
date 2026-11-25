@@ -481,9 +481,69 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     if (ch.consumed_at || new Date(String(ch.expires_at)) < now) {
       return jsonError(401, "UNAUTHORIZED", "Challenge Expired or Consumed", "Initiate a new ownership challenge.");
     }
-    if (String(ch.token_hash_sha256) !== (await sha256Hex((body.verification_token || "").trim()))) {
+    const submittedToken = (body.verification_token || "").trim();
+    if (String(ch.token_hash_sha256) !== (await sha256Hex(submittedToken))) {
       return jsonError(401, "UNAUTHORIZED", "Invalid Verification Token", "Verification token does not match.");
     }
+
+    const acc = await db
+      .prepare("SELECT id, platform, username FROM accounts WHERE id = ? LIMIT 1")
+      .bind(ch.account_id)
+      .first<{ id: string; platform: string; username: string }>();
+    if (!acc) {
+      return jsonError(404, "ACCOUNT_NOT_INDEXED", "Account Not Indexed", "Target account no longer exists.");
+    }
+
+    // Live public bio verification so challenges cannot be bypassed without owning the account
+    let bioText = "";
+    let lookupSucceeded = false;
+    try {
+      if (acc.platform === "x") {
+        const res = await fetch(`https://api.vxtwitter.com/${encodeURIComponent(acc.username)}`, {
+          headers: { "User-Agent": "AIBlockList-Verifier/1.0" },
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { description?: string; error?: string };
+          if (typeof data.description === "string" && !data.error) {
+            bioText = data.description;
+            lookupSucceeded = true;
+          }
+        }
+      } else if (acc.platform === "threads") {
+        const res = await fetch(`https://www.threads.net/@${encodeURIComponent(acc.username)}`, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+        });
+        if (res.ok) {
+          const html = await res.text();
+          const match = html.match(/og:description["']\s+content=["']([^"']*)["']/i);
+          if (match?.[1]) {
+            bioText = match[1];
+            lookupSucceeded = true;
+          }
+        }
+      }
+    } catch {
+      lookupSucceeded = false;
+    }
+
+    if (!lookupSucceeded) {
+      return jsonError(
+        422,
+        "BIO_LOOKUP_UNAVAILABLE",
+        "Could Not Read Public Profile Bio",
+        `We could not fetch the live public bio for @${acc.username} on ${acc.platform.toUpperCase()} (the account may be suspended, private, or temporarily rate-limited). Ownership cannot be confirmed without a live bio check.`
+      );
+    }
+
+    if (!bioText.includes(submittedToken)) {
+      return jsonError(
+        401,
+        "BIO_TOKEN_NOT_FOUND",
+        "Verification Token Not Found in Bio",
+        `We checked @${acc.username}'s live ${acc.platform.toUpperCase()} bio and did not find "${submittedToken}". Please add it to your public bio, save, and click Confirm again.`
+      );
+    }
+
     const sessionToken = `aibl_app_${randomHex(24)}`;
     await db
       .prepare("UPDATE appeal_verification_challenges SET consumed_at = ?, session_token_hash = ? WHERE id = ?")
@@ -505,7 +565,11 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
       .bind(await sha256Hex(session))
       .first();
     if (!ch) {
-      return jsonError(401, "UNAUTHORIZED", "Invalid Appellant Session", "Ownership verification session is invalid.");
+      return jsonError(401, "UNAUTHORIZED", "Invalid Appellant Session", "Ownership verification session is invalid or already used.");
+    }
+    const now = new Date();
+    if (ch.consumed_at && now.getTime() - new Date(String(ch.consumed_at)).getTime() > 3600 * 1000) {
+      return jsonError(401, "UNAUTHORIZED", "Appellant Session Expired", "Ownership verification session expired after 1 hour. Please re-verify.");
     }
     const body = (await req.json()) as { platform?: string; username?: string; statement?: string; supporting_urls?: string[] };
     const norm = (body.username || "").trim().replace(/^@/, "").toLowerCase();
@@ -516,7 +580,32 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     if (!acc) {
       return jsonError(403, "FORBIDDEN", "Account Mismatch", "Verified session does not match target account.");
     }
-    const now = new Date();
+
+    const statementText = (body.statement || "").trim();
+    if (statementText.length < 20 || statementText.length > 3000) {
+      return jsonError(422, "INVALID_STATEMENT", "Invalid Appeal Statement", "Appeal statement must be between 20 and 3000 characters.");
+    }
+
+    // Enforce 14-day cooldown between appeals for the same account
+    const cooldownCutoff = new Date(now.getTime() - 14 * 86400 * 1000).toISOString();
+    const recentAppeal = await db
+      .prepare("SELECT id, submitted_at FROM appeals WHERE account_id = ? AND submitted_at >= ? ORDER BY submitted_at DESC LIMIT 1")
+      .bind(acc.id, cooldownCutoff)
+      .first<{ id: string; submitted_at: string }>();
+    if (recentAppeal) {
+      return jsonError(
+        429,
+        "APPEAL_COOLDOWN_ACTIVE",
+        "Appeal Cooldown Active",
+        `An appeal for @${acc.username} was already submitted on ${String(recentAppeal.submitted_at).slice(0, 10)}. Only 1 appeal is permitted every 14 days.`
+      );
+    }
+
+    const validUrls = (body.supporting_urls || [])
+      .map((u) => String(u || "").trim())
+      .filter((u) => /^https?:\/\//i.test(u))
+      .slice(0, 5);
+
     const isExpedited = acc.verification_status === "unverified_external";
     const triageHours = isExpedited ? 24 : 48;
     const triageDue = new Date(now.getTime() + triageHours * 3600 * 1000);
@@ -533,13 +622,15 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
         ch.id,
         ch.method,
         ch.consumed_at,
-        (body.statement || "").trim(),
-        JSON.stringify((body.supporting_urls || []).slice(0, 5)),
+        statementText,
+        JSON.stringify(validUrls),
         triageDue.toISOString(),
         slaDue.toISOString(),
         now.toISOString()
       )
       .run();
+    // Invalidate session token after submission so it cannot be replayed
+    await db.prepare("UPDATE appeal_verification_challenges SET session_token_hash = NULL WHERE id = ?").bind(ch.id).run();
     await db.prepare("UPDATE accounts SET appeal_status = 'appealed' WHERE id = ?").bind(acc.id).run();
     return NextResponse.json(
       {

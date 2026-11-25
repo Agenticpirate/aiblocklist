@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ShieldWarning, Scales } from "@phosphor-icons/react";
+import { ShieldWarning, Scales, ShareNetwork, Check } from "@phosphor-icons/react";
 import { EvidenceRecord } from "@/lib/api";
 import { VerifiedTick } from "./VerifiedTick";
 import { XLogo, ThreadsLogo } from "./PlatformSlideControl";
@@ -22,11 +23,33 @@ export function TweetEvidenceCard({
   platform = "x",
   showVerified = true,
 }: TweetEvidenceCardProps) {
+  const [copiedShare, setCopiedShare] = useState(false);
   const cleanUser = username.replace(/^@/, "");
   const postText = evidence.post_text || (evidence.metrics?.post_text as string) || null;
   const postDate = evidence.post_date || (evidence.metrics?.post_date as string) || evidence.collected_at?.slice(0, 10);
   const responseText = evidence.response_text || (evidence.metrics?.response_text as string) || null;
   const isDeleted = evidence.source_deleted;
+
+  async function handleShareTweet() {
+    const shareText = `Flagged reply by @${cleanUser}: ${evidence.public_post_url}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: `@${cleanUser} flagged reply on AIBlockList`,
+          text: shareText,
+          url: evidence.public_post_url,
+        });
+        return;
+      } catch {
+        // User cancelled or share unsupported; fall back to copy
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(evidence.public_post_url);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2000);
+    }
+  }
 
   return (
     <div className="group relative rounded-xl border border-[#2f3336] bg-[#0c0c0c] p-4 text-left shadow-md transition-all duration-200 hover:border-[#444] hover:bg-[#111315]">
@@ -125,6 +148,20 @@ export function TweetEvidenceCard({
             <Scales size={12} weight="bold" />
             <span>Appeal</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={handleShareTweet}
+            className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            title="Share or copy tweet evidence link"
+          >
+            {copiedShare ? (
+              <Check size={12} weight="bold" className="text-emerald-400" />
+            ) : (
+              <ShareNetwork size={12} weight="bold" />
+            )}
+            <span>{copiedShare ? "Copied" : "Share"}</span>
+          </button>
         </div>
 
         <span className="caption-5 text-zinc-600 truncate max-w-[160px]" title={`SHA-256: ${evidence.content_hash_sha256}`}>

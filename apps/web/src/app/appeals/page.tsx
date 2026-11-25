@@ -101,6 +101,15 @@ const USAGE_HISTORY_OPTIONS = [
   },
 ] as const;
 
+const AI_USAGE_REASONS = [
+  { id: "never_used", label: "Never used AI / automation (false positive)" },
+  { id: "grammar_translation", label: "Grammar, spelling, or English translation" },
+  { id: "accessibility", label: "Accessibility / dyslexia / typing assistance" },
+  { id: "creator_scheduling", label: "Content scheduling or creator workflow (no auto-replies)" },
+  { id: "tested_automation", label: "Tested an AI-reply / growth tool (now stopped)" },
+  { id: "hacked_compromised", label: "Account was hacked / unauthorized third-party app" },
+] as const;
+
 const FORWARD_COMMITMENTS = [
   "100% manual, human-written replies only",
   "Revoked all third-party OAuth & automation apps",
@@ -124,6 +133,7 @@ function AppealsContent() {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [ground, setGround] = useState<string>("false_positive");
   const [usageHistory, setUsageHistory] = useState<string>("never");
+  const [aiUsageReasonCode, setAiUsageReasonCode] = useState<string>("never_used");
   const [usageReason, setUsageReason] = useState("");
   const [forwardCommitments, setForwardCommitments] = useState<string[]>([
     "100% manual, human-written replies only",
@@ -217,10 +227,12 @@ function AppealsContent() {
     try {
       const selectedGround = APPEAL_GROUNDS.find((g) => g.id === ground);
       const selectedUsage = USAGE_HISTORY_OPTIONS.find((u) => u.id === usageHistory);
+      const selectedExactReason = AI_USAGE_REASONS.find((r) => r.id === aiUsageReasonCode);
       const sections = [
         `[${selectedGround?.label || ground}]`,
         `Usage History: ${selectedUsage?.label || usageHistory}`,
-        `Why used / Context: ${usageReason.trim()}`,
+        `Exact Reason Behind Usage: ${selectedExactReason?.label || aiUsageReasonCode}`,
+        `Detailed Explanation: ${usageReason.trim()}`,
         `Going Forward Plan: ${goingForward.trim()}${
           forwardCommitments.length > 0
             ? ` (Commitments: ${forwardCommitments.join("; ")})`
@@ -615,6 +627,23 @@ function AppealsContent() {
                     </button>
                   ))}
                 </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="exact-ai-reason" className="caption-4 font-mono text-zinc-300 block">
+                    Exact reason behind using AI / automation (or why flagged)
+                  </label>
+                  <select
+                    id="exact-ai-reason"
+                    value={aiUsageReasonCode}
+                    onChange={(e) => setAiUsageReasonCode(e.target.value)}
+                    className="body-6 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white focus:border-[#ff6600] focus:outline-none"
+                  >
+                    {AI_USAGE_REASONS.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <textarea
                   id="usage-reason"
                   required
@@ -623,7 +652,7 @@ function AppealsContent() {
                   rows={3}
                   value={usageReason}
                   onChange={(e) => setUsageReason(e.target.value)}
-                  placeholder="Share why you used or use this workflow (e.g. grammar/translation assistance, accessibility, a former scheduler you turned off, or clarify that all replies were written manually)."
+                  placeholder="Explain the exact reason behind your usage (e.g. used AI for English translation/grammar, accessibility, tested a tool and turned it off, or clarify all replies were manual)."
                   className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
                 />
               </div>
@@ -702,7 +731,7 @@ function AppealsContent() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="title-4 text-white">
-                    Supporting post URLs <span className="caption-5 text-zinc-500 font-normal">(optional, up to 5)</span>
+                    Share tweets &amp; counter-evidence URLs <span className="caption-5 text-zinc-500 font-normal">(optional, up to 5)</span>
                   </label>
                   {supportingUrls.length < 5 && (
                     <button
