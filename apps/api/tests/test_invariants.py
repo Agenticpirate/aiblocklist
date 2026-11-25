@@ -339,7 +339,7 @@ async def test_external_blockedforaireply_stays_unverified_external(test_session
               "evidence": [
                 {
                   "date": "2026-11-23",
-                  "their_reply": "SECRET RAW POST TEXT THAT MUST NEVER BE PERSISTED",
+                  "their_reply": "PUBLIC REPLY TEXT SHOWN AS EVIDENCE",
                   "their_reply_status": "ok",
                   "their_post": "https://x.com/i/status/2124685496534405589"
                 }
@@ -360,7 +360,51 @@ async def test_external_blockedforaireply_stays_unverified_external(test_session
         assert data["account"]["classification"] == "under_review"
         assert data["account"]["has_source_conflict"] is True
         assert len(data["source_assertions"]) == 2
-        assert "SECRET RAW POST TEXT" not in str(data)
+        # Public reply text is kept so the site can display the tweet: on the evidence item and as the card quote only.
+        assert data["evidence"][0]["metrics"]["post_text"] == "PUBLIC REPLY TEXT SHOWN AS EVIDENCE"
+        assert data["account"]["primary_quote"] == "PUBLIC REPLY TEXT SHOWN AS EVIDENCE"  # feed card quote
+        other_fields = {k: v for k, v in data["account"].items() if k != "primary_quote"}
+        assert "PUBLIC REPLY TEXT" not in str(other_fields)
+        assert "PUBLIC REPLY TEXT" not in str(data["source_assertions"])
+
+
+@pytest.mark.asyncio
+async def test_sync_reads_new_status_field_and_tracks_upgrades(test_session: AsyncSession):
+    from sqlalchemy import select
+
+    from app.core.models import ExternalListEntry
+    from app.modules.federation.sync_service import sync_blockedforaireply
+
+    def payload(status: str) -> dict:
+        return {
+            "generated_at": "2026-11-25",
+            "accounts": [
+                {
+                    "id": "2116599441234780160",
+                    "username": "NewFormatUser",
+                    "status": status,
+                    "blocked_at": "2026-11-25",
+                    "evidence": [
+                        {
+                            "date": "2026-11-24",
+                            "their_reply": "raw text",
+                            "their_reply_status": "ok",
+                            "their_post": "https://x.com/i/status/2125269949581230528",
+                        }
+                    ],
+                }
+            ],
+        }
+
+    res = await sync_blockedforaireply(test_session, payload=payload("unreviewed"), removed_ids=set(), force=True)
+    assert res["new_accounts_added"] == 1
+    entry = (await test_session.execute(select(ExternalListEntry))).scalars().one()
+    assert entry.source_classification == "external_silent_block"
+
+    res = await sync_blockedforaireply(test_session, payload=payload("confirmed"), removed_ids=set(), force=True)
+    assert res["new_accounts_added"] == 0
+    await test_session.refresh(entry)
+    assert entry.source_classification == "external_confirmed_ai_reply"
 
 
 @pytest.mark.asyncio

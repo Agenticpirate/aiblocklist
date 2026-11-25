@@ -61,7 +61,7 @@ const SIGNALS = [
 
 export default function MethodologyPage() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+    <div className="mx-auto max-w-5xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
       {/* Header */}
       <div className="max-w-[720px]">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
@@ -78,7 +78,7 @@ export default function MethodologyPage() {
       </div>
 
       {/* Stanford Research & The AI Detector Problem */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-4">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4">
         <div className="flex items-center gap-2 text-[#ff6600]">
           <WarningCircle size={22} weight="bold" />
           <h2 className="heading-4 text-white">Why AI Text Detectors Are Strictly Prohibited</h2>
@@ -100,7 +100,7 @@ export default function MethodologyPage() {
       </div>
 
       {/* 5 Behavioral Signals */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
           <h2 className="heading-3 text-white">The 5 Behavioral Signals</h2>
           <p className="body-4 mt-1 text-zinc-400">
@@ -112,7 +112,7 @@ export default function MethodologyPage() {
           {SIGNALS.map((sig) => (
             <div
               key={sig.code}
-              className="rounded-2xl border border-[#272727] bg-[#181818] p-6 transition-all hover:border-[#313131]"
+              className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 transition-all hover:border-[#313131]"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -137,7 +137,7 @@ export default function MethodologyPage() {
       </div>
 
       {/* Publication Gate & Safeguards */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="heading-3 text-white">The 4-Point Publication Gate</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-[#272727] bg-[#000000] p-4 space-y-2">
@@ -179,7 +179,7 @@ export default function MethodologyPage() {
       </div>
 
       {/* Philosophy: Noise vs Substance & The Course-Correction Doctrine */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <div className="space-y-1 border-b border-[#272727] pb-4">
           <span className="caption-4 uppercase text-[#ff6600] font-bold font-mono">
             Ecosystem Philosophy

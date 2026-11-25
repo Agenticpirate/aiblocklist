@@ -50,7 +50,6 @@ const COMMON_BOT_CLICHES = [
 
 export function PreFlightEvaluator() {
   const [draftReply, setDraftReply] = useState("");
-  const [originalPost, setOriginalPost] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
 
@@ -69,7 +68,7 @@ export function PreFlightEvaluator() {
 
       for (const phrase of COMMON_BOT_CLICHES) {
         if (text.includes(phrase)) {
-          detected.push(`Formulaic phrase matched: "${phrase}"`);
+          detected.push(`Stock phrase: “${phrase}”`);
           templatePenalty += 20;
         }
       }
@@ -77,7 +76,7 @@ export function PreFlightEvaluator() {
       // Length heuristics
       let lengthScore = 50;
       if (wordCount < 6) {
-        detected.push("Extremely short reply (high risk of automated sentiment confirmation)");
+        detected.push("Very short reply (reads as a generic reaction)");
         templatePenalty += 25;
         lengthScore = 20;
       } else if (wordCount >= 15 && wordCount <= 80) {
@@ -89,7 +88,7 @@ export function PreFlightEvaluator() {
       // Punctuation / Emoji heuristics
       const emojiMatches = draftReply.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu) || [];
       if (emojiMatches.length > 4) {
-        detected.push("High emoji density (frequently flagged by platform commercial filters)");
+        detected.push("Lots of emoji (a common pattern in spam replies)");
         templatePenalty += 15;
       }
 
@@ -105,16 +104,16 @@ export function PreFlightEvaluator() {
 
       const tips: string[] = [];
       if (detected.length > 0) {
-        tips.push("Replace opening affirmations ('Great point!', 'Love this!') with a direct perspective or concrete question.");
+        tips.push("Cut the opener (“Great point!”, “Love this!”) and lead with your actual point.");
       }
       if (!hasQuestion) {
-        tips.push("Ask a thoughtful question to invite authentic two-way dialogue rather than a closed one-way reaction.");
+        tips.push("Ask a specific question to invite a real conversation.");
       }
       if (wordCount < 10) {
-        tips.push("Add an anecdote, concrete example, or technical insight to cross the algorithm's substantive threshold.");
+        tips.push("Add an anecdote, concrete example, or technical detail so it says something new.");
       }
       if (tips.length === 0) {
-        tips.push("Excellent substance! This reply adds unique conversational value and is highly unlikely to be deboosted.");
+        tips.push("Good reply: specific and conversational. Replies that start real conversations are what X’s ranking rewards.");
       }
 
       const rating: "high_value" | "borderline" | "high_risk" =
@@ -137,27 +136,27 @@ export function PreFlightEvaluator() {
   };
 
   return (
-    <div className="rounded-2xl border border-[#272727] bg-[#141414] p-6 sm:p-8 space-y-6 shadow-2xl font-mono">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#272727] pb-5">
+    <div className="rounded-2xl border border-[#272727] bg-[#141414] p-4 sm:p-7 space-y-4 sm:space-y-5 font-mono">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#272727] pb-4">
         <div>
           <span className="caption-4 uppercase text-[#ff6600] font-bold flex items-center gap-1.5">
             <Sparkle size={15} weight="bold" />
-            <span>Interactive Simulator</span>
+            <span>Reply check</span>
           </span>
-          <h3 className="title-2 text-white mt-1">Pre-Flight Reply &amp; Post Quality Evaluator</h3>
+          <h3 className="title-2 font-sans text-white mt-1">Test a reply before you post it</h3>
           <p className="caption-4 text-zinc-400 mt-1 font-sans">
-            Test your draft before posting to predict algorithmic deboosting risk and verify conversational value.
+            A quick check that runs entirely in your browser. It flags the patterns X’s ranking pushes down, such as generic one-liners. It’s a heuristic, not X’s model.
           </p>
         </div>
-        <span className="caption-5 uppercase rounded bg-[#272727] px-2.5 py-1 text-zinc-400 self-start sm:self-center font-bold">
-          Zero Data Logging
+        <span className="caption-5 uppercase whitespace-nowrap rounded-md border border-[#313131] bg-[#1a1a1a] px-2 py-1 text-zinc-400 self-start sm:self-center shrink-0">
+          Runs locally
         </span>
       </div>
 
       <form onSubmit={handleEvaluate} className="space-y-4">
         <div>
           <label htmlFor="draft-reply" className="caption-4 block text-zinc-300 font-bold mb-2">
-            Paste your draft reply or post:
+            Your draft
           </label>
           <textarea
             id="draft-reply"
@@ -171,7 +170,7 @@ export function PreFlightEvaluator() {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           <div className="text-xs text-zinc-500 font-sans">
-            Evaluates against 𝕏&apos;s known <code className="text-zinc-300">ReplyDeboosting</code> heuristics, formulaic bot patterns, and value thresholds.
+            Looks for stock phrases, very short replies, emoji overload and missing substance.
           </div>
 
           <button
@@ -182,12 +181,12 @@ export function PreFlightEvaluator() {
             {analyzing ? (
               <>
                 <ArrowsClockwise size={14} weight="bold" className="animate-spin" />
-                <span>Evaluating Quality...</span>
+                <span>Checking…</span>
               </>
             ) : (
               <>
                 <Sparkle size={14} weight="bold" />
-                <span>Run Pre-Flight Analysis</span>
+                <span>Check reply</span>
               </>
             )}
           </button>
@@ -196,7 +195,7 @@ export function PreFlightEvaluator() {
 
       {/* RESULTS DISPLAY */}
       {result && (
-        <div className="border-t border-[#272727] pt-6 space-y-6 animate-in fade-in duration-300">
+        <div className="border-t border-[#272727] pt-6 space-y-4 sm:space-y-6 animate-in fade-in duration-300">
           {/* Main Quality Gauge Banner */}
           <div
             className={`rounded-xl border p-5 ${
@@ -210,15 +209,15 @@ export function PreFlightEvaluator() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="caption-5 uppercase font-bold tracking-wider text-zinc-400">
-                  Pre-Flight Quality Index
+                  Reply quality
                 </span>
                 <div className="flex items-center gap-2 mt-1">
                   <h4 className="title-2 text-white">
                     {result.rating === "high_value"
-                      ? "High Conversational Value"
+                      ? "Strong reply"
                       : result.rating === "borderline"
-                      ? "Borderline Value / Potential Deprioritization"
-                      : "High Spam / Deboosting Risk"}
+                      ? "Borderline: could be ranked low"
+                      : "Looks like low-effort spam"}
                   </h4>
                   {result.rating === "high_value" ? (
                     <CheckCircle size={20} weight="bold" className="text-emerald-400 shrink-0" />
@@ -228,10 +227,10 @@ export function PreFlightEvaluator() {
                 </div>
                 <p className="caption-4 text-zinc-300 font-sans mt-1">
                   {result.rating === "high_value"
-                    ? "Substantive, contextual, and adds clear intellectual or technical value to the discussion."
+                    ? "Specific, relevant and adds something to the conversation."
                     : result.rating === "borderline"
-                    ? "May be deprioritized by algorithms if posted frequently without distinct context."
-                    : "High probability of triggering automated spam filters, downranking behind 'Show more replies', or being flagged as bot noise."}
+                    ? "It may rank low if it reads like a stock reaction. Add something specific."
+                    : "Reads like the generic replies X’s reply scorer and spam rules are built to push down."}
                 </p>
               </div>
 
@@ -247,7 +246,7 @@ export function PreFlightEvaluator() {
           {/* 4 Diagnostic Gauges */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 space-y-1">
-              <span className="caption-5 uppercase text-zinc-400">Novelty &amp; Substance</span>
+              <span className="caption-5 uppercase text-zinc-400">Substance</span>
               <p className="title-4 text-white">{result.signals.humanSubstance}%</p>
               <div className="h-1.5 w-full rounded-full bg-[#272727] overflow-hidden">
                 <div
@@ -258,7 +257,7 @@ export function PreFlightEvaluator() {
             </div>
 
             <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 space-y-1">
-              <span className="caption-5 uppercase text-zinc-400">Template Loop Risk</span>
+              <span className="caption-5 uppercase text-zinc-400">Stock-phrase risk</span>
               <p className="title-4 text-white">{result.signals.templateRisk}%</p>
               <div className="h-1.5 w-full rounded-full bg-[#272727] overflow-hidden">
                 <div
@@ -269,7 +268,7 @@ export function PreFlightEvaluator() {
             </div>
 
             <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 space-y-1">
-              <span className="caption-5 uppercase text-zinc-400">Deboosting Probability</span>
+              <span className="caption-5 uppercase text-zinc-400">Spam-pattern risk</span>
               <p className="title-4 text-white">{result.signals.deboostingRisk}%</p>
               <div className="h-1.5 w-full rounded-full bg-[#272727] overflow-hidden">
                 <div
@@ -280,9 +279,9 @@ export function PreFlightEvaluator() {
             </div>
 
             <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 space-y-1">
-              <span className="caption-5 uppercase text-zinc-400">Algorithmic Safe</span>
+              <span className="caption-5 uppercase text-zinc-400">Verdict</span>
               <p className="title-4 text-white">
-                {result.signals.deboostingRisk < 35 ? "High (Safe)" : "Elevated Risk"}
+                {result.signals.deboostingRisk < 35 ? "Looks fine" : "Rework it"}
               </p>
               <div className="h-1.5 w-full rounded-full bg-[#272727] overflow-hidden">
                 <div
@@ -298,7 +297,7 @@ export function PreFlightEvaluator() {
             <div className="flex items-center gap-2 text-[#ff6600] font-mono">
               <Lightbulb size={16} weight="bold" />
               <span className="font-bold uppercase tracking-wider text-[11px]">
-                Actionable Advice to Elevate Value:
+                How to improve it
               </span>
             </div>
 
@@ -313,7 +312,7 @@ export function PreFlightEvaluator() {
 
             {result.detectedPatterns.length > 0 && (
               <div className="border-t border-[#222] pt-2.5 mt-2 space-y-1 text-zinc-400 font-mono text-[11px]">
-                <span className="text-zinc-500 uppercase block text-[10px]">Triggered Heuristics:</span>
+                <span className="text-zinc-500 uppercase block text-[10px]">What it caught</span>
                 {result.detectedPatterns.map((pat, idx) => (
                   <p key={idx} className="text-[#ff6600]/90">· {pat}</p>
                 ))}

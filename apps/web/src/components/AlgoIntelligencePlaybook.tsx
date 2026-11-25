@@ -75,7 +75,7 @@ export function AlgoIntelligencePlaybook() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header Banner */}
       <div className="rounded-2xl border border-[#ff6600]/40 bg-gradient-to-b from-[#1c140e] to-[#0f0a07] p-5 sm:p-6 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -98,7 +98,7 @@ export function AlgoIntelligencePlaybook() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-t border-[#331c0e] mt-6 pt-4 overflow-x-auto">
+        <div className="flex items-center gap-2 border-t border-[#331c0e] mt-4 sm:mt-6 pt-4 overflow-x-auto">
           {[
             { id: "overview", label: "Breaking Update: Fast Reply Label" },
             { id: "scores", label: "Algorithm Scoring Matrix" },

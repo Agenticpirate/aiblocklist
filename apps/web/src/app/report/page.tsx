@@ -72,7 +72,7 @@ export default function ReportPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
       <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
         Protected community intake
       </p>
@@ -84,7 +84,7 @@ export default function ReportPage() {
       </p>
 
       {result ? (
-        <div className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4">
+        <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
           <div className="flex items-start gap-3">
             <CheckCircle size={22} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
             <div>
@@ -113,7 +113,7 @@ export default function ReportPage() {
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-5"
+          className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-5"
         >
           {error && (
             <div className="rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 flex items-start gap-2.5">

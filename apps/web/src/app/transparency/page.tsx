@@ -7,8 +7,14 @@ async function loadTransparency(): Promise<{
 }> {
   try {
     const [tRes, sRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/transparency`, { cache: "no-store" }),
-      fetch(`${API_BASE_URL}/sources`, { cache: "no-store" }),
+      fetch(`${API_BASE_URL}/transparency`, {
+        next: { revalidate: 30 },
+        signal: AbortSignal.timeout(3500),
+      }),
+      fetch(`${API_BASE_URL}/sources`, {
+        next: { revalidate: 30 },
+        signal: AbortSignal.timeout(3500),
+      }),
     ]);
     const ledger = tRes.ok ? ((await tRes.json()) as TransparencyResponse) : null;
     const sourcesJson = sRes.ok ? ((await sRes.json()) as { sources: SourceInfo[] }) : { sources: [] };
@@ -24,7 +30,7 @@ export default async function TransparencyPage() {
   const integrity = ledger?.audit_integrity;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+    <section className="mx-auto max-w-6xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
       <div className="max-w-[680px]">
         <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
           Live public accountability
@@ -58,7 +64,7 @@ export default async function TransparencyPage() {
       {/* Cryptographic Audit Integrity */}
       <div
         id="audit-chain"
-        className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8"
+        className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
@@ -87,7 +93,7 @@ export default async function TransparencyPage() {
       </div>
 
       {/* Federated Source Registry */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8">
         <div className="flex items-center gap-2 mb-4">
           <Database size={20} weight="bold" className="text-[#ff6600]" />
           <h2 className="title-1 text-white">Source federation registry</h2>
@@ -121,7 +127,7 @@ export default async function TransparencyPage() {
       </div>
 
       {/* Three Immutable Charter Red Lines */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8">
         <h2 className="title-1 text-white mb-4">Three immutable charter red lines</h2>
         <ul className="space-y-3">
           {(ledger?.charter_red_lines || []).map((line) => (

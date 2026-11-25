@@ -140,6 +140,7 @@ export async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> 
   try {
     res = await fetch(usedUrl, {
       ...init,
+      signal: init?.signal ?? AbortSignal.timeout(10000),
       headers: requestHeaders,
       cache: "no-store",
     });
@@ -149,6 +150,7 @@ export async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> 
         usedUrl = `${DIRECT_BACKEND_URL}${path}`;
         res = await fetch(usedUrl, {
           ...init,
+          signal: init?.signal ?? AbortSignal.timeout(10000),
           headers: requestHeaders,
           cache: "no-store",
         });
@@ -211,7 +213,7 @@ export function formatClassificationLabel(slug: string): string {
 export function formatVerificationLabel(slug: string): string {
   const map: Record<string, string> = {
     verified: "Core verified",
-    unverified_external: "External unverified",
+    unverified_external: "Unverified",
     pending_human: "Pending human review",
     unverified: "Unverified",
   };

@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function ExtensionPage() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+    <div className="mx-auto max-w-5xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
       {/* Header */}
       <div className="max-w-[720px]">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
@@ -33,7 +33,7 @@ export default function ExtensionPage() {
           clicks, and zero mass-blocking scripts.
         </p>
 
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-3">
           <a
             href="/aiblocklist-extension-v1.0.0.zip"
             download
@@ -47,8 +47,8 @@ export default function ExtensionPage() {
       </div>
 
       {/* Feature Highlights */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
             <LockKey size={20} weight="bold" />
           </div>
@@ -59,7 +59,7 @@ export default function ExtensionPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-3">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
             <ShieldCheck size={20} weight="bold" />
           </div>
@@ -70,7 +70,7 @@ export default function ExtensionPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-3">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
             <SlidersHorizontal size={20} weight="bold" />
           </div>
@@ -83,9 +83,9 @@ export default function ExtensionPage() {
       </div>
 
       {/* How It Looks in Feed */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="heading-3 text-white">How It Appears in Social Feeds</h2>
-        <div className="rounded-xl border border-[#272727] bg-[#000000] p-6 space-y-4">
+        <div className="rounded-xl border border-[#272727] bg-[#000000] p-4 sm:p-6 space-y-4">
           <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-full bg-zinc-800 shrink-0" />
             <div className="space-y-1.5 flex-1">
@@ -120,7 +120,7 @@ export default function ExtensionPage() {
       </div>
 
       {/* Manual Installation Guide */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="heading-3 text-white">Quick Installation Guide (Chrome / Brave / Edge)</h2>
         <ol className="space-y-4 font-mono caption-4 text-zinc-300 list-decimal list-inside">
           <li className="p-3 rounded-lg border border-[#272727] bg-[#000000]">

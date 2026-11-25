@@ -104,8 +104,10 @@ def _map_levelsio_classification(val: str | None) -> str:
         return "external_confirmed_ai_reply"
     if val == "likely":
         return "external_likely_automated"
-    if val == "blocked":
+    if val in ("blocked", "unreviewed"):
         return "external_silent_block"
+    if val == "flagged":
+        return "external_flagged_ai_style"
     return "external_listed"
 
 
@@ -175,7 +177,8 @@ async def ingest_blockedforaireply_seed(db: AsyncSession, seed_path: Path | None
         seen_handles.add(norm_user)
 
         item_sources = item.get("sources") or []
-        levels_flag = item.get("levelsio")
+        # upstream renamed "levelsio" to "status" (confirmed|likely|unreviewed|flagged)
+        levels_flag = item.get("status") or item.get("levelsio")
         ryan_obj = item.get("ryanvogel")
         ev_list = item.get("evidence") or []
 

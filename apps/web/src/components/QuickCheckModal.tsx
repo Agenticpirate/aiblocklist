@@ -137,7 +137,7 @@ export function QuickCheckModal({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Enter handle (e.g. Cocothe_gb or your username)"
+                placeholder="Your handle, e.g. Cocothe_gb"
                 className="w-full rounded-xl border border-[#313131] bg-[#181818] py-2.5 pl-8 pr-3 text-sm text-white placeholder-zinc-500 focus:border-[#ff6600] focus:outline-none focus:ring-1 focus:ring-[#ff6600]"
               />
             </div>

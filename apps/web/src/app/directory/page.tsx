@@ -74,7 +74,7 @@ export default function DirectoryPage() {
   }, [loadPage]);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
       <div className="max-w-[680px]">
         <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
           Public intelligence directory
@@ -87,7 +87,7 @@ export default function DirectoryPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4">
+      <div className="mt-4 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-3 sm:p-4">
         {/* Platform Tabs & Filter Bar */}
         <div className="mb-3 flex items-center gap-2">
           <span className="caption-4 font-mono text-zinc-400 mr-1">Platform:</span>
@@ -202,7 +202,7 @@ export default function DirectoryPage() {
       </div>
 
       {/* Results Area */}
-      <div className="mt-6">
+      <div className="mt-4 sm:mt-6">
         {loading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -210,7 +210,7 @@ export default function DirectoryPage() {
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
+          <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <WarningCircle size={20} weight="bold" className="text-[#ff6600] mt-0.5 shrink-0" />
               <div>
@@ -333,7 +333,7 @@ export default function DirectoryPage() {
             </div>
 
             {nextCursor && (
-              <div className="mt-8 flex justify-center">
+              <div className="mt-5 sm:mt-8 flex justify-center">
                 <button
                   type="button"
                   disabled={loadingMore}

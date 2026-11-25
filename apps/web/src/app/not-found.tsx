@@ -4,10 +4,10 @@ import { ArrowLeft, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 export default function NotFound() {
   return (
     <section className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-8 sm:p-12">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-12">
         <p className="caption-3 font-mono text-[#ff6600] mb-3">HTTP 404 · NOT FOUND</p>
         <h1 className="heading-3 text-white mb-4">This page does not exist</h1>
-        <p className="body-3 text-zinc-400 mb-8">
+        <p className="body-3 text-zinc-400 mb-5 sm:mb-8">
           If you searched for a social media handle, a missing record never implies that an
           account is legitimate or abusive. Use the directory to search indexed records.
         </p>

@@ -120,7 +120,7 @@ export function Navbar() {
           {/* Brand Logo & Version Lockup */}
           <Link
             href="/"
-            className="group flex items-center gap-2.5 rounded-lg px-2 py-1 transition-transform duration-300 active:scale-[0.98]"
+            className="group flex items-center gap-2.5 rounded-lg px-0 sm:px-2 py-1 transition-transform duration-300 active:scale-[0.98]"
           >
             <span className="relative flex h-7 w-7 items-center justify-center rounded-md overflow-hidden border border-[#313131] bg-[#000000]">
               <Image
@@ -133,9 +133,6 @@ export function Navbar() {
               />
             </span>
             <span className="title-4 text-white tracking-tight">AIBlockList</span>
-            <span className="hidden sm:inline-block rounded border border-[#313131] bg-[#1f1f1f] px-1.5 py-0.5 font-mono caption-5 text-zinc-400">
-              v1.0
-            </span>
           </Link>
 
           {/* Primary Nav Links + Dropdown (Desktop) */}

@@ -19,7 +19,7 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+    <div className="mx-auto max-w-5xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
       {/* Header */}
       <div className="max-w-[720px]">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
@@ -37,7 +37,7 @@ export default function AboutPage() {
       </div>
 
       {/* Creator & Project Identity */}
-      <div className="rounded-2xl border border-[#313131] bg-[#141414] p-6 sm:p-8 space-y-4">
+      <div className="rounded-2xl border border-[#313131] bg-[#141414] p-4 sm:p-8 space-y-4">
         <span className="caption-4 font-mono uppercase text-[#ff6600] font-bold tracking-wider">
           Architecture &amp; Development
         </span>
@@ -68,7 +68,7 @@ export default function AboutPage() {
       </div>
 
       {/* Historical Lineage & Credits */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-4">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4">
         <span className="caption-4 font-mono uppercase text-zinc-400 font-bold tracking-wider">
           Historical Lineage &amp; Credits
         </span>
@@ -107,9 +107,9 @@ export default function AboutPage() {
       </div>
 
       {/* Core Philosophy Section */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="heading-3 text-white">The Core Philosophy</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           <div className="rounded-xl border border-[#272727] bg-[#000000] p-5 space-y-3">
             <div className="flex items-center gap-2 text-[#ff6600]">
               <CheckCircle size={20} weight="bold" />
@@ -137,7 +137,7 @@ export default function AboutPage() {
       </div>
 
       {/* Comparison Table */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="heading-3 text-white">How AIBlockList Differs</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono caption-4 text-zinc-300">
@@ -192,8 +192,8 @@ export default function AboutPage() {
       </div>
 
       {/* Governance & Open Source */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
           <div className="flex items-center gap-2 text-[#ff6600]">
             <Scales size={20} weight="bold" />
             <h2 className="title-2 text-white">Independent Appeals</h2>
@@ -212,7 +212,7 @@ export default function AboutPage() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
           <div className="flex items-center gap-2 text-[#ff6600]">
             <GitBranch size={20} weight="bold" />
             <h2 className="title-2 text-white">Open Source & Transparency</h2>

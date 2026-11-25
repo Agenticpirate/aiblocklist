@@ -130,7 +130,7 @@ function AppealsContent() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
         <p className="caption-3 font-mono uppercase text-[#ff6600]">
           Independent reputation protection
@@ -153,7 +153,7 @@ function AppealsContent() {
       </p>
 
       {/* Top Tab Switcher: AIBlockList vs Official 𝕏 Suspension Recovery */}
-      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-[#272727] pb-3">
+      <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-2 border-b border-[#272727] pb-3">
         <button
           type="button"
           onClick={() => setActiveTab("aiblocklist")}
@@ -181,13 +181,13 @@ function AppealsContent() {
       </div>
 
       {activeTab === "x_suspension" ? (
-        <div className="mt-6">
+        <div className="mt-4 sm:mt-6">
           <XSuspensionGuide />
         </div>
       ) : (
         <>
           {/* Upstream & Scope Notice Card */}
-          <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
+          <div className="mt-4 sm:mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
             <p>
               <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
             </p>
@@ -214,14 +214,14 @@ function AppealsContent() {
           </div>
 
       {error && (
-        <div className="mt-6 rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 flex items-start gap-2.5">
+        <div className="mt-4 sm:mt-6 rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 flex items-start gap-2.5">
           <WarningCircle size={18} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
           <p className="body-6 text-zinc-200">{error}</p>
         </div>
       )}
 
       {confirmation ? (
-        <div className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4">
+        <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
           <div className="flex items-start gap-3">
             <CheckCircle size={22} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
             <div>
@@ -239,7 +239,7 @@ function AppealsContent() {
       ) : step === 1 ? (
         <form
           onSubmit={startChallenge}
-          className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4"
+          className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
         >
           <div className="flex items-center gap-2 text-zinc-300">
             <Key size={18} weight="bold" className="text-[#ff6600]" />
@@ -288,7 +288,7 @@ function AppealsContent() {
           </button>
         </form>
       ) : step === 2 && challenge ? (
-        <div className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4">
+        <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
           <h2 className="title-3 text-white">
             Step 2: Publish single use bio token for @{challenge.account_username}
           </h2>
@@ -312,7 +312,7 @@ function AppealsContent() {
       ) : (
         <form
           onSubmit={submitAppeal}
-          className="mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-6 space-y-4"
+          className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
         >
           <div className="flex items-center gap-2">
             <Scales size={18} weight="bold" className="text-[#ff6600]" />

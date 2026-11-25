@@ -27,7 +27,7 @@ export function XSuspensionGuide() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Overview Banner */}
       <div className="rounded-2xl border border-[#ff6600]/30 bg-gradient-to-b from-[#181818] to-[#101010] p-5 sm:p-6 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

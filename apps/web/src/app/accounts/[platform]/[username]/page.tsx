@@ -87,10 +87,10 @@ export default async function AccountDetailPage({
   const a = record.account;
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-5xl px-4 py-5 sm:py-8 sm:px-6 lg:px-8">
       <Link
         href="/directory"
-        className="button-sm inline-flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors duration-300 mb-6"
+        className="button-sm inline-flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors duration-300 mb-4 sm:mb-6"
       >
         <ArrowLeft size={14} weight="bold" />
         <span>Back to directory</span>
@@ -158,7 +158,7 @@ export default async function AccountDetailPage({
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[#272727] bg-[#000000] p-4">
+        <div className="mt-4 sm:mt-6 rounded-xl border border-[#272727] bg-[#000000] p-4">
           <p className="caption-3 font-mono uppercase text-zinc-400 mb-1">Public rationale</p>
           <p className="body-5 text-zinc-200">{a.public_rationale}</p>
         </div>
@@ -186,8 +186,8 @@ export default async function AccountDetailPage({
       </div>
 
       {/* Source Assertions + Evidence */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6">
           <h2 className="title-2 text-white mb-4">
             Attributed source assertions ({record.source_assertions.length})
           </h2>
@@ -220,7 +220,7 @@ export default async function AccountDetailPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="title-2 text-white">
               Flagged X Tweets &amp; Evidence ({record.evidence.length})
@@ -256,7 +256,7 @@ export default async function AccountDetailPage({
       </div>
 
       {/* Mandatory Disclaimer Footer */}
-      <div className="mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 flex items-start gap-2.5 caption-4 text-zinc-400">
+      <div className="mt-4 sm:mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 flex items-start gap-2.5 caption-4 text-zinc-400">
         <CheckCircle size={16} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
         <span>
           {record.meta.disclaimer} Zero raw verbatim post text is archived in our database.

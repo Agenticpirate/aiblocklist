@@ -61,8 +61,8 @@ export function TaglineReveal({ text }: TaglineRevealProps) {
       aria-label="Core mission statement"
       className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8"
     >
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-8 sm:p-16">
-        <p className="caption-3 mb-6 font-mono uppercase tracking-wider text-[#ff6600]">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-16">
+        <p className="caption-3 mb-4 sm:mb-6 font-mono uppercase tracking-wider text-[#ff6600]">
           Behavioral proof over guesswork
         </p>
         <h2 className="heading-2 max-w-[680px]">

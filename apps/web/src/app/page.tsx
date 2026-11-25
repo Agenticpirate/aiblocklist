@@ -6,13 +6,17 @@ import {
   Scales,
   Database,
   Pulse,
+  ShieldWarning,
 } from "@phosphor-icons/react/dist/ssr";
 import { ActionableHub } from "@/components/ActionableHub";
 import { API_BASE_URL, BlocklistResponse, StatisticsResponse } from "@/lib/api";
 
 async function getLiveStats(): Promise<StatisticsResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/statistics`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE_URL}/statistics`, {
+      next: { revalidate: 30 },
+      signal: AbortSignal.timeout(3500),
+    });
     if (!res.ok) return null;
     return (await res.json()) as StatisticsResponse;
   } catch {
@@ -22,7 +26,10 @@ async function getLiveStats(): Promise<StatisticsResponse | null> {
 
 async function getInitialBlocklist(): Promise<BlocklistResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/blocklists?limit=24`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE_URL}/blocklists?limit=24`, {
+      next: { revalidate: 30 },
+      signal: AbortSignal.timeout(3500),
+    });
     if (!res.ok) return null;
     return (await res.json()) as BlocklistResponse;
   } catch {
@@ -41,11 +48,11 @@ export default async function HomePage() {
   return (
     <div className="pb-12">
       {/* COMPACT HERO + DIRECT LIVE REGISTRY */}
-      <section className="mx-auto max-w-6xl px-3 sm:px-6 lg:px-8 pt-2 sm:pt-3 space-y-3 sm:space-y-5">
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-3 space-y-3 sm:space-y-5">
         {/* Compact Horizontal Hero Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3 border-b border-[#272727] pb-3 sm:pb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3 border-b border-[#272727] pb-2.5 sm:pb-4">
           <div className="max-w-[680px]">
-            <h1 className="text-xl sm:text-3xl font-semibold tracking-tight leading-tight text-balance">
+            <h1 className="text-lg sm:text-3xl font-semibold tracking-tight leading-tight text-balance">
               <span className="bg-gradient-to-r from-white to-[#9B9B9B] bg-clip-text text-transparent">
                 Filter AI Bot Replies.{" "}
               </span>
@@ -70,6 +77,14 @@ export default async function HomePage() {
               <Pulse size={14} weight="bold" className="text-[#ff6600]" />
               <span>Account Reach</span>
             </Link>
+
+            <Link
+              href="/report"
+              className="col-span-2 sm:col-span-1 button-sm inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#ff6600]/40 bg-[#181818] px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#ff6600] hover:border-[#ff6600] hover:bg-[#1F1F1F] transition-colors duration-300 whitespace-nowrap"
+            >
+              <ShieldWarning size={14} weight="bold" />
+              <span>Report AI Bot</span>
+            </Link>
           </div>
         </div>
 
@@ -86,7 +101,7 @@ export default async function HomePage() {
       </section>
 
       {/* THREE ESSENTIAL PILLARS (COMPACT DEEP DIVE CALLOUTS) */}
-      <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 pt-5 sm:pt-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Link
             href="/methodology"

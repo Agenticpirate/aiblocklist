@@ -12,7 +12,7 @@ export default function TermsPage() {
   const lastUpdated = "November 24, 2026";
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-10">
+    <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
       {/* Header */}
       <div>
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
@@ -29,7 +29,7 @@ export default function TermsPage() {
       </div>
 
       {/* Immutable Red Lines Box */}
-      <div className="rounded-2xl border border-[#ff6600]/40 bg-[#141209] p-6 sm:p-8 space-y-4">
+      <div className="rounded-2xl border border-[#ff6600]/40 bg-[#141209] p-4 sm:p-8 space-y-4">
         <div className="flex items-center gap-2 text-[#ff6600]">
           <WarningOctagon size={22} weight="bold" />
           <h2 className="title-2 text-white">Our Immutable Charter Red Lines</h2>
@@ -59,7 +59,7 @@ export default function TermsPage() {
       </div>
 
       {/* Main Legal Clauses */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-8 text-zinc-300 body-4">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-5 sm:space-y-8 text-zinc-300 body-4">
         <section className="space-y-3">
           <h2 className="title-2 text-white">1. Acceptance of Terms</h2>
           <p>

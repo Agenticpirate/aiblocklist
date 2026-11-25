@@ -23,20 +23,13 @@ from app.core.models import (
     new_uuid,
 )
 from app.core.privacy import sha256_hex
-from app.modules.federation.ingest_external import ensure_policy_and_sources
+from app.modules.federation.ingest_external import (
+    _map_levelsio_classification,
+    ensure_policy_and_sources,
+)
 
 logger = logging.getLogger("aiblocklist.federation")
 STATUS_ID_RE = re.compile(r"/status/(\d+)")
-
-
-def _map_levelsio_classification(val: str | None) -> str:
-    if val == "confirmed":
-        return "external_confirmed_ai_reply"
-    if val == "likely":
-        return "external_likely_automated"
-    if val == "blocked":
-        return "external_silent_block"
-    return "external_listed"
 
 
 def _parse_iso_date(date_str: str | None) -> datetime | None:
@@ -191,7 +184,8 @@ async def sync_blockedforaireply(
         seen_in_batch_ids.add(acct_id)
         seen_in_batch_users.add(norm_user)
 
-        levels_flag = item.get("levelsio")
+        # upstream renamed "levelsio" to "status" (confirmed|likely|unreviewed|flagged)
+        levels_flag = item.get("status") or item.get("levelsio")
         item_sources = item.get("sources") or []
         ev_list = item.get("evidence") or []
 
@@ -316,6 +310,9 @@ async def sync_blockedforaireply(
             if existing_entry:
                 existing_entry.last_seen_at = now
                 existing_entry.source_list_version = list_version
+                # Track upstream status changes (e.g. unreviewed -> confirmed); keep removal tombstones.
+                if existing_entry.removed_upstream_at is None:
+                    existing_entry.source_classification = _map_levelsio_classification(levels_flag)
             else:
                 new_entries_to_add.append(
                     ExternalListEntry(

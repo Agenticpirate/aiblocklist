@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-10">
+    <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
       {/* Header */}
       <div>
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#272727] bg-[#181818] px-3 py-1">
@@ -37,7 +37,7 @@ export default function ContactPage() {
       {/* Primary Action Matrix */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {/* Card 1: Account Appeals */}
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 flex flex-col justify-between space-y-4">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center gap-2 text-[#ff6600] mb-2">
               <Scales size={22} weight="bold" />
@@ -59,7 +59,7 @@ export default function ContactPage() {
         </div>
 
         {/* Card 2: Report Spammer */}
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 flex flex-col justify-between space-y-4">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center gap-2 text-[#ff6600] mb-2">
               <ShieldCheck size={22} weight="bold" />
@@ -81,7 +81,7 @@ export default function ContactPage() {
       </div>
 
       {/* Official Inquiries Breakdown */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4 sm:space-y-6">
         <h2 className="title-2 text-white">Designated Desks</h2>
         <div className="space-y-4">
           <div className="rounded-xl border border-[#272727] bg-[#0c0c0c] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -147,7 +147,7 @@ export default function ContactPage() {
       </div>
 
       {/* Open Source Community & Credits Callout */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-4">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4">
         <h2 className="title-2 text-white">Creator &amp; Community Credits</h2>
         <p className="body-4 text-zinc-300">
           AIBlockList was created and engineered by{" "}

@@ -3,85 +3,97 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  ShieldCheck,
-  ShieldWarning,
   CheckCircle,
   WarningCircle,
   ArrowSquareOut,
   Heartbeat,
   MagnifyingGlass,
   Key,
-  Scales,
-  Info,
   ArrowsClockwise,
-  Check,
-  Cpu,
+  ArrowRight,
+  Info,
+  ShieldCheck,
+  ShieldWarning,
+  Sparkle,
+  X,
+  Scales,
+  Eye,
+  UserCircleCheck,
+  Tag,
+  Code,
+  GearSix,
+  EyeSlash,
 } from "@phosphor-icons/react";
-import { AccountPayload, fetchApi, formatClassificationLabel } from "@/lib/api";
-import { VerifiedTick } from "@/components/VerifiedTick";
+import {
+  AccountPayload,
+  fetchApi,
+  formatClassificationLabel,
+  formatVerificationLabel,
+} from "@/lib/api";
 import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 import { PreFlightEvaluator } from "@/components/PreFlightEvaluator";
-import { AlgoIntelligencePlaybook } from "@/components/AlgoIntelligencePlaybook";
+import { XAlgorithmExplainer } from "@/components/XAlgorithmExplainer";
 
-interface HealthCheckResult {
-  username: string;
-  platform: "x" | "threads";
-  isListed: boolean;
-  accountRecord: AccountPayload | null;
-  score: number; // 0 - 100
-  amplificationStatus: "optimal" | "restricted" | "critical";
-  replyRankingStatus: "optimal" | "deboosted";
-  searchStatus: "visible" | "blacklisted";
-  syndicationRisk: "none" | "high";
+type Platform = "x" | "threads";
+
+type CheckResult =
+  | { kind: "listed"; username: string; platform: Platform; record: AccountPayload }
+  | { kind: "not_indexed"; username: string; platform: Platform }
+  | { kind: "error"; username: string; platform: Platform; message: string };
+
+const UNDER_THE_HOOD_URL = "https://x.com/i/jf/under_the_hood";
+const X_REPO = "https://github.com/xai-org/x-algorithm";
+
+const SECTIONS = [
+  { href: "#check", label: "Check account", icon: "check" },
+  { href: "#reply-check", label: "Test a reply", icon: "reply" },
+  { href: "#how-x-ranks", label: "How X ranks", icon: "ranks" },
+  { href: "#under-the-hood", label: "Under the Hood", icon: "hood" },
+  { href: "#threads", label: "Threads", icon: "threads" },
+] as const;
+
+const QUICK_EXAMPLES = ["FathinDev", "TyeInBloom"];
+
+function formatDate(iso: string | null | undefined) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 export default function AccountHealthPage() {
-  const [platform, setPlatform] = useState<"x" | "threads">("x");
+  const [platform, setPlatform] = useState<Platform>("x");
   const [handle, setHandle] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<HealthCheckResult | null>(null);
+  const [result, setResult] = useState<CheckResult | null>(null);
 
-  const handleRunHealthCheck = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = handle.trim().replace(/^@/, "");
+  const runCheck = async (e?: React.FormEvent, overrideHandle?: string) => {
+    e?.preventDefault();
+    const raw = overrideHandle ?? handle;
+    const clean = raw
+      .trim()
+      .replace(/^@/, "")
+      .replace(/^https?:\/\/(www\.)?(x|twitter|threads)\.(com|net)\/@?/i, "")
+      .split(/[/?#]/)[0];
     if (!clean) return;
 
+    if (overrideHandle) setHandle(clean);
     setLoading(true);
     setResult(null);
-
     try {
-      let payload: AccountPayload | null = null;
-      try {
-        payload = await fetchApi<AccountPayload>(`/accounts/${platform}/${encodeURIComponent(clean)}`);
-      } catch {
-        payload = null;
-      }
-
-      if (payload) {
-        // Account is flagged in database
-        setResult({
-          username: clean,
-          platform,
-          isListed: true,
-          accountRecord: payload,
-          score: 32,
-          amplificationStatus: "critical",
-          replyRankingStatus: "deboosted",
-          searchStatus: "blacklisted",
-          syndicationRisk: "high",
-        });
+      const record = await fetchApi<AccountPayload>(`/accounts/${platform}/${encodeURIComponent(clean)}`);
+      setResult({ kind: "listed", username: record.account.username || clean, platform, record });
+    } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 404) {
+        setResult({ kind: "not_indexed", username: clean, platform });
       } else {
-        // Account is clear in AIBlockList
         setResult({
+          kind: "error",
           username: clean,
           platform,
-          isListed: false,
-          accountRecord: null,
-          score: 96,
-          amplificationStatus: "optimal",
-          replyRankingStatus: "optimal",
-          searchStatus: "visible",
-          syndicationRisk: "none",
+          message: err instanceof Error ? err.message : "The registry could not be reached.",
         });
       }
     } finally {
@@ -89,471 +101,448 @@ export default function AccountHealthPage() {
     }
   };
 
-  const xUnderTheHoodUrl = "https://x.com/i/jf/under_the_hood";
-  const xUnderTheHoodReportUrl = "https://x.com/i/jf/under_the_hood/report";
-
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-10 font-mono">
-      {/* Header Lockup */}
-      <div className="max-w-3xl space-y-3">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#ff6600]/30 bg-[#ff6600]/10 px-3 py-1 caption-4 text-[#ff6600]">
-          <Heartbeat size={15} weight="bold" className="animate-pulse" />
-          <span>Transparency &amp; Algorithmic Health Diagnostic</span>
+    <div className="mx-auto max-w-5xl px-3 sm:px-6 lg:px-8 py-3 sm:py-5 space-y-4 sm:space-y-5">
+      {/* Header */}
+      <header className="space-y-2.5 border-b border-[#272727] pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#313131] bg-[#181818] px-2.5 py-0.5 caption-5 font-mono text-[#ff6600]">
+            <Heartbeat size={12} weight="bold" />
+            <span>Reach &amp; Signal Diagnostics</span>
+          </div>
+
+          <Link
+            href="/report"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#ff6600]/40 bg-[#181818] px-2.5 py-0.5 caption-5 font-mono text-[#ff6600] hover:border-[#ff6600] hover:bg-[#1F1F1F] transition-colors duration-300"
+          >
+            <ShieldWarning size={12} weight="bold" />
+            <span>Report AI Bot</span>
+          </Link>
         </div>
-        <h1 className="heading-1 text-white tracking-tight">
-          Account Health &amp; Visibility Inspector
-        </h1>
-        <p className="body-3 text-zinc-400 font-sans leading-relaxed">
-          Check if your account reach, algorithmic amplification, or reply ranking has been restricted
-          by automated platform moderation, spam filters, or community intelligence blacklists.
-        </p>
+
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div className="space-y-1 max-w-[680px]">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-balance">
+              <span className="bg-gradient-to-r from-white to-[#9B9B9B] bg-clip-text text-transparent">
+                Account Health{" "}
+              </span>
+              <span className="text-[#ff6600]">&amp; Reach</span>
+            </h1>
+            <p className="caption-2 text-zinc-400 text-pretty">
+              Check AIBlockList indexing, pre-flight test replies, and inspect how X scores engagement.
+            </p>
+          </div>
+        </div>
+
+        {/* Compact Icon Jump Bar */}
+        <nav
+          aria-label="On this page"
+          className="-mx-3 px-3 sm:mx-0 sm:px-0 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pt-0.5"
+        >
+          {SECTIONS.map((s) => (
+            <a
+              key={s.href}
+              href={s.href}
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-[#272727] bg-[#181818] px-2.5 py-1 caption-4 font-mono text-zinc-400 hover:border-[#ff6600]/60 hover:text-white hover:bg-[#1F1F1F] transition-colors duration-300"
+            >
+              {s.icon === "check" && <MagnifyingGlass size={12} weight="bold" className="text-[#ff6600]" />}
+              {s.icon === "reply" && <Sparkle size={12} weight="bold" className="text-[#ff6600]" />}
+              {s.icon === "ranks" && <Scales size={12} weight="bold" className="text-[#ff6600]" />}
+              {s.icon === "hood" && <Eye size={12} weight="bold" className="text-[#ff6600]" />}
+              {s.icon === "threads" && <ThreadsLogo className="w-3 h-3 text-zinc-300" shiny={false} />}
+              <span>{s.label}</span>
+            </a>
+          ))}
+        </nav>
+      </header>
+
+      {/* Compact Diagnostic Overview Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <a
+          href="#check"
+          className="group flex items-center gap-3 rounded-xl border border-[#272727] bg-[#181818] p-3 hover:border-[#ff6600]/50 hover:bg-[#1F1F1F] transition-colors duration-300"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
+            <MagnifyingGlass size={16} weight="bold" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="title-4 text-white truncate">Handle Lookup</p>
+            <p className="caption-5 text-zinc-400 truncate">Evidence &amp; appeal status</p>
+          </div>
+          <ArrowRight size={13} weight="bold" className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
+        </a>
+
+        <a
+          href="#reply-check"
+          className="group flex items-center gap-3 rounded-xl border border-[#272727] bg-[#181818] p-3 hover:border-[#ff6600]/50 hover:bg-[#1F1F1F] transition-colors duration-300"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
+            <Sparkle size={16} weight="bold" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="title-4 text-white truncate">Reply Pre-Flight</p>
+            <p className="caption-5 text-zinc-400 truncate">Catch spam triggers early</p>
+          </div>
+          <ArrowRight size={13} weight="bold" className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
+        </a>
+
+        <a
+          href="#under-the-hood"
+          className="group flex items-center gap-3 rounded-xl border border-[#272727] bg-[#181818] p-3 hover:border-[#ff6600]/50 hover:bg-[#1F1F1F] transition-colors duration-300"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-emerald-400">
+            <ShieldCheck size={16} weight="bold" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="title-4 text-white truncate">Platform Labels</p>
+            <p className="caption-5 text-zinc-400 truncate">X &amp; Threads visibility flags</p>
+          </div>
+          <ArrowRight size={13} weight="bold" className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
+        </a>
       </div>
 
-      {/* Interactive Scan Box */}
-      <div className="rounded-2xl border border-[#272727] bg-[#141414] p-6 sm:p-8 space-y-5 shadow-2xl">
-        <h2 className="title-3 text-white">Run Health &amp; Reach Diagnostic</h2>
-
-        <form onSubmit={handleRunHealthCheck} className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="caption-5 text-zinc-500 uppercase">Select Platform:</span>
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#272727] bg-[#1c1c1c] p-1">
-              <button
-                type="button"
-                onClick={() => setPlatform("x")}
-                className={`caption-4 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors cursor-pointer ${
-                  platform === "x"
-                    ? "bg-[#ff6600] text-black font-bold"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                <XLogo className="w-3.5 h-3.5" />
-                <span>𝕏 (Twitter)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPlatform("threads")}
-                className={`caption-4 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors cursor-pointer ${
-                  platform === "threads"
-                    ? "bg-[#ff6600] text-black font-bold"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                <ThreadsLogo className="w-3.5 h-3.5" />
-                <span>Threads</span>
-              </button>
+      {/* Registry Check */}
+      <section
+        id="check"
+        className="scroll-mt-20 rounded-2xl border border-[#272727] bg-[#181818] p-3.5 sm:p-5 space-y-3"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600]">
+              <MagnifyingGlass size={15} weight="bold" />
+            </div>
+            <div>
+              <h2 className="title-3 text-white">Check an account</h2>
+              <p className="caption-5 text-zinc-400">
+                Search AIBlockList records by @username or profile URL
+              </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">@</span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="caption-5 font-mono text-zinc-500">Try:</span>
+            {QUICK_EXAMPLES.map((ex) => (
+              <button
+                key={ex}
+                type="button"
+                onClick={() => {
+                  setPlatform("x");
+                  runCheck(undefined, ex);
+                }}
+                className="rounded-md border border-[#313131] bg-[#1F1F1F] px-2 py-0.5 caption-5 font-mono text-zinc-300 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors cursor-pointer"
+              >
+                @{ex}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={(e) => runCheck(e)} className="space-y-2.5">
+          <div
+            className="inline-flex rounded-xl border border-[#272727] bg-[#000000] p-1"
+            role="tablist"
+            aria-label="Platform"
+          >
+            {(["x", "threads"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                role="tab"
+                aria-selected={platform === p}
+                onClick={() => {
+                  setPlatform(p);
+                  setResult(null);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-mono transition-colors cursor-pointer ${
+                  platform === p ? "bg-[#ff6600] text-black font-semibold" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                {p === "x" ? <XLogo className="w-3 h-3" /> : <ThreadsLogo className="w-3.5 h-3.5" />}
+                <span>{p === "x" ? "X" : "Threads"}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <label className="relative flex-1">
+              <span className="sr-only">Username or profile URL</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-zinc-500">@</span>
               <input
                 type="text"
+                inputMode="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                placeholder="Enter handle (e.g. Agenticpirate or your username)"
-                className="w-full rounded-xl border border-[#313131] bg-[#0c0c0c] py-3 pl-9 pr-3 text-sm text-white placeholder-zinc-500 focus:border-[#ff6600] focus:outline-none focus:ring-1 focus:ring-[#ff6600]"
+                placeholder="username or profile URL"
+                className="w-full rounded-xl border border-[#313131] bg-[#000000] py-2.5 pl-8 pr-9 font-mono text-sm text-white placeholder-zinc-600 focus:border-[#ff6600] focus:outline-none transition-colors"
               />
-            </div>
-
+              {handle && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHandle("");
+                    setResult(null);
+                  }}
+                  aria-label="Clear handle"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-white cursor-pointer"
+                >
+                  <X size={14} weight="bold" />
+                </button>
+              )}
+            </label>
             <button
               type="submit"
               disabled={loading || !handle.trim()}
-              className="button-md inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-6 py-3 font-bold text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-[#ff6600]/20 shrink-0"
+              className="button-sm inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-5 py-2.5 text-black hover:bg-[#e55c00] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
             >
               {loading ? (
-                <>
-                  <ArrowsClockwise size={16} weight="bold" className="animate-spin" />
-                  <span>Scanning Health...</span>
-                </>
+                <ArrowsClockwise size={15} weight="bold" className="animate-spin" />
               ) : (
-                <>
-                  <MagnifyingGlass size={16} weight="bold" />
-                  <span>Analyze Account Health</span>
-                </>
+                <MagnifyingGlass size={15} weight="bold" />
               )}
+              <span>{loading ? "Checking…" : "Check account"}</span>
             </button>
           </div>
         </form>
 
-        {/* RESULTS CARD */}
-        {result && (
-          <div className="border-t border-[#272727] pt-6 space-y-6 animate-in fade-in duration-300">
-            {/* Health Score Summary Banner */}
-            <div
-              className={`rounded-xl border p-5 sm:p-6 ${
-                result.isListed
-                  ? "border-[#ff6600]/50 bg-gradient-to-r from-[#20150b] to-[#141414]"
-                  : "border-emerald-500/40 bg-gradient-to-r from-[#0d2216] to-[#141414]"
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="title-2 text-white">@{result.username}</span>
-                    <VerifiedTick className="w-4 h-4" />
-                    <span className="caption-5 uppercase rounded bg-[#272727] px-2 py-0.5 text-zinc-300">
-                      {result.platform}
-                    </span>
-                  </div>
-                  <p className="caption-4 text-zinc-300 font-sans">
-                    {result.isListed
-                      ? "Flagged in public intelligence registries. Visibility and algorithmic reach are likely degraded."
-                      : "Zero strikes detected in open registries. Account enjoys full algorithmic standing."}
+        <div aria-live="polite">
+          {result?.kind === "error" && (
+            <div className="rounded-xl border border-red-500/40 bg-[#1F1212] p-3.5 flex items-start justify-between gap-3">
+              <div className="flex gap-2.5">
+                <WarningCircle size={18} weight="bold" className="text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-white">We couldn&apos;t reach the registry</p>
+                  <p className="text-[13px] text-zinc-400">{result.message}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => runCheck()}
+                className="shrink-0 rounded-lg border border-[#313131] bg-[#181818] px-2.5 py-1 text-xs font-mono text-zinc-200 hover:border-white cursor-pointer"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+
+          {result?.kind === "not_indexed" && (
+            <div className="rounded-xl border border-emerald-500/30 bg-[#0F1B14] p-4 space-y-3">
+              <div className="flex items-start gap-2.5">
+                <CheckCircle size={20} weight="bold" className="text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    @{result.username} has no record in our registry
+                  </p>
+                  <p className="text-[13px] text-zinc-400 leading-relaxed">
+                    No reports or behavioral evidence are on file for this{" "}
+                    {result.platform === "x" ? "X" : "Threads"} account.{" "}
+                    {result.platform === "x" ? "X" : "Meta"} applies its own labels independently.
                   </p>
                 </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right">
-                    <span className="caption-5 text-zinc-400 uppercase block">Health Index</span>
-                    <span
-                      className={`text-3xl font-extrabold ${
-                        result.isListed ? "text-[#ff6600]" : "text-emerald-400"
-                      }`}
-                    >
-                      {result.score}/100
-                    </span>
-                  </div>
-                  <div
-                    className={`h-12 w-12 rounded-xl flex items-center justify-center border ${
-                      result.isListed
-                        ? "border-[#ff6600]/40 bg-[#ff6600]/15 text-[#ff6600]"
-                        : "border-emerald-500/40 bg-emerald-500/15 text-emerald-400"
-                    }`}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {result.platform === "x" ? (
+                  <a
+                    href={UNDER_THE_HOOD_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#000000] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
                   >
-                    {result.isListed ? <WarningCircle size={26} weight="bold" /> : <CheckCircle size={26} weight="bold" />}
-                  </div>
-                </div>
-              </div>
-            </div>
+                    <XLogo className="w-3 h-3" />
+                    <span>See X&apos;s labels in Under the Hood</span>
+                    <ArrowSquareOut size={12} weight="bold" />
+                  </a>
+                ) : (
+                  <a
+                    href="#threads"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#000000] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
+                  >
+                    <ThreadsLogo className="w-3.5 h-3.5" />
+                    <span>Check your Threads account status</span>
+                    <ArrowRight size={12} weight="bold" />
+                  </a>
+                )}
 
-            {/* Algorithmic Breakdown Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Metric 1: Amplification */}
-              <div className="rounded-xl border border-[#272727] bg-[#1a1a1a] p-4 space-y-1">
-                <span className="caption-5 uppercase text-zinc-400">For You Amplification</span>
-                <p className="text-base font-bold text-white flex items-center gap-1.5">
-                  {result.isListed ? (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-                      <span className="text-[#ff6600]">Suppressed</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                      <span className="text-emerald-400">Unrestricted</span>
-                    </>
-                  )}
-                </p>
-                <p className="text-[11px] text-zinc-500 font-sans">
-                  {result.isListed
-                    ? "May be throttled under X's DoNotAmplify filter."
-                    : "Eligible for recommendation algorithms."}
-                </p>
-              </div>
-
-              {/* Metric 2: Reply Ranking */}
-              <div className="rounded-xl border border-[#272727] bg-[#1a1a1a] p-4 space-y-1">
-                <span className="caption-5 uppercase text-zinc-400">Reply Visibility</span>
-                <p className="text-base font-bold text-white flex items-center gap-1.5">
-                  {result.isListed ? (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-                      <span className="text-[#ff6600]">Downranked</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                      <span className="text-emerald-400">Priority Placement</span>
-                    </>
-                  )}
-                </p>
-                <p className="text-[11px] text-zinc-500 font-sans">
-                  {result.isListed
-                    ? "Replies pushed behind 'Show more replies' fold."
-                    : "Standard or top chronological placement."}
-                </p>
-              </div>
-
-              {/* Metric 3: Search Typeahead */}
-              <div className="rounded-xl border border-[#272727] bg-[#1a1a1a] p-4 space-y-1">
-                <span className="caption-5 uppercase text-zinc-400">Search Suggestion</span>
-                <p className="text-base font-bold text-white flex items-center gap-1.5">
-                  {result.isListed ? (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-                      <span className="text-[#ff6600]">Blacklisted</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                      <span className="text-emerald-400">Active Suggestion</span>
-                    </>
-                  )}
-                </p>
-                <p className="text-[11px] text-zinc-500 font-sans">
-                  {result.isListed
-                    ? "Excluded from instant search dropdown queries."
-                    : "Normal search index discoverability."}
-                </p>
-              </div>
-
-              {/* Metric 4: AIBlockList Status */}
-              <div className="rounded-xl border border-[#272727] bg-[#1a1a1a] p-4 space-y-1">
-                <span className="caption-5 uppercase text-zinc-400">Registry Status</span>
-                <p className="text-base font-bold text-white flex items-center gap-1.5">
-                  {result.isListed ? (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-[#ff6600]" />
-                      <span className="text-[#ff6600]">Listed</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                      <span className="text-emerald-400">Clean Registry</span>
-                    </>
-                  )}
-                </p>
-                <p className="text-[11px] text-zinc-500 font-sans">
-                  {result.isListed
-                    ? formatClassificationLabel(result.accountRecord?.account.classification || "spam")
-                    : "Zero strikes in open registry."}
-                </p>
-              </div>
-            </div>
-
-            {/* Action Callout based on result */}
-            {result.isListed ? (
-              <div className="rounded-xl border border-[#ff6600]/40 bg-[#141209] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <p className="title-4 text-white">Wrongly flagged? Delist your account in 60 seconds</p>
-                  <p className="text-xs text-zinc-400 font-sans">
-                    Use our 100% free Bio Challenge Token to prove human ownership. No fees, 48h SLA guarantee.
-                  </p>
-                </div>
                 <Link
-                  href={`/appeals?username=${encodeURIComponent(result.username)}&platform=${result.platform}`}
-                  className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] transition-colors shrink-0"
+                  href={`/report?username=${encodeURIComponent(result.username)}&platform=${result.platform}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#181818] px-3 py-1.5 text-xs font-mono text-[#ff6600] hover:border-[#ff6600] transition-colors"
                 >
-                  <Key size={14} weight="bold" />
-                  <span>Start Free Appeal</span>
+                  <ShieldWarning size={12} weight="bold" />
+                  <span>Report this account</span>
                 </Link>
               </div>
-            ) : (
-              <div className="rounded-xl border border-[#272727] bg-[#111] p-4 flex items-center justify-between gap-3 text-xs text-zinc-400">
-                <span>Want to inspect your account&apos;s internal moderation tags directly on 𝕏?</span>
-                <a
-                  href={xUnderTheHoodUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1a1a1a] px-3 py-1.5 text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors shrink-0"
-                >
-                  <XLogo className="w-3 h-3" />
-                  <span>Open Official X &quot;Under the Hood&quot;</span>
-                  <ArrowSquareOut size={12} weight="bold" />
-                </a>
+            </div>
+          )}
+
+          {result?.kind === "listed" && <ListedResult result={result} />}
+        </div>
+      </section>
+
+      {/* Reply quality check */}
+      <div id="reply-check" className="scroll-mt-20">
+        <PreFlightEvaluator />
+      </div>
+
+      {/* How X ranks */}
+      <XAlgorithmExplainer />
+
+      {/* Under the Hood */}
+      <section
+        id="under-the-hood"
+        className="scroll-mt-20 rounded-2xl border border-[#272727] bg-[#181818] p-3.5 sm:p-5 space-y-3"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5 max-w-2xl">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-[#ff6600] mt-0.5">
+              <Eye size={15} weight="bold" />
+            </div>
+            <div>
+              <h2 className="title-3 text-white">See the labels on your own account</h2>
+              <p className="caption-2 text-zinc-400 mt-0.5">
+                X&apos;s Under the Hood report summarizes visibility-limiting labels and country withholdings.
+              </p>
+            </div>
+          </div>
+          <a
+            href={UNDER_THE_HOOD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="button-sm inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#ff6600] px-3.5 py-2 text-xs text-black hover:bg-[#e55c00] transition-colors shrink-0"
+          >
+            <XLogo className="w-3.5 h-3.5" />
+            <span>Open Under the Hood</span>
+            <ArrowSquareOut size={13} weight="bold" />
+          </a>
+        </div>
+
+        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {[
+            { icon: UserCircleCheck, t: "Sign in to X", b: "Open the report while signed in to the account you want to review." },
+            { icon: Tag, t: "Note each label", b: "Labels appear by name (e.g. DoNotAmplify, SpamHighRecall) with counts." },
+            { icon: Code, t: "Look up in code", b: "Search the label in x-algorithm to see which rule applies it." },
+          ].map(({ icon: StepIcon, t, b }, i) => (
+            <li key={t} className="rounded-xl border border-[#272727] bg-[#000000] p-3">
+              <div className="flex items-center justify-between">
+                <span className="rounded border border-[#313131] bg-[#181818] px-1.5 py-0.5 text-[10px] font-mono text-[#ff6600]">
+                  0{i + 1}
+                </span>
+                <StepIcon size={14} weight="bold" className="text-zinc-500" />
               </div>
-            )}
-          </div>
-        )}
-      </div>
+              <p className="title-4 text-white mt-2">{t}</p>
+              <p className="caption-5 text-zinc-400 mt-0.5">{b}</p>
+            </li>
+          ))}
+        </ol>
 
-      {/* Interactive Pre-Flight Reply Quality Evaluator */}
-      <PreFlightEvaluator />
-
-      {/* Actionable Algorithmic Diagnosis & Advice: Why Reach Gets Buried */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
-        <div className="space-y-1 border-b border-[#272727] pb-4">
-          <span className="caption-4 uppercase text-[#ff6600] font-bold">
-            Actionable Strategic Diagnostics
+        <p className="flex items-start gap-2 caption-5 text-zinc-500">
+          <Info size={13} weight="bold" className="shrink-0 mt-0.5" />
+          <span>
+            X describes Under the Hood as a pilot rolling out gradually. Source:{" "}
+            <a
+              href={`${X_REPO}#under-the-hood-label-transparency-tool`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-[#ff6600]"
+            >
+              x-algorithm README
+            </a>
+            .
           </span>
-          <h2 className="heading-3 text-white">Why Reach Gets Buried &amp; How to Course-Correct</h2>
-          <p className="caption-4 text-zinc-400 font-sans">
-            Platforms rarely explain why your engagement drops. Here is the operational reality of how
-            algorithmic downranking works and how you can rehabilitate your account.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Card 1: Reach Suppression */}
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
-            <div className="flex items-center gap-2 text-[#ff6600]">
-              <WarningCircle size={20} weight="bold" />
-              <h3 className="title-3 text-white">&quot;Why did my post only reach 15 people with 1,500 followers?&quot;</h3>
-            </div>
-            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
-              When an account triggers excessive blocks, mutes, or automated bot flags, platforms apply
-              the <strong>DoNotAmplify</strong> label. Instead of showing your post to your follower network and the
-              &quot;For You&quot; feed, delivery is restricted exclusively to direct profile visitors and users with notifications turned on.
-            </p>
-            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
-              💡 <strong>Actionable Tip:</strong> Reduce output frequency. Post 1 high-substance post with data or unique insight every 48h rather than 10 rapid posts.
-            </div>
-          </div>
-
-          {/* Card 2: Reply Deboosting */}
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
-            <div className="flex items-center gap-2 text-[#ff6600]">
-              <WarningCircle size={20} weight="bold" />
-              <h3 className="title-3 text-white">&quot;Why did my reply get buried behind &apos;Show more replies&apos;?&quot;</h3>
-            </div>
-            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
-              Heuristic filters penalize formulaic affirmations (e.g. &quot;Great point!&quot;, &quot;Totally agree&quot;) and rapid-fire replies to non-followers.
-              The algorithm classifies short generic responses as low-value noise and downranks them below human conversation turns.
-            </p>
-            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
-              💡 <strong>Actionable Tip:</strong> Never reply with just agreement. Ask a specific question, share a technical anecdote, or provide counter-evidence.
-            </div>
-          </div>
-
-          {/* Card 3: Noise vs Substance */}
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
-            <div className="flex items-center gap-2 text-emerald-400">
-              <CheckCircle size={20} weight="bold" />
-              <h3 className="title-3 text-white">Noise vs. Substance: The Cost of Free Bot Generation</h3>
-            </div>
-            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
-              Human attention is expensive. When LLMs make text generation virtually free, users flood replies to farm engagement.
-              Quality is not about whether an LLM assisted your grammar—it is about whether the output provides <strong>genuine substance or informational pollution</strong>.
-            </p>
-            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
-              💡 <strong>Core Principle:</strong> AIBlockList never bans AI grammar polishing or ESL translation. We only target unsolicited repetitive spam loops.
-            </div>
-          </div>
-
-          {/* Card 4: Perverse Incentives */}
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-5 space-y-3">
-            <div className="flex items-center gap-2 text-[#ff6600]">
-              <Heartbeat size={20} weight="bold" />
-              <h3 className="title-3 text-white">The Perverse Algorithmic Incentive &amp; The Exit Route</h3>
-            </div>
-            <p className="body-5 text-zinc-300 font-sans leading-relaxed">
-              Platforms inadvertently incentivize spam by penalizing posts that don&apos;t reply immediately. Creators resort to automated extensions, which eventually causes their accounts to get shadowbanned or mass-blocked.
-            </p>
-            <div className="rounded-lg border border-[#222] bg-[#0c0c0c] p-2.5 text-xs text-zinc-400 font-mono">
-              💡 <strong>Course-Correction Route:</strong> Everyone deserves a second chance. 14–30 days of authentic human-only replies resets algorithmic safety scores.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Algorithmic Intelligence Playbook (Fast Reply Spam & Scoring Matrix) */}
-      <AlgoIntelligencePlaybook />
-
-      {/* Deep Dive: What is X's Official "Under the Hood"? */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#272727] pb-5">
-          <div className="space-y-1">
-            <span className="caption-4 uppercase text-[#ff6600] font-bold">
-              Official Platform Transparency Feature
-            </span>
-            <h2 className="heading-3 text-white">
-              𝕏 Official &quot;Under the Hood&quot; Transparency Report
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <a
-              href={xUnderTheHoodReportUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3.5 py-2 font-bold text-black hover:bg-[#e55c00] transition-colors shrink-0"
-            >
-              <XLogo className="w-3.5 h-3.5" />
-              <span>Launch Under The Hood ↗</span>
-            </a>
-          </div>
-        </div>
-
-        <div className="space-y-4 body-4 text-zinc-300 font-sans leading-relaxed">
-          <p>
-            𝕏 has officially released <strong>Under the Hood</strong> (available at{" "}
-            <a
-              href={xUnderTheHoodUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono text-[#ff6600] hover:underline"
-            >
-              x.com/i/jf/under_the_hood
-            </a>
-            ). It is 𝕏&apos;s internal algorithmic ledger that tells creators explicitly whether their
-            visibility was limited by automated systems or legal demands over the past month.
-          </p>
-
-          <h3 className="title-3 text-white font-mono pt-2">Internal Flags Applied by 𝕏 Algorithms:</h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
-            <div className="rounded-xl border border-[#272727] bg-[#121212] p-4 space-y-1.5">
-              <strong className="text-[#ff6600] text-sm block">DoNotAmplify</strong>
-              <p className="text-zinc-400 font-sans">
-                Prevents your posts from being recommended in the &quot;For You&quot; timeline to non-followers.
-                Typically triggered by repetitive posting patterns, hashtag overload, or high block rates.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#272727] bg-[#121212] p-4 space-y-1.5">
-              <strong className="text-[#ff6600] text-sm block">SpamHighRecall</strong>
-              <p className="text-zinc-400 font-sans">
-                Aggressive spam filter tag applied when heuristics detect copy-paste replies, rapid automated
-                mentions, or programmatic bot behavior.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#272727] bg-[#121212] p-4 space-y-1.5">
-              <strong className="text-[#ff6600] text-sm block">ReplyDeboosting</strong>
-              <p className="text-zinc-400 font-sans">
-                Suppresses your replies to the bottom of conversation threads, frequently placing them behind
-                the &quot;Show probable spam / more replies&quot; accordion.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#272727] bg-[#121212] p-4 space-y-1.5">
-              <strong className="text-[#ff6600] text-sm block">SearchSuggestionBlacklist</strong>
-              <p className="text-zinc-400 font-sans">
-                Excludes your profile handle and tweets from appearing in the universal search typeahead box
-                unless the exact handle is fully typed out.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-[#272727] bg-[#0d0d0d] p-4 space-y-2 text-xs font-mono text-zinc-400">
-            <span className="text-zinc-300 font-bold block uppercase text-[11px]">
-              How to view your monthly JSON audit on 𝕏:
-            </span>
-            <p>1. Open a browser and log into your account on 𝕏.</p>
-            <p>2. Navigate to: <code className="text-[#ff6600]">https://x.com/i/jf/under_the_hood/report</code>.</p>
-            <p>
-              3. If your account is at least 1 year old with 10+ posts in the prior month, 𝕏 displays your
-              complete breakdown of active labels and government compliance actions.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Meta Threads Health Guide */}
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6 sm:p-8 space-y-4">
-        <h2 className="heading-3 text-white flex items-center gap-2">
-          <ThreadsLogo className="w-5 h-5 text-white" />
-          <span>Meta Threads: In-App Account Status Checker</span>
-        </h2>
-        <p className="body-4 text-zinc-300 font-sans leading-relaxed">
-          Meta Threads shares account integrity infrastructure with Instagram. You can inspect your real-time
-          recommendation and feature restrictions natively:
         </p>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-3.5 space-y-1">
-            <span className="text-white font-bold block">1. Open Settings</span>
-            <p className="text-zinc-400 font-sans">Go to your Profile → Menu (top right) → Settings.</p>
+      {/* Threads */}
+      <section
+        id="threads"
+        className="scroll-mt-20 rounded-2xl border border-[#272727] bg-[#181818] p-3.5 sm:p-5 space-y-3"
+      >
+        <div className="flex items-start gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#313131] bg-[#000000] text-white mt-0.5">
+            <ThreadsLogo className="w-4 h-4 text-white" />
           </div>
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-3.5 space-y-1">
-            <span className="text-white font-bold block">2. Select Help</span>
-            <p className="text-zinc-400 font-sans">Tap <em>Help</em> → <em>Account Status</em>.</p>
-          </div>
-          <div className="rounded-xl border border-[#272727] bg-[#121212] p-3.5 space-y-1">
-            <span className="text-white font-bold block">3. Verify Standing</span>
-            <p className="text-zinc-400 font-sans">Review &quot;Removed Content&quot; and &quot;Features you can&apos;t use&quot;.</p>
+          <div>
+            <h2 className="title-3 text-white">Check your Threads account status</h2>
+            <p className="caption-2 text-zinc-400 mt-0.5">
+              Threads shares its account-integrity systems with Instagram and reports restrictions inside the app.
+            </p>
           </div>
         </div>
+        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {[
+            { icon: GearSix, t: "Open Settings", b: "Go to your profile, tap the top-right menu icon, then Settings." },
+            { icon: Heartbeat, t: "Account Status", b: "Tap Help, then Account Status." },
+            { icon: EyeSlash, t: "Review restrictions", b: "Check Removed content and Features you can’t use." },
+          ].map(({ icon: StepIcon, t, b }, i) => (
+            <li key={t} className="rounded-xl border border-[#272727] bg-[#000000] p-3">
+              <div className="flex items-center justify-between">
+                <span className="rounded border border-[#313131] bg-[#181818] px-1.5 py-0.5 text-[10px] font-mono text-zinc-400">
+                  0{i + 1}
+                </span>
+                <StepIcon size={14} weight="bold" className="text-zinc-500" />
+              </div>
+              <p className="title-4 text-white mt-2">{t}</p>
+              <p className="caption-5 text-zinc-400 mt-0.5">{b}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  );
+}
+
+function ListedResult({ result }: { result: Extract<CheckResult, { kind: "listed" }> }) {
+  const a = result.record.account;
+  const stats = [
+    ["Classification", formatClassificationLabel(a.classification)],
+    ["Verification", formatVerificationLabel(a.verification_status)],
+    ["Confidence", a.confidence_level ? a.confidence_level.replace(/_/g, " ") : "—"],
+    ["Evidence posts", String(a.evidence_count ?? result.record.evidence.length)],
+    ["Last reviewed", formatDate(a.last_reviewed_at)],
+    ["Appeal", a.appeal_status ? a.appeal_status.replace(/_/g, " ") : "none"],
+  ];
+
+  return (
+    <div className="rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 space-y-3.5">
+      <div className="flex items-start gap-2.5">
+        <WarningCircle size={20} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-white">
+            @{a.username} is listed in the AIBlockList registry
+          </p>
+          {a.public_rationale && (
+            <p className="text-[13px] text-zinc-400 leading-relaxed mt-0.5">{a.public_rationale}</p>
+          )}
+        </div>
+      </div>
+
+      <dl className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {stats.map(([k, v]) => (
+          <div key={k} className="rounded-lg border border-[#272727] bg-[#000000] px-3 py-2">
+            <dt className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">{k}</dt>
+            <dd className="text-[13px] text-white capitalize truncate" title={v}>
+              {v}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/accounts/${result.platform}/${encodeURIComponent(a.username)}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-white transition-colors"
+        >
+          <span>View full record</span>
+          <ArrowRight size={12} weight="bold" />
+        </Link>
+        <Link
+          href={`/appeals?username=${encodeURIComponent(a.username)}&platform=${result.platform}`}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#e55c00] transition-colors"
+        >
+          <Key size={12} weight="bold" />
+          <span>Listed in error? Appeal for free</span>
+        </Link>
       </div>
     </div>
   );

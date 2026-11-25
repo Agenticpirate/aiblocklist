@@ -307,7 +307,7 @@ Timestamp: ${new Date().toISOString()}
             </p>
 
             {evidenceUrls.length === 0 ? (
-              <div className="rounded-xl border border-[#272727] bg-[#141414] p-6 text-center text-zinc-500 caption-4">
+              <div className="rounded-xl border border-[#272727] bg-[#141414] p-4 sm:p-6 text-center text-zinc-500 caption-4">
                 No direct post URLs indexed for this profile. Use Profile Safety Report in Tab 1.
               </div>
             ) : (

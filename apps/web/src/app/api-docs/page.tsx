@@ -1,5 +1,5 @@
 import { CodeHandoff } from "@/components/CodeHandoff";
-import { API_BASE_URL } from "@/lib/api";
+import { CLIENT_API_BASE_URL } from "@/lib/api";
 
 const ENDPOINTS = [
   {
@@ -65,10 +65,10 @@ const ENDPOINTS = [
 ];
 
 export default function ApiDocsPage() {
-  const swaggerUrl = API_BASE_URL.replace(/\/api\/v1$/, "/docs");
+  const swaggerUrl = CLIENT_API_BASE_URL.replace(/\/api\/v1$/, "/docs");
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+    <section className="mx-auto max-w-6xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
       <div className="max-w-[680px]">
         <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
           OpenAPI 3.1 · RFC 9457 Problem Details
@@ -92,16 +92,16 @@ export default function ApiDocsPage() {
 
       <CodeHandoff />
 
-      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
+      <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6">
         <h2 className="title-1 text-white mb-4">REST API v1 endpoints</h2>
         <div className="space-y-3">
           {ENDPOINTS.map((ep) => (
             <div
               key={`${ep.method}-${ep.path}`}
-              className="rounded-xl border border-[#272727] bg-[#000000] p-4"
+              className="rounded-xl border border-[#272727] bg-[#000000] p-3 sm:p-4"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-2 font-mono">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 font-mono">
                   <span
                     className={`caption-4 rounded px-2 py-0.5 ${
                       ep.method === "POST"
@@ -111,7 +111,7 @@ export default function ApiDocsPage() {
                   >
                     {ep.method}
                   </span>
-                  <span className="body-4 text-white">{ep.path}</span>
+                  <span className="body-4 min-w-0 break-all text-[13px] sm:text-sm text-white">{ep.path}</span>
                 </div>
                 <span className="caption-5 font-mono text-zinc-400">{ep.auth}</span>
               </div>

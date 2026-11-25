@@ -140,7 +140,7 @@ export function ActionableHub({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search @username or numeric ID..."
+            placeholder="Search @username or ID"
             className="body-6 w-full rounded-xl border border-[#272727] bg-[#000000] py-1.5 sm:py-2 pl-9 pr-20 font-mono text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none transition-colors duration-300"
           />
           <div className="absolute right-1.5 flex items-center gap-1">
@@ -177,7 +177,7 @@ export function ActionableHub({
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <span className="text-[10px] sm:text-[11px] font-mono text-zinc-500 uppercase mr-0.5 shrink-0">Export:</span>
             <a
               href={`${CLIENT_API_BASE_URL}/blocklists/export?platform=${platformFilter}&format=csv`}
@@ -204,13 +204,14 @@ export function ActionableHub({
               title="Export plain text list of @handles"
             >
               <DownloadSimple size={11} weight="bold" />
-              <span>Handles (.txt)</span>
+              <span className="sm:hidden">TXT</span>
+              <span className="hidden sm:inline">Handles (.txt)</span>
             </a>
           </div>
         </div>
 
         {/* Category & Evidence Secondary Filter Pills (single-row scrollable on mobile) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto sm:flex-wrap border-t border-[#272727] pt-2 pb-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap border-t border-[#272727] pt-2 pb-0.5">
           <span className="hidden sm:inline text-[11px] font-mono text-zinc-500 uppercase mr-0.5 shrink-0">Filter:</span>
           {[
             { id: "all", label: "All" },
@@ -277,7 +278,7 @@ export function ActionableHub({
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-6">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6">
           <div className="flex items-start gap-3">
             <WarningCircle size={20} weight="bold" className="text-[#ff6600] mt-0.5 shrink-0" />
             <div>
@@ -287,7 +288,7 @@ export function ActionableHub({
           </div>
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-8 text-center space-y-3">
+        <div className="rounded-2xl border border-[#272727] bg-[#181818] p-5 sm:p-8 text-center space-y-3">
           <WarningCircle size={28} weight="bold" className="mx-auto text-[#ff6600]" />
           <h2 className="title-2 text-white">No accounts match current criteria</h2>
           <p className="body-5 text-zinc-400 max-w-md mx-auto">
@@ -526,8 +527,8 @@ export function ActionableHub({
                   </div>
 
                   {/* Tweet Action Bar (Single slim row, compact & premium) */}
-                  <div className="mt-3 pt-2.5 border-t border-[#222222] flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-3 pt-2.5 border-t border-[#222222] flex items-center justify-between gap-2 text-[11px] font-mono text-zinc-400">
+                    <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                       {firstEvUrl ? (
                         <a
                           href={firstEvUrl}
@@ -668,7 +669,7 @@ export function ActionableHub({
       {/* Quick Inspector Modal / Drawer */}
       {inspectingAccount && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[#272727] bg-[#181818] p-6 shadow-2xl space-y-5">
+          <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5">
             <div className="flex items-start justify-between gap-3 border-b border-[#272727] pb-4">
               <div className="flex items-center gap-3">
                 <UserAvatar
