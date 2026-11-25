@@ -527,9 +527,9 @@ export function ActionableHub({
                     </div>
                   </div>
 
-                  {/* Tweet Action Bar (Single slim row, compact & premium) */}
-                  <div className="mt-3 pt-2.5 border-t border-[#222222] flex items-center justify-between gap-2 text-[11px] font-mono text-zinc-400">
-                    <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                  {/* Tweet Action Bar */}
+                  <div className="mt-3 pt-2.5 border-t border-[#222222] flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 text-[11px] font-mono text-zinc-400">
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                       {firstEvUrl ? (
                         <a
                           href={firstEvUrl}
@@ -589,7 +589,7 @@ export function ActionableHub({
 
                     <Link
                       href={`/accounts/${a.platform}/${encodeURIComponent(a.username)}`}
-                      className="inline-flex items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap"
+                      className="inline-flex shrink-0 items-center gap-1 text-zinc-400 hover:text-white transition-colors whitespace-nowrap"
                       title="Inspect full intelligence dossier"
                     >
                       <span>Inspect</span>
