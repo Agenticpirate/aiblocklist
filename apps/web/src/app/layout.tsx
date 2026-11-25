@@ -62,20 +62,26 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-banner.png",
-        width: 1200,
-        height: 630,
+        url: "/og-banner.png?v=2",
+        width: 1600,
+        height: 840,
         alt: "AIBlockList — Filter AI Bot Replies. Keep Your Feed Human.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@Agenticpirate",
     title: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
     description:
       "Open-source behavioral trust and safety registry for X and Threads. Protecting responsible AI users while filtering automated reply spam.",
     creator: "@Agenticpirate",
-    images: ["/og-banner.png"],
+    images: [
+      {
+        url: "/og-banner.png?v=2",
+        alt: "AIBlockList — Filter AI Bot Replies. Keep Your Feed Human.",
+      },
+    ],
   },
 };
 
