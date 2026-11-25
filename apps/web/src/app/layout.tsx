@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://aiblocklist.com"),
   title: "AIBlockList — Open Source Behavioral Trust and Safety Infrastructure",
   description:
-    "Identify, verify, and filter abusive automated social media spam using public behavioral evidence, human dual review, and free independent appeals.",
+    "Identify and filter automated social media spam while protecting people who use AI responsibly, backed by public behavioral evidence and transparent appeals.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },

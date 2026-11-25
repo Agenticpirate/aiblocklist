@@ -44,8 +44,8 @@ export default function ContactPage() {
               <h2 className="title-2 text-white">Account Dispute or Appeal</h2>
             </div>
             <p className="body-5 text-zinc-400">
-              Listed by mistake? Do NOT email support for initial appeals. Use our automated, free
-              bio-challenge token system for immediate, cryptographic identity verification and
+              Listed by mistake? Do not email support for initial appeals. Use our public
+              bio-challenge token system for cryptographic identity verification and
               independent review within 7 business days.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function ContactPage() {
             href="/appeals"
             className="button-sm inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] transition-colors w-fit"
           >
-            <span>Start Free Appeal</span>
+            <span>Submit an Appeal</span>
             <ArrowRight size={14} weight="bold" />
           </Link>
         </div>

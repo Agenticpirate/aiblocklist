@@ -140,9 +140,9 @@ export default function TermsPage() {
         <section className="space-y-3">
           <h2 className="title-2 text-white">5. Independent Right to Appeal &amp; Fast-Track Delisting</h2>
           <p>
-            Any account holder listed in our database possesses the absolute, perpetual right to challenge
-            their listing free of charge. We provide an automated bio challenge verification system that
-            guarantees impartial re-review by an independent reviewer within 7 business days.
+            Any account holder listed in our database possesses the right to challenge
+            their listing through our public bio-challenge verification system, which
+            routes directly to an independent reviewer within 7 business days.
           </p>
           <p>
             To file an appeal, visit our dedicated portal at{" "}

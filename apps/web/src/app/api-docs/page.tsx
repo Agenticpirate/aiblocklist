@@ -60,7 +60,7 @@ const ENDPOINTS = [
     method: "POST",
     path: "/api/v1/appeals",
     auth: "Verified Appellant Session (1/14d)",
-    desc: "Submit a free independent appeal routed to a reviewer excluded from the original decision.",
+    desc: "Submit a public appeal routed to an independent reviewer excluded from the original decision.",
   },
 ];
 

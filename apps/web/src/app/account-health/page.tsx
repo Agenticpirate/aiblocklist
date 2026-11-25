@@ -541,7 +541,7 @@ function ListedResult({ result }: { result: Extract<CheckResult, { kind: "listed
           className="inline-flex items-center gap-1.5 rounded-lg bg-[#ff6600] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#e55c00] transition-colors"
         >
           <Key size={12} weight="bold" />
-          <span>Listed in error? Appeal for free</span>
+          <span>Listed in error? Submit an appeal</span>
         </Link>
       </div>
     </div>

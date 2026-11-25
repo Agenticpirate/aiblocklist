@@ -182,10 +182,10 @@ export function QuickCheckModal({
                   ({record.account.evidence_count} canonical evidence post(s)).
                 </p>
 
-                {/* 1-Click Fast Free Appeal */}
+                {/* Public Appeal CTA */}
                 <div className="border-t border-[#31230c] pt-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="text-[11px] text-zinc-400">
-                    Are you the human owner? Appeals are 100% free with 48h SLA.
+                    Are you the account owner? Submit a public appeal for independent review.
                   </div>
                   <Link
                     href={`/appeals?username=${encodeURIComponent(

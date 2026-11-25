@@ -142,8 +142,8 @@ export default function PrivacyPage() {
               Threads, our periodic sync applies an immutable tombstone (`source_deleted_at`), removing it from public view.
             </li>
             <li>
-              <strong className="text-zinc-200">Right to Object &amp; Free Delisting (Article 21):</strong> If you believe your
-              account was erroneously classified, you may initiate an immediate, free independent appeal through our{" "}
+              <strong className="text-zinc-200">Right to Object &amp; Public Delisting (Article 21):</strong> If you believe your
+              account was erroneously classified, you may initiate an immediate independent appeal through our{" "}
               <Link href="/appeals" className="text-[#ff6600] hover:underline font-mono">
                 Appeals Portal
               </Link>.

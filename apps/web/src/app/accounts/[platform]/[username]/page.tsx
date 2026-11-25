@@ -153,7 +153,7 @@ export default async function AccountDetailPage({
               className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#1f1f1f] px-3 py-2 text-zinc-200 hover:bg-[#272727] transition-colors duration-300"
             >
               <Scales size={14} weight="bold" />
-              <span>File free appeal</span>
+              <span>Submit public appeal</span>
             </Link>
           </div>
         </div>

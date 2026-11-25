@@ -164,9 +164,9 @@ export default function AboutPage() {
               </tr>
               <tr>
                 <td className="py-3 pr-4 font-bold text-white">Appeals</td>
-                <td className="py-3 px-4 text-zinc-400">None / public swearing oaths</td>
+                <td className="py-3 px-4 text-zinc-400">None / arbitrary</td>
                 <td className="py-3 px-4 text-zinc-400">No appeal mechanism</td>
-                <td className="py-3 pl-4 text-white font-bold">Free bio token verification + 7d SLA</td>
+                <td className="py-3 pl-4 text-white font-bold">Bio token verification + 7d SLA</td>
               </tr>
               <tr>
                 <td className="py-3 pr-4 font-bold text-white">Audit History</td>
@@ -199,9 +199,9 @@ export default function AboutPage() {
             <h2 className="title-2 text-white">Independent Appeals</h2>
           </div>
           <p className="body-5 text-zinc-400">
-            Account owners can verify identity using a single-use bio challenge token with zero
-            fees and zero humiliating public oaths. Every appeal is routed to an independent reviewer
-            who had no role in the original listing, subject to a 7 business day resolution target.
+            Account owners can verify identity using a single-use bio challenge token and submit a
+            public explanation of how they use AI responsibly. Every appeal is routed to an independent
+            reviewer who had no role in the original listing, subject to a 7 business day resolution target.
           </p>
           <Link
             href="/appeals"

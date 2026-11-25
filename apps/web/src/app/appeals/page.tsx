@@ -305,10 +305,10 @@ function AppealsContent() {
 
       <div className="space-y-1.5">
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-          Free independent account appeal
+          Public Account Appeal
         </h1>
         <p className="body-6 text-zinc-400">
-          Always 100% free and never requires public oaths or swearing off AI writing assistance. Every appeal routes to an independent reviewer excluded from the original listing.
+          AIBlockList supports people who use AI responsibly for writing, translation, and accessibility — we only filter automated reply spam. Submit a public appeal explaining why you use AI and how you will operate moving forward.
         </p>
       </div>
 
@@ -378,7 +378,7 @@ function AppealsContent() {
           {/* Scope Notice */}
           <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 caption-4 text-zinc-400 space-y-2">
             <p>
-              <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools only. They delist mistaken or remediated accounts from our public registry.
+              <strong className="text-zinc-200">Public Review Record:</strong> Appeals are part of AIBlockList&apos;s public accountability record for our registry and subscribing tools. Explain clearly why you use AI (if at all) and how your account will operate moving forward.
             </p>
             <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
               <span className="text-zinc-500 font-mono">Platform Recovery:</span>

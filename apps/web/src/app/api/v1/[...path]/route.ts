@@ -413,8 +413,8 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
       },
       non_negotiable_commitments: [
         "Stylometric AI text detection is strictly prohibited as standalone evidence.",
-        "Never charge fees to appeal or delist an account.",
-        "Never require public oaths against AI writing assistance.",
+        "Protect people using AI responsibly for writing, translation, and accessibility.",
+        "Every appeal is reviewed independently with transparent public accountability.",
       ],
     });
   }
@@ -463,7 +463,7 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
         verification_token: rawToken,
         expires_at: expiresAt.toISOString(),
         instructions:
-          "Place this single-use verification token temporarily in your public profile bio, then confirm ownership. Appeals are always free and never require public oaths.",
+          "Place this single-use verification token temporarily in your public profile bio, then confirm ownership.",
       },
       { status: 201 }
     );
