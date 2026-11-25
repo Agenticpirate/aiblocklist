@@ -9,6 +9,7 @@ import { UserAvatar } from "./UserAvatar";
 interface TweetEvidenceCardProps {
   evidence: EvidenceRecord;
   username: string;
+  platformAccountId?: string | null;
   platform?: string;
   showVerified?: boolean;
 }
@@ -16,6 +17,7 @@ interface TweetEvidenceCardProps {
 export function TweetEvidenceCard({
   evidence,
   username,
+  platformAccountId,
   platform = "x",
   showVerified = true,
 }: TweetEvidenceCardProps) {
@@ -30,7 +32,12 @@ export function TweetEvidenceCard({
       {/* Tweet Author & Tag Header */}
       <div className="flex items-center justify-between gap-3 border-b border-[#222] pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <UserAvatar username={username} platform={platform} size="sm" />
+          <UserAvatar
+            username={username}
+            platformAccountId={platformAccountId}
+            platform={platform}
+            size="sm"
+          />
           <div className="min-w-0 flex items-center gap-1.5 flex-wrap">
             <span className="font-mono font-bold text-sm text-white truncate">
               @{username.replace(/^@/, "")}

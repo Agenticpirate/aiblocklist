@@ -247,6 +247,7 @@ export default async function AccountDetailPage({
                   key={ev.platform_post_id}
                   evidence={ev}
                   username={a.username}
+                  platformAccountId={a.platform_account_id}
                   platform={a.platform}
                 />
               ))}

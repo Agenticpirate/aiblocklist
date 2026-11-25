@@ -734,6 +734,7 @@ export function ActionableHub({
                         key={ev.platform_post_id}
                         evidence={ev}
                         username={inspectingAccount.account.username}
+                        platformAccountId={inspectingAccount.account.platform_account_id}
                         platform={inspectingAccount.account.platform}
                       />
                     ))}
