@@ -259,7 +259,7 @@ export default async function AccountDetailPage({
       <div className="mt-4 sm:mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 flex items-start gap-2.5 caption-4 text-zinc-400">
         <CheckCircle size={16} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
         <span>
-          {record.meta.disclaimer} Zero raw verbatim post text is archived in our database.
+          {record.meta?.disclaimer || "Missing records never imply legitimacy or abuse."} Zero raw verbatim post text is archived in our database.
         </span>
       </div>
     </section>

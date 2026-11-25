@@ -158,6 +158,7 @@ async function hydrateAccounts(db: D1Database, rows: Record<string, unknown>[]) 
         policy_version: "v1.0.0",
         public_rationale: (a.public_rationale as string | null) ?? null,
         evidence_count: evList.length,
+        has_source_conflict: Boolean(a.has_source_conflict),
         appeal_status: String(a.appeal_status || "none"),
         last_reviewed_at: (a.last_reviewed_at as string | null) ?? null,
         primary_quote: primaryQuote,
@@ -165,6 +166,10 @@ async function hydrateAccounts(db: D1Database, rows: Record<string, unknown>[]) 
       },
       evidence: evList,
       source_assertions: assertions,
+      meta: {
+        disclaimer:
+          "Missing records never imply legitimacy or abuse. Classifications reflect observable behavioral signals under Policy v1.0.0.",
+      },
       links: {
         self: `https://aiblocklist.com/api/v1/accounts/${a.platform}/${a.username}`,
         appeal_url: `https://aiblocklist.com/appeals?platform=${a.platform}&username=${a.username}`,
