@@ -5,6 +5,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { FooterAscii } from "@/components/FooterAscii";
 import { CommunityNoticeBanner } from "@/components/CommunityNoticeBanner";
+import { WebMcpProvider } from "@/components/WebMcpProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aiblocklist.com"),
@@ -148,6 +149,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <FooterAscii />
         <CommunityNoticeBanner />
+        <WebMcpProvider />
       </body>
     </html>
   );
