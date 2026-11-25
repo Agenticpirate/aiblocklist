@@ -28,5 +28,16 @@
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "aiblocklist-db",
+			"database_id": "413c84c4-2ccc-4d96-aeed-6dda05086cd4"
+		}
+	],
+	"vars": {
+		"NEXT_PUBLIC_API_BASE_URL": "https://aiblocklist.com/api/v1",
+		"INTERNAL_API_URL": "https://aiblocklist.com/api/v1"
 	}
 }

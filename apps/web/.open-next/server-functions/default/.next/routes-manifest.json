@@ -43,6 +43,14 @@
         "nxtPusername": "nxtPusername"
       },
       "namedRegex": "^/accounts/(?<nxtPplatform>[^/]+?)/(?<nxtPusername>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/v1/[...path]",
+      "regex": "^/api/v1/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPpath": "nxtPpath"
+      },
+      "namedRegex": "^/api/v1/(?<nxtPpath>.+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
