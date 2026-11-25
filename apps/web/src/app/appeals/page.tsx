@@ -10,7 +10,12 @@ import {
   ShieldCheck,
   ArrowSquareOut,
   MagnifyingGlass,
-  ArrowRight,
+  ArrowLeft,
+  Copy,
+  Check,
+  Plus,
+  Trash,
+  Clock,
 } from "@phosphor-icons/react";
 import { fetchApi } from "@/lib/api";
 import { QuickCheckModal } from "@/components/QuickCheckModal";
@@ -29,10 +34,39 @@ interface ChallengeInit {
 interface AppealConfirmation {
   appeal_id: string;
   status: string;
+  expedited_triage?: boolean;
+  triage_hours?: number;
   triage_target_date: string;
   sla_target_date: string;
   scope_notice: string;
 }
+
+interface AppealStatusRecord {
+  appeal_id: string;
+  status: string;
+  submitted_at: string;
+  triage_target_date: string;
+  sla_target_date: string;
+  public_correction_note: string | null;
+}
+
+const APPEAL_GROUNDS = [
+  {
+    id: "false_positive",
+    label: "False positive / Human account",
+    hint: "I am a human or legitimate creator and my replies are not automated spam.",
+  },
+  {
+    id: "unverified_import",
+    label: "Unverified external listing",
+    hint: "This account was imported from an external list without independent AIBlockList verification.",
+  },
+  {
+    id: "remediation",
+    label: "30-day behavioral remediation",
+    hint: "Automated reply behavior has been stopped for 30+ consecutive days.",
+  },
+] as const;
 
 function AppealsContent() {
   const searchParams = useSearchParams();
@@ -47,11 +81,20 @@ function AppealsContent() {
   const [username, setUsername] = useState(paramUsername);
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [ground, setGround] = useState<string>("false_positive");
   const [statement, setStatement] = useState("");
+  const [supportingUrls, setSupportingUrls] = useState<string[]>([""]);
   const [confirmation, setConfirmation] = useState<AppealConfirmation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [quickCheckOpen, setQuickCheckOpen] = useState(false);
+
+  // Appeal Status Tracker state
+  const [trackId, setTrackId] = useState("");
+  const [trackLoading, setTrackLoading] = useState(false);
+  const [trackError, setTrackError] = useState<string | null>(null);
+  const [trackedAppeal, setTrackedAppeal] = useState<AppealStatusRecord | null>(null);
 
   useEffect(() => {
     if (paramUsername && !username) {
@@ -111,14 +154,20 @@ function AppealsContent() {
     setError(null);
     setLoading(true);
     try {
+      const selectedGround = APPEAL_GROUNDS.find((g) => g.id === ground);
+      const formattedStatement = selectedGround
+        ? `[${selectedGround.label}] ${statement.trim()}`
+        : statement.trim();
+      const cleanedUrls = supportingUrls.map((u) => u.trim()).filter(Boolean);
+
       const res = await fetchApi<AppealConfirmation>("/appeals", {
         method: "POST",
         headers: { "X-Appellant-Session": sessionToken },
         body: JSON.stringify({
           platform,
           username: challenge.account_username,
-          statement: statement.trim(),
-          supporting_urls: [],
+          statement: formattedStatement,
+          supporting_urls: cleanedUrls,
         }),
       });
       setConfirmation(res);
@@ -129,35 +178,92 @@ function AppealsContent() {
     }
   }
 
+  async function lookupAppealStatus(e: React.FormEvent) {
+    e.preventDefault();
+    const id = trackId.trim();
+    if (!id) return;
+    setTrackError(null);
+    setTrackLoading(true);
+    setTrackedAppeal(null);
+    try {
+      const res = await fetchApi<AppealStatusRecord>(`/appeals/${encodeURIComponent(id)}`);
+      setTrackedAppeal(res);
+    } catch (err) {
+      setTrackError(err instanceof Error ? err.message : "Could not find an appeal with that ID.");
+    } finally {
+      setTrackLoading(false);
+    }
+  }
+
+  const copyToken = async () => {
+    if (!challenge) return;
+    await navigator.clipboard.writeText(challenge.verification_token);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <section className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <p className="caption-3 font-mono uppercase text-[#ff6600]">
+    <section className="mx-auto max-w-3xl px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="caption-4 font-mono uppercase text-[#ff6600]">
           Independent reputation protection
         </p>
         <button
           type="button"
           onClick={() => setQuickCheckOpen(true)}
-          className="button-xsm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#131209] px-2.5 py-1 text-xs font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors cursor-pointer"
+          className="button-xsm inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#181818] px-2.5 py-1 text-xs font-mono text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors cursor-pointer"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600] animate-pulse" />
-          <span>⚡ Check if you&apos;re listed first</span>
+          <MagnifyingGlass size={12} weight="bold" />
+          <span>Check if you&apos;re listed first</span>
         </button>
       </div>
 
-      <h1 className="heading-2 text-white">Free independent account appeal</h1>
-      <p className="body-3 mt-3 text-zinc-400">
-        Appeals are always 100% free and never require swearing off AI writing assistance or making
-        public oaths. Every appeal routes to an independent reviewer excluded from the original
-        listing, with 48 hour triage and a 7 business day resolution target.
-      </p>
+      <div className="space-y-1.5">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
+          Free independent account appeal
+        </h1>
+        <p className="body-6 text-zinc-400">
+          Always 100% free and never requires public oaths or swearing off AI writing assistance. Every appeal routes to an independent reviewer excluded from the original listing.
+        </p>
+      </div>
 
-      {/* Top Tab Switcher: AIBlockList vs Official 𝕏 Suspension Recovery */}
-      <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-2 border-b border-[#272727] pb-3">
+      {/* Fairness Guarantees Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="rounded-xl border border-[#272727] bg-[#181818] p-3">
+          <div className="flex items-center gap-1.5 text-[#ff6600] caption-4 font-mono">
+            <Scales size={14} weight="bold" />
+            <span>Independent Review</span>
+          </div>
+          <p className="caption-5 text-zinc-400 mt-1">
+            Original listing reviewers are strictly barred from deciding your appeal.
+          </p>
+        </div>
+        <div className="rounded-xl border border-[#272727] bg-[#181818] p-3">
+          <div className="flex items-center gap-1.5 text-emerald-400 caption-4 font-mono">
+            <Clock size={14} weight="bold" />
+            <span>24h–48h Triage</span>
+          </div>
+          <p className="caption-5 text-zinc-400 mt-1">
+            24h expedited triage for unverified imports; 7 business day resolution SLA.
+          </p>
+        </div>
+        <div className="rounded-xl border border-[#272727] bg-[#181818] p-3">
+          <div className="flex items-center gap-1.5 text-zinc-200 caption-4 font-mono">
+            <ShieldCheck size={14} weight="bold" className="text-[#ff6600]" />
+            <span>Zero Detector Bias</span>
+          </div>
+          <p className="caption-5 text-zinc-400 mt-1">
+            All appeal actions are recorded immutably in the SHA-256 audit ledger.
+          </p>
+        </div>
+      </div>
+
+      {/* Top Tab Switcher */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-[#272727] pb-3">
         <button
           type="button"
           onClick={() => setActiveTab("aiblocklist")}
-          className={`button-sm px-4 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
+          className={`button-sm px-3.5 py-2 rounded-lg font-mono text-xs font-semibold transition-colors cursor-pointer ${
             activeTab === "aiblocklist"
               ? "bg-[#ff6600] text-black"
               : "border border-[#272727] bg-[#181818] text-zinc-400 hover:text-white"
@@ -169,36 +275,34 @@ function AppealsContent() {
         <button
           type="button"
           onClick={() => setActiveTab("x_suspension")}
-          className={`button-sm inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
+          className={`button-sm inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-mono text-xs font-semibold transition-colors cursor-pointer ${
             activeTab === "x_suspension"
               ? "bg-[#ff6600] text-black"
-              : "border border-[#ff6600]/40 bg-[#160f08] text-[#ff6600] hover:bg-[#ff6600]/20"
+              : "border border-[#ff6600]/40 bg-[#181818] text-[#ff6600] hover:bg-[#1F1F1F]"
           }`}
         >
-          <XLogo className="w-3.5 h-3.5 text-current" shiny />
+          <XLogo className="w-3.5 h-3.5 text-current" shiny={false} />
           <span>Official 𝕏 Suspension Recovery Guide</span>
         </button>
       </div>
 
       {activeTab === "x_suspension" ? (
-        <div className="mt-4 sm:mt-6">
-          <XSuspensionGuide />
-        </div>
+        <XSuspensionGuide />
       ) : (
         <>
-          {/* Upstream & Scope Notice Card */}
-          <div className="mt-4 sm:mt-6 rounded-xl border border-[#272727] bg-[#181818] p-4 caption-4 text-zinc-400 space-y-2">
+          {/* Scope Notice */}
+          <div className="rounded-xl border border-[#272727] bg-[#181818] p-3.5 caption-4 text-zinc-400 space-y-2">
             <p>
-              <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools/extensions only. They delist mistaken accounts from our public intelligence registry.
+              <strong className="text-zinc-200">Scope notice:</strong> AIBlockList appeals govern AIBlockList and subscribing third-party tools only. They delist mistaken or remediated accounts from our public registry.
             </p>
             <div className="border-t border-[#272727] pt-2 flex flex-wrap items-center gap-3 text-xs">
-              <span className="text-zinc-500 font-mono">Platform Recovery Links:</span>
+              <span className="text-zinc-500 font-mono">Platform Recovery:</span>
               <button
                 type="button"
                 onClick={() => setActiveTab("x_suspension")}
-                className="hover:text-[#ff6600] inline-flex items-center gap-1 text-[#ff6600] font-mono cursor-pointer font-bold"
+                className="hover:underline inline-flex items-center gap-1 text-[#ff6600] font-mono cursor-pointer font-semibold"
               >
-                <span>𝕏 Official Suspension Recovery Guide →</span>
+                <span>𝕏 Suspension Guide →</span>
               </button>
               <span className="text-zinc-600">·</span>
               <a
@@ -213,138 +317,304 @@ function AppealsContent() {
             </div>
           </div>
 
-      {error && (
-        <div className="mt-4 sm:mt-6 rounded-xl border border-[#ff6600]/40 bg-[#131209] p-4 flex items-start gap-2.5">
-          <WarningCircle size={18} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
-          <p className="body-6 text-zinc-200">{error}</p>
-        </div>
-      )}
-
-      {confirmation ? (
-        <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
-          <div className="flex items-start gap-3">
-            <CheckCircle size={22} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
-            <div>
-              <h2 className="title-2 text-white">Appeal recorded and acknowledged</h2>
-              <p className="body-6 mt-1 text-zinc-400">{confirmation.scope_notice}</p>
-            </div>
-          </div>
-          <div className="rounded-xl border border-[#272727] bg-[#000000] p-4 font-mono caption-4 space-y-1.5 text-zinc-300">
-            <p>Appeal ID: {confirmation.appeal_id}</p>
-            <p>Status: {confirmation.status}</p>
-            <p>48h procedural triage target: {confirmation.triage_target_date.slice(0, 10)}</p>
-            <p>Independent review target: {confirmation.sla_target_date.slice(0, 10)}</p>
-          </div>
-        </div>
-      ) : step === 1 ? (
-        <form
-          onSubmit={startChallenge}
-          className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
-        >
-          <div className="flex items-center gap-2 text-zinc-300">
-            <Key size={18} weight="bold" className="text-[#ff6600]" />
-            <h2 className="title-3 text-white">Step 1: Verify account control</h2>
-          </div>
-          <div>
-            <label className="title-4 block text-white mb-2">Platform</label>
-            <div className="flex items-center gap-2">
-              {(["x", "threads"] as const).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPlatform(p)}
-                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase inline-flex items-center gap-1.5 transition-colors duration-300 ${
-                    platform === p
-                      ? "bg-[#ff6600] text-black font-bold"
-                      : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
+          {/* Step Progress Indicator */}
+          {!confirmation && (
+            <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
+              {[
+                { n: 1, label: "1. Account" },
+                { n: 2, label: "2. Ownership" },
+                { n: 3, label: "3. Evidence" },
+              ].map((s) => (
+                <div
+                  key={s.n}
+                  className={`rounded-lg border px-3 py-1.5 text-center transition-colors ${
+                    step === s.n
+                      ? "border-[#ff6600] bg-[#131209] text-[#ff6600] font-semibold"
+                      : step > s.n
+                      ? "border-emerald-500/40 bg-[#0F1B14] text-emerald-400"
+                      : "border-[#272727] bg-[#181818] text-zinc-500"
                   }`}
                 >
-                  {p === "x" ? <XLogo className="w-3.5 h-3.5" /> : <ThreadsLogo className="w-3.5 h-3.5" />}
-                  <span>{p}</span>
-                </button>
+                  {s.label}
+                </div>
               ))}
             </div>
+          )}
+
+          {error && (
+            <div className="rounded-xl border border-[#ff6600]/40 bg-[#131209] p-3.5 flex items-start gap-2.5">
+              <WarningCircle size={18} weight="bold" className="text-[#ff6600] shrink-0 mt-0.5" />
+              <p className="body-6 text-zinc-200">{error}</p>
+            </div>
+          )}
+
+          {confirmation ? (
+            <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle size={22} weight="bold" className="text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="title-2 text-white">Appeal recorded and acknowledged</h2>
+                  <p className="body-6 mt-1 text-zinc-400">{confirmation.scope_notice}</p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-[#272727] bg-[#000000] p-4 font-mono caption-4 space-y-1.5 text-zinc-300">
+                <p>
+                  Appeal ID: <span className="text-white select-all">{confirmation.appeal_id}</span>
+                </p>
+                <p>Status: {confirmation.status}</p>
+                <p>
+                  {confirmation.expedited_triage ? "24h expedited" : "48h"} triage target:{" "}
+                  {confirmation.triage_target_date.slice(0, 10)}
+                </p>
+                <p>Independent review SLA target: {confirmation.sla_target_date.slice(0, 10)}</p>
+              </div>
+            </div>
+          ) : step === 1 ? (
+            <form
+              onSubmit={startChallenge}
+              className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
+            >
+              <div className="flex items-center gap-2 text-zinc-300">
+                <Key size={18} weight="bold" className="text-[#ff6600]" />
+                <h2 className="title-3 text-white">Step 1: Verify account control</h2>
+              </div>
+              <div>
+                <label className="title-4 block text-white mb-2">Platform</label>
+                <div className="flex items-center gap-2">
+                  {(["x", "threads"] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPlatform(p)}
+                      className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase inline-flex items-center gap-1.5 transition-colors duration-300 cursor-pointer ${
+                        platform === p
+                          ? "bg-[#ff6600] text-black font-semibold"
+                          : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {p === "x" ? <XLogo className="w-3.5 h-3.5" /> : <ThreadsLogo className="w-3.5 h-3.5" />}
+                      <span>{p}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label htmlFor="appeal-handle" className="title-4 block text-white mb-2">
+                  Indexed {platform === "x" ? "X" : "Threads"} handle
+                </label>
+                <input
+                  id="appeal-handle"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder={platform === "x" ? "FathinDev" : "threads_growth_spammer"}
+                  className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
+              >
+                {loading ? "Generating challenge..." : "Generate ownership challenge"}
+              </button>
+            </form>
+          ) : step === 2 && challenge ? (
+            <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="title-3 text-white">
+                  Step 2: Publish bio token for @{challenge.account_username}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep(1);
+                    setError(null);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-mono text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  <ArrowLeft size={13} weight="bold" />
+                  <span>Change handle</span>
+                </button>
+              </div>
+              <p className="body-6 text-zinc-400">{challenge.instructions}</p>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#ff6600]/40 bg-[#000000] p-3.5">
+                <span className="font-mono title-3 text-[#ff6600] select-all truncate">
+                  {challenge.verification_token}
+                </span>
+                <button
+                  type="button"
+                  onClick={copyToken}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors cursor-pointer"
+                >
+                  {copied ? <Check size={13} weight="bold" className="text-emerald-400" /> : <Copy size={13} weight="bold" />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+              <p className="caption-5 font-mono text-zinc-500">
+                Bound to platform ID {challenge.platform_account_id || "handle"} · Expires{" "}
+                {challenge.expires_at.slice(0, 19).replace("T", " ")} UTC
+              </p>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={confirmChallenge}
+                className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
+              >
+                {loading ? "Verifying token..." : "Confirm ownership token"}
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={submitAppeal}
+              className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
+            >
+              <div className="flex items-center gap-2">
+                <Scales size={18} weight="bold" className="text-[#ff6600]" />
+                <h2 className="title-3 text-white">
+                  Step 3: Submit statement &amp; counter-evidence for @{challenge?.account_username}
+                </h2>
+              </div>
+
+              {/* Appeal Ground Selector */}
+              <div className="space-y-2">
+                <label className="title-4 block text-white">Primary appeal ground</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {APPEAL_GROUNDS.map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setGround(g.id)}
+                      className={`text-left rounded-xl border p-2.5 transition-colors cursor-pointer ${
+                        ground === g.id
+                          ? "border-[#ff6600] bg-[#131209]"
+                          : "border-[#272727] bg-[#000000] hover:border-[#383838]"
+                      }`}
+                    >
+                      <p className={`caption-4 font-mono font-semibold ${ground === g.id ? "text-[#ff6600]" : "text-white"}`}>
+                        {g.label}
+                      </p>
+                      <p className="caption-5 text-zinc-400 mt-0.5">{g.hint}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="appeal-statement" className="title-4 block text-white mb-2">
+                  Counter evidence or remediation statement (minimum 20 characters)
+                </label>
+                <textarea
+                  id="appeal-statement"
+                  required
+                  minLength={20}
+                  maxLength={3000}
+                  rows={4}
+                  value={statement}
+                  onChange={(e) => setStatement(e.target.value)}
+                  placeholder="Explain why the behavioral signals do not apply, identify any mistaken handle ownership, or confirm 30 consecutive days without automated reply spam."
+                  className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
+                />
+              </div>
+
+              {/* Optional Supporting Counter-Evidence URLs */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="title-4 text-white">
+                    Supporting post URLs <span className="caption-5 text-zinc-500 font-normal">(optional, up to 5)</span>
+                  </label>
+                  {supportingUrls.length < 5 && (
+                    <button
+                      type="button"
+                      onClick={() => setSupportingUrls((prev) => [...prev, ""])}
+                      className="inline-flex items-center gap-1 text-xs font-mono text-[#ff6600] hover:underline cursor-pointer"
+                    >
+                      <Plus size={12} weight="bold" />
+                      <span>Add URL</span>
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  {supportingUrls.map((urlVal, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={urlVal}
+                        onChange={(e) => {
+                          const next = [...supportingUrls];
+                          next[idx] = e.target.value;
+                          setSupportingUrls(next);
+                        }}
+                        placeholder={`https://${platform === "x" ? "x.com" : "threads.net"}/...`}
+                        className="body-6 flex-1 rounded-lg border border-[#272727] bg-[#000000] px-3 py-1.5 font-mono text-white placeholder:text-zinc-600 focus:border-[#ff6600] focus:outline-none"
+                      />
+                      {supportingUrls.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setSupportingUrls((prev) => prev.filter((_, i) => i !== idx))}
+                          aria-label="Remove URL"
+                          className="p-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+                        >
+                          <Trash size={14} weight="bold" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
+              >
+                {loading ? "Submitting appeal..." : "Submit independent appeal"}
+              </button>
+            </form>
+          )}
+
+          {/* Track Existing Appeal Status */}
+          <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock size={16} weight="bold" className="text-[#ff6600]" />
+              <h2 className="title-4 text-white">Track an existing appeal</h2>
+            </div>
+            <form onSubmit={lookupAppealStatus} className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={trackId}
+                onChange={(e) => setTrackId(e.target.value)}
+                placeholder="Paste your Appeal ID (UUID)..."
+                className="body-6 flex-1 rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-600 focus:border-[#ff6600] focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={trackLoading || !trackId.trim()}
+                className="button-sm rounded-lg border border-[#313131] bg-[#1F1F1F] px-4 py-2 font-mono text-xs text-white hover:border-[#ff6600] disabled:opacity-50 cursor-pointer shrink-0"
+              >
+                {trackLoading ? "Checking..." : "Check status"}
+              </button>
+            </form>
+
+            {trackError && (
+              <p className="caption-4 font-mono text-red-400">{trackError}</p>
+            )}
+
+            {trackedAppeal && (
+              <div className="rounded-xl border border-[#272727] bg-[#000000] p-3.5 font-mono caption-4 space-y-1 text-zinc-300">
+                <p>
+                  Status: <span className="text-[#ff6600] font-semibold uppercase">{trackedAppeal.status}</span>
+                </p>
+                <p>Submitted: {trackedAppeal.submitted_at.slice(0, 10)}</p>
+                <p>Triage target: {trackedAppeal.triage_target_date.slice(0, 10)}</p>
+                <p>Resolution SLA target: {trackedAppeal.sla_target_date.slice(0, 10)}</p>
+                {trackedAppeal.public_correction_note && (
+                  <p className="text-emerald-400 pt-1">Note: {trackedAppeal.public_correction_note}</p>
+                )}
+              </div>
+            )}
           </div>
-          <div>
-            <label htmlFor="appeal-handle" className="title-4 block text-white mb-2">
-              Indexed {platform === "x" ? "X" : "Threads"} handle
-            </label>
-            <input
-              id="appeal-handle"
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder={platform === "x" ? "Cocothe_gb" : "threads_growth_spammer"}
-              className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 font-mono text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
-          >
-            {loading ? "Generating challenge..." : "Generate ownership challenge"}
-          </button>
-        </form>
-      ) : step === 2 && challenge ? (
-        <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
-          <h2 className="title-3 text-white">
-            Step 2: Publish single use bio token for @{challenge.account_username}
-          </h2>
-          <p className="body-6 text-zinc-400">{challenge.instructions}</p>
-          <div className="rounded-xl border border-[#ff6600]/40 bg-[#000000] p-4 font-mono title-3 text-[#ff6600] select-all">
-            {challenge.verification_token}
-          </div>
-          <p className="caption-5 font-mono text-zinc-500">
-            Bound to platform ID {challenge.platform_account_id || "handle"} · Expires{" "}
-            {challenge.expires_at}
-          </p>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={confirmChallenge}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
-          >
-            {loading ? "Verifying token..." : "Confirm ownership token"}
-          </button>
-        </div>
-      ) : (
-        <form
-          onSubmit={submitAppeal}
-          className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4"
-        >
-          <div className="flex items-center gap-2">
-            <Scales size={18} weight="bold" className="text-[#ff6600]" />
-            <h2 className="title-3 text-white">
-              Step 3: Submit statement for @{challenge?.account_username}
-            </h2>
-          </div>
-          <div>
-            <label htmlFor="appeal-statement" className="title-4 block text-white mb-2">
-              Counter evidence or remediation statement (minimum 20 characters)
-            </label>
-            <textarea
-              id="appeal-statement"
-              required
-              minLength={20}
-              maxLength={3000}
-              rows={5}
-              value={statement}
-              onChange={(e) => setStatement(e.target.value)}
-              placeholder="Explain why the behavioral signals do not apply, identify any mistaken handle ownership, or confirm 30 consecutive days without automated reply spam."
-              className="body-5 w-full rounded-lg border border-[#272727] bg-[#000000] px-3 py-2 text-white placeholder:text-zinc-500 focus:border-[#ff6600] focus:outline-none"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-bold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
-          >
-            {loading ? "Submitting appeal..." : "Submit independent appeal"}
-          </button>
-        </form>
-      )}
         </>
       )}
 

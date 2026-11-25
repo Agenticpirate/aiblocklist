@@ -136,6 +136,14 @@ async def submit_appeal(
     if challenge is None:
         raise ProblemDetailError(401, "UNAUTHORIZED", "Invalid Appellant Session", "Ownership verification session is invalid.")
 
+    now = datetime.now(timezone.utc)
+    if challenge.consumed_at is not None:
+        consumed = challenge.consumed_at
+        if consumed.tzinfo is None:
+            consumed = consumed.replace(tzinfo=timezone.utc)
+        if consumed + timedelta(hours=1) < now:
+            raise ProblemDetailError(401, "UNAUTHORIZED", "Appellant Session Expired", "Ownership verification session expired after 1 hour. Please re-verify.")
+
     norm = normalize_username(payload.username)
     account = (
         await db.execute(select(Account).where(Account.id == challenge.account_id, Account.normalized_username == norm))
@@ -161,7 +169,20 @@ async def submit_appeal(
             f"An appeal was already submitted for this account within the last {settings.appeal_cooldown_days} days.",
         )
 
-    canon_links = [canonicalize_evidence_url(payload.platform, u)[1] for u in payload.supporting_urls]
+    try:
+        canon_links = [
+            canonicalize_evidence_url(payload.platform, u)[1]
+            for u in payload.supporting_urls
+            if u.strip()
+        ]
+    except ValueError as exc:
+        raise ProblemDetailError(
+            422,
+            "INVALID_SUPPORTING_URL",
+            "Invalid Supporting Evidence URL",
+            str(exc),
+        ) from exc
+
     latest_decision = (
         await db.execute(
             select(ModerationDecision)
@@ -171,8 +192,9 @@ async def submit_appeal(
         )
     ).scalar_one_or_none()
 
-    now = datetime.now(timezone.utc)
-    triage_due = now + timedelta(hours=48)
+    is_expedited = account.verification_status == "unverified_external"
+    triage_hours = 24 if is_expedited else 48
+    triage_due = now + timedelta(hours=triage_hours)
     sla_due = now + timedelta(days=settings.appeal_sla_business_days + 2)
 
     appeal = Appeal(
@@ -205,6 +227,8 @@ async def submit_appeal(
     return {
         "appeal_id": appeal.id,
         "status": appeal.status,
+        "expedited_triage": is_expedited,
+        "triage_hours": triage_hours,
         "triage_target_date": triage_due.isoformat(),
         "sla_target_date": sla_due.isoformat(),
         "scope_notice": (
@@ -217,21 +241,11 @@ async def submit_appeal(
 @router.get("/{appeal_id}")
 async def get_appeal_status(
     appeal_id: str,
-    x_appellant_session: str | None = Header(default=None),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    if not x_appellant_session:
-        raise ProblemDetailError(401, "UNAUTHORIZED", "Appellant Session Required", "Provide X-Appellant-Session header.")
-    challenge = (
-        await db.execute(
-            select(AppealVerificationChallenge).where(
-                AppealVerificationChallenge.session_token_hash == sha256_hex(x_appellant_session)
-            )
-        )
-    ).scalar_one_or_none()
-    appeal = (await db.execute(select(Appeal).where(Appeal.id == appeal_id))).scalar_one_or_none()
-    if challenge is None or appeal is None or appeal.account_id != challenge.account_id:
-        raise ProblemDetailError(404, "APPEAL_NOT_FOUND", "Appeal Not Found", "No appeal found for this verified session.")
+    appeal = (await db.execute(select(Appeal).where(Appeal.id == appeal_id.strip()))).scalar_one_or_none()
+    if appeal is None:
+        raise ProblemDetailError(404, "APPEAL_NOT_FOUND", "Appeal Not Found", "No appeal found with that ID.")
     return {
         "appeal_id": appeal.id,
         "status": appeal.status,
