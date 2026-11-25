@@ -62,7 +62,7 @@ export function CommunityNoticeBanner() {
               className="inline-flex items-center gap-1 text-zinc-400 hover:text-white"
             >
               <GitBranch size={11} weight="bold" />
-              <span>Help improve on GitHub ↗</span>
+              <span>Open Source · Help fight bots ↗</span>
             </a>
           </div>
         </div>
