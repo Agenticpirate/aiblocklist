@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { FooterAscii } from "@/components/FooterAscii";
+import { CommunityNoticeBanner } from "@/components/CommunityNoticeBanner";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aiblocklist.com"),
@@ -140,6 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <FooterAscii />
+        <CommunityNoticeBanner />
       </body>
     </html>
   );
