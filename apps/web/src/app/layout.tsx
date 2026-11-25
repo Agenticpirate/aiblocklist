@@ -93,11 +93,32 @@ const JSON_LD = {
       "@type": "Organization",
       "@id": "https://aiblocklist.com/#organization",
       name: "AIBlockList",
+      description:
+        "Open-source behavioral trust and safety infrastructure identifying automated reply spam across X and Meta Threads while protecting people who use AI responsibly.",
       url: "https://aiblocklist.com",
       logo: {
         "@type": "ImageObject",
         url: "https://aiblocklist.com/logo.png",
       },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "technical support",
+        email: "contact@aiblocklist.com",
+        url: "https://aiblocklist.com/contact",
+        availableLanguage: ["English"],
+      },
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "San Francisco",
+        addressRegion: "CA",
+        addressCountry: "US",
+      },
+      knowsAbout: [
+        "AIBlockList AI bot blocklist",
+        "AIBlockList X spam filter",
+        "Automated reply bot detection",
+        "Behavioral spam verification",
+      ],
       founder: {
         "@type": "Person",
         name: "Agenticpirate",

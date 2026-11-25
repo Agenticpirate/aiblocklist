@@ -94,7 +94,10 @@ export default async function HomePage() {
         </div>
 
         {/* REAL LIST & SEARCH HUB DIRECTLY IN VIEWPORT */}
-        <div id="registry-feed" className="scroll-mt-20">
+        <section id="registry-feed" aria-labelledby="registry-heading" className="scroll-mt-20">
+          <h2 id="registry-heading" className="sr-only">
+            AIBlockList AI Bot Blocklist &amp; X Spam Filter Live Registry
+          </h2>
           <ActionableHub
             initialTotal={totalIndexed}
             totalIndexed={totalIndexed}
@@ -102,11 +105,34 @@ export default async function HomePage() {
             initialItems={blocklistData?.items || []}
             initialNextCursor={blocklistData?.next_cursor || null}
           />
-        </div>
+        </section>
       </section>
 
       {/* THREE ESSENTIAL PILLARS (COMPACT DEEP DIVE CALLOUTS) */}
-      <section className="mx-auto max-w-6xl px-4 pt-5 sm:pt-8 sm:px-6 lg:px-8">
+      <section aria-labelledby="pillars-heading" className="mx-auto max-w-6xl px-4 pt-5 sm:pt-8 sm:px-6 lg:px-8 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="pillars-heading" className="title-3 text-white">
+            How AIBlockList Works — Behavioral Verification &amp; Open Developer Tools
+          </h2>
+          <div className="flex items-center gap-3 font-mono text-xs text-zinc-400">
+            <Link href="/developers" className="hover:text-[#ff6600] transition-colors">
+              Developer Portal
+            </Link>
+            <span>·</span>
+            <Link href="/mcp" className="hover:text-[#ff6600] transition-colors">
+              MCP Server
+            </Link>
+            <span>·</span>
+            <a
+              href="https://github.com/Agenticpirate/aiblocklist"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[#ff6600] transition-colors"
+            >
+              GitHub (OSS)
+            </a>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Link
             href="/methodology"

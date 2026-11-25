@@ -71,8 +71,18 @@ function randomHex(bytesLen: number): string {
     .join("");
 }
 
-function jsonError(status: number, code: string, title: string, detail: string) {
-  return NextResponse.json({ status, code, title, detail }, { status });
+function jsonError(status: number, code: string, title: string, detail: string, hint?: string) {
+  return NextResponse.json(
+    {
+      status,
+      code,
+      title,
+      detail,
+      hint: hint || "Check https://aiblocklist.com/openapi.json or https://aiblocklist.com/api-docs for endpoint documentation.",
+      docs_url: "https://aiblocklist.com/api-docs",
+    },
+    { status }
+  );
 }
 
 function parseJsonSafe<T>(raw: unknown, fallback: T): T {

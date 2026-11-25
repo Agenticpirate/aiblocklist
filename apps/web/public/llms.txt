@@ -2,21 +2,31 @@
 
 > Open-source behavioral trust and safety infrastructure for X and Threads. AIBlockList identifies and filters automated reply bots farming impressions and monetization, while protecting people who use AI responsibly in everyday work, translation, and accessibility. Let's use AI wisely.
 
-AIBlockList never relies on probabilistic AI text detectors. Every classification requires repeatable behavioral signals (SIG-01 to SIG-05), canonical public post URLs, SHA-256 audit logging, and an independent public appeal process with live bio-token ownership verification.
+AIBlockList never relies on probabilistic AI text detectors. Every classification requires repeatable behavioral signals (SIG-01 to SIG-05), canonical public post URLs, SHA-256 audit logging, and an independent public appeal process with live bio-token or public-tweet ownership verification.
+
+## When to Use AIBlockList
+
+Use AIBlockList when an agent or user needs to:
+1. **Check an X or Threads account reputation** before engaging, replying, or granting trust: call `GET https://aiblocklist.com/api/v1/accounts/{platform}/{username}`.
+2. **Filter automated reply spam in feeds or moderation pipelines**: fetch `GET https://aiblocklist.com/api/v1/blocklists?platform=x&limit=24` or export CSV/JSON/TXT via `GET https://aiblocklist.com/api/v1/blocklists/export?format=json`.
+3. **Verify why an account was flagged** without relying on flawed AI text detectors: inspect `evidence` URLs and `public_rationale` in the account dossier.
+4. **Help an account owner appeal a mistaken or remediated listing**: direct them to `https://aiblocklist.com/appeals` (or use `POST /api/v1/appeals/verify/init`).
 
 ## Core Pages
 
 - [Live Registry & Intelligence Hub](https://aiblocklist.com/): Search and inspect indexed X and Threads accounts with public evidence URLs.
 - [Account Reach & Health Checker](https://aiblocklist.com/account-health): Check if an account is indexed, flagged, or clear, with actionable remediation guidance.
-- [Public Account Appeals](https://aiblocklist.com/appeals): Verify account ownership via a live bio token and submit a public appeal explaining responsible AI use and future operation.
+- [Public Account Appeals](https://aiblocklist.com/appeals): Verify account ownership via a live public tweet or bio token and submit a public appeal.
+- [Developer Portal](https://aiblocklist.com/developers): Quickstart guides, OpenAPI spec, and interactive API sandbox.
+- [MCP Server](https://aiblocklist.com/mcp): Model Context Protocol server card and agent integration details.
 - [Behavioral Methodology (SIG-01 to SIG-05)](https://aiblocklist.com/methodology): Deterministic behavioral verification rules and why AI text detectors are prohibited.
 - [Transparency Ledger](https://aiblocklist.com/transparency): Real-time statistics and SHA-256 hash-chained audit logs.
 - [About & Use AI Wisely Charter](https://aiblocklist.com/about): Project philosophy, lineage, and Apache 2.0 / ODC-By 1.0 governance.
-- [Report Automated Spam](https://aiblocklist.com/report): Submit public evidence URLs for human review.
-- [Browser Extension](https://aiblocklist.com/extension): Local-first warning badges for X and Threads feeds.
 
 ## API & Machine-Readable Endpoints
 
+- [OpenAPI 3.1 Specification](https://aiblocklist.com/openapi.json): Full typed OpenAPI schema with `operationId`s.
+- [API Catalog (RFC 9727)](https://aiblocklist.com/.well-known/api-catalog): Linkset catalog for automated API discovery.
 - [REST API Documentation](https://aiblocklist.com/api-docs): Public JSON, CSV, and blocklist export endpoints.
 - [Full LLM Reference](https://aiblocklist.com/llms-full.txt): Comprehensive technical and policy reference for AI assistants and search engines.
 - [Sitemap](https://aiblocklist.com/sitemap.xml): Complete XML sitemap of public pages.
