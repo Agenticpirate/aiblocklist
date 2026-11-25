@@ -128,6 +128,8 @@ function AppealsContent() {
     searchParams.get("tab") === "x_suspension" ? "x_suspension" : "aiblocklist"
   );
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [verifyMethod, setVerifyMethod] = useState<"public_tweet" | "bio_token">("public_tweet");
+  const [appealTweetUrl, setAppealTweetUrl] = useState("");
   const [username, setUsername] = useState(paramUsername);
   const [challenge, setChallenge] = useState<ChallengeInit | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -196,6 +198,10 @@ function AppealsContent() {
 
   async function confirmChallenge() {
     if (!challenge) return;
+    if (verifyMethod === "public_tweet" && !appealTweetUrl.trim()) {
+      setError("Paste the URL of your public appeal tweet mentioning aiblocklist.com.");
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -204,8 +210,16 @@ function AppealsContent() {
         body: JSON.stringify({
           challenge_id: challenge.challenge_id,
           verification_token: challenge.verification_token,
+          ...(verifyMethod === "public_tweet" ? { appeal_tweet_url: appealTweetUrl.trim() } : {}),
         }),
       });
+      if (verifyMethod === "public_tweet" && appealTweetUrl.trim()) {
+        setSupportingUrls((prev) =>
+          prev.includes(appealTweetUrl.trim())
+            ? prev
+            : [appealTweetUrl.trim(), ...prev.filter((u) => u.trim().length > 0)].slice(0, 5)
+        );
+      }
       setSessionToken(res.appellant_session_token);
       setStep(3);
     } catch (err) {
@@ -517,16 +531,37 @@ function AppealsContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
+                className="w-full sm:w-auto button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
               >
-                {loading ? "Generating challenge..." : "Generate ownership challenge"}
+                {loading ? "Generating challenge..." : "Continue to verification"}
               </button>
+
+              {/* Visible Appeal Options Preview so users see all options immediately */}
+              <div className="border-t border-[#272727] pt-4 space-y-2.5">
+                <p className="caption-4 font-mono uppercase text-zinc-400">
+                  Available Appeal Options &amp; Public Verification
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {APPEAL_GROUNDS.map((g) => (
+                    <div
+                      key={g.id}
+                      className="rounded-xl border border-[#222] bg-[#111] p-2.5"
+                    >
+                      <p className="caption-4 font-mono font-semibold text-zinc-200">{g.label}</p>
+                      <p className="caption-5 text-zinc-500 mt-0.5">{g.hint}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="caption-5 text-zinc-400">
+                  In the next step, you can verify ownership by posting a <strong className="text-zinc-200">public tweet mentioning aiblocklist.com</strong> (sharing why you use AI &amp; your plan moving forward) or by placing a single-use token in your bio.
+                </p>
+              </div>
             </form>
           ) : step === 2 && challenge ? (
             <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="title-3 text-white">
-                  Step 2: Publish bio token for @{challenge.account_username}
+                  Step 2: Verify ownership for @{challenge.account_username}
                 </h2>
                 <button
                   type="button"
@@ -540,20 +575,99 @@ function AppealsContent() {
                   <span>Change handle</span>
                 </button>
               </div>
-              <p className="body-6 text-zinc-400">{challenge.instructions}</p>
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#ff6600]/40 bg-[#000000] p-3.5">
-                <span className="font-mono title-3 text-[#ff6600] select-all truncate">
-                  {challenge.verification_token}
-                </span>
+
+              {/* Verification Method Toggle */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={copyToken}
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors cursor-pointer"
+                  onClick={() => {
+                    setVerifyMethod("public_tweet");
+                    setError(null);
+                  }}
+                  className={`text-left rounded-xl border p-3 transition-colors cursor-pointer ${
+                    verifyMethod === "public_tweet"
+                      ? "border-[#ff6600] bg-[#131209]"
+                      : "border-[#272727] bg-[#000000] hover:border-[#383838]"
+                  }`}
                 >
-                  {copied ? <Check size={13} weight="bold" className="text-emerald-400" /> : <Copy size={13} weight="bold" />}
-                  <span>{copied ? "Copied" : "Copy"}</span>
+                  <p className={`caption-4 font-mono font-semibold ${verifyMethod === "public_tweet" ? "text-[#ff6600]" : "text-white"}`}>
+                    1. Public Appeal Tweet (Recommended)
+                  </p>
+                  <p className="caption-5 text-zinc-400 mt-0.5">
+                    Share your reason publicly on X mentioning aiblocklist.com and paste the tweet link.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVerifyMethod("bio_token");
+                    setError(null);
+                  }}
+                  className={`text-left rounded-xl border p-3 transition-colors cursor-pointer ${
+                    verifyMethod === "bio_token"
+                      ? "border-[#ff6600] bg-[#131209]"
+                      : "border-[#272727] bg-[#000000] hover:border-[#383838]"
+                  }`}
+                >
+                  <p className={`caption-4 font-mono font-semibold ${verifyMethod === "bio_token" ? "text-[#ff6600]" : "text-white"}`}>
+                    2. Profile Bio Token
+                  </p>
+                  <p className="caption-5 text-zinc-400 mt-0.5">
+                    Temporarily place a single-use verification token in your public X or Threads bio.
+                  </p>
                 </button>
               </div>
+
+              {verifyMethod === "public_tweet" ? (
+                <div className="space-y-3 rounded-xl border border-[#272727] bg-[#000000] p-4">
+                  <p className="body-6 text-zinc-300">
+                    Post a public tweet from <strong className="text-white">@{challenge.account_username}</strong> explaining why you use AI responsibly and how you will operate moving forward. Your tweet <strong className="text-[#ff6600]">must include https://aiblocklist.com</strong> so our platform can verify it.
+                  </p>
+                  <a
+                    href={`https://x.com/intent/tweet?text=${encodeURIComponent(
+                      `Submitting my public appeal on https://aiblocklist.com for @${challenge.account_username} — I use AI responsibly to assist my work and do not run automated reply spam. Let's use AI wisely.`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#ff6600]/40 bg-[#131209] px-3 py-2 text-xs font-mono font-semibold text-[#ff6600] hover:bg-[#ff6600] hover:text-black transition-colors"
+                  >
+                    <XLogo className="w-3.5 h-3.5" />
+                    <span>Compose Public Appeal Tweet on 𝕏 ↗</span>
+                  </a>
+                  <div>
+                    <label htmlFor="appeal-tweet-url" className="caption-4 font-mono text-zinc-300 block mb-1.5">
+                      Paste your public appeal tweet URL
+                    </label>
+                    <input
+                      id="appeal-tweet-url"
+                      type="url"
+                      value={appealTweetUrl}
+                      onChange={(e) => setAppealTweetUrl(e.target.value)}
+                      placeholder={`https://x.com/${challenge.account_username}/status/...`}
+                      className="body-5 w-full rounded-lg border border-[#272727] bg-[#0c0c0c] px-3 py-2 font-mono text-white placeholder:text-zinc-600 focus:border-[#ff6600] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="body-6 text-zinc-400">{challenge.instructions}</p>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[#ff6600]/40 bg-[#000000] p-3.5">
+                    <span className="font-mono title-3 text-[#ff6600] select-all truncate">
+                      {challenge.verification_token}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={copyToken}
+                      className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#181818] px-3 py-1.5 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors cursor-pointer"
+                    >
+                      {copied ? <Check size={13} weight="bold" className="text-emerald-400" /> : <Copy size={13} weight="bold" />}
+                      <span>{copied ? "Copied" : "Copy"}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
               <p className="caption-5 font-mono text-zinc-500">
                 Bound to platform ID {challenge.platform_account_id || "handle"} · Expires{" "}
                 {challenge.expires_at.slice(0, 19).replace("T", " ")} UTC
@@ -562,9 +676,13 @@ function AppealsContent() {
                 type="button"
                 disabled={loading}
                 onClick={confirmChallenge}
-                className="button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
+                className="w-full sm:w-auto button-md rounded-lg bg-[#ff6600] px-4 py-2 font-semibold text-black hover:bg-[#e55c00] disabled:opacity-50 transition-colors duration-300 cursor-pointer"
               >
-                {loading ? "Verifying token..." : "Confirm ownership token"}
+                {loading
+                  ? "Verifying..."
+                  : verifyMethod === "public_tweet"
+                  ? "Verify appeal tweet & continue"
+                  : "Confirm bio token"}
               </button>
             </div>
           ) : (

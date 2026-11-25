@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, WarningCircle, Plus, Trash } from "@phosphor-icons/react";
+import { CheckCircle, WarningCircle, Plus, Trash, ShieldWarning } from "@phosphor-icons/react";
 import { fetchApi } from "@/lib/api";
+import { XLogo, ThreadsLogo } from "@/components/PlatformSlideControl";
 
 interface ReportResult {
   report_id: string;
@@ -72,16 +73,19 @@ export default function ReportPage() {
   }
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
-      <p className="caption-3 font-mono uppercase text-[#ff6600] mb-2">
-        Protected community intake
-      </p>
-      <h1 className="heading-2 text-white">Submit behavioral evidence</h1>
-      <p className="body-3 mt-3 text-zinc-400">
-        Community reports never trigger automatic public classification. Every submission enters
-        24 hour deduplication, anti brigading checks, and human review. Screenshots and arbitrary
-        file uploads are rejected to protect privacy.
-      </p>
+    <section className="mx-auto max-w-3xl px-3 sm:px-6 lg:px-8 pt-6 pb-8 sm:py-8">
+      <div className="space-y-1.5">
+        <p className="caption-4 font-mono uppercase text-[#ff6600]">
+          Protected community intake
+        </p>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
+          Submit behavioral evidence
+        </h1>
+        <p className="body-6 text-zinc-400 leading-relaxed">
+          Community reports never trigger automatic listing. Every submission goes through
+          24-hour deduplication, anti-brigading checks, and human review.
+        </p>
+      </div>
 
       {result ? (
         <div className="mt-5 sm:mt-8 rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-6 space-y-4">
@@ -134,13 +138,14 @@ export default function ReportPage() {
                     setAccountUrl("");
                     setUrls(["", ""]);
                   }}
-                  className={`caption-3 rounded-lg px-4 py-2 font-mono uppercase transition-colors duration-300 ${
+                  className={`caption-3 inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 font-mono uppercase transition-colors duration-200 cursor-pointer ${
                     platform === p
                       ? "bg-[#ff6600] text-black font-bold"
                       : "border border-[#272727] bg-[#000000] text-zinc-400 hover:text-white"
                   }`}
                 >
-                  {p}
+                  {p === "x" ? <XLogo className="w-3.5 h-3.5" /> : <ThreadsLogo className="w-3.5 h-3.5" />}
+                  <span>{p}</span>
                 </button>
               ))}
             </div>
@@ -187,15 +192,15 @@ export default function ReportPage() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="title-4 text-white">
-                Public post or reply URLs (1 to 10; minimum 2 needed for confirmation)
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <label className="title-4 text-white text-sm sm:text-base">
+                Public post URLs <span className="caption-5 text-zinc-500 font-normal">(1–10; 2+ for confirmation)</span>
               </label>
               {urls.length < 10 && (
                 <button
                   type="button"
                   onClick={addUrlField}
-                  className="button-xsm inline-flex items-center gap-1 rounded-md border border-[#313131] bg-[#1f1f1f] px-2 py-1 text-zinc-200 hover:bg-[#272727]"
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#313131] bg-[#1f1f1f] px-2.5 py-1 text-xs font-mono text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors cursor-pointer shrink-0"
                 >
                   <Plus size={12} weight="bold" />
                   <span>Add URL</span>
@@ -248,9 +253,10 @@ export default function ReportPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="button-md inline-flex items-center justify-center rounded-lg bg-[#ff6600] px-4 py-2 text-black hover:bg-[#e55c00] active:scale-[0.98] disabled:opacity-50 transition-all duration-300"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-4 py-2.5 text-sm font-semibold text-black hover:bg-[#e55c00] active:scale-[0.98] disabled:opacity-50 transition-all cursor-pointer"
           >
-            {submitting ? "Submitting report..." : "Queue report for review"}
+            <ShieldWarning size={16} weight="bold" />
+            <span>{submitting ? "Submitting report..." : "Submit report for review"}</span>
           </button>
         </form>
       )}

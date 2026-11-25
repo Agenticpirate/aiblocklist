@@ -509,10 +509,15 @@ export function ActionableHub({
                       </div>
                     </div>
 
-                    {/* Tweet Text (Direct tweet typography, clean & readable) */}
-                    <div className="mt-2.5 text-zinc-200 text-xs sm:text-[13px] leading-relaxed font-sans select-text">
+                    {/* Tweet Text (Clickable to open all flagged tweets for this user) */}
+                    <button
+                      type="button"
+                      onClick={() => setInspectingAccount(item)}
+                      className="mt-2 w-full text-left rounded-lg p-1.5 -mx-1.5 text-zinc-200 text-xs sm:text-[13px] leading-relaxed font-sans hover:bg-[#1e1e1e]/80 transition-colors cursor-pointer group/tweet"
+                      title={`View all ${a.evidence_count} flagged tweet(s) for @${a.username}`}
+                    >
                       {quoteText ? (
-                        <p className="line-clamp-4 italic text-zinc-100">
+                        <p className="line-clamp-4 italic text-zinc-100 group-hover/tweet:text-white">
                           “{quoteText}”
                         </p>
                       ) : a.public_rationale ? (
@@ -524,7 +529,7 @@ export function ActionableHub({
                           Observed automated behavioral pattern logged.
                         </p>
                       )}
-                    </div>
+                    </button>
                   </div>
 
                   {/* Tweet Action Bar */}

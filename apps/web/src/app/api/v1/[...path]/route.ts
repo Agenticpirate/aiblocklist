@@ -469,7 +469,11 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     );
   }
   if (method === "POST" && route === "appeals/verify/confirm") {
-    const body = (await req.json()) as { challenge_id?: string; verification_token?: string };
+    const body = (await req.json()) as {
+      challenge_id?: string;
+      verification_token?: string;
+      appeal_tweet_url?: string;
+    };
     const ch = await db
       .prepare("SELECT * FROM appeal_verification_challenges WHERE id = ?")
       .bind(body.challenge_id || "")
@@ -494,54 +498,123 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
       return jsonError(404, "ACCOUNT_NOT_INDEXED", "Account Not Indexed", "Target account no longer exists.");
     }
 
-    // Live public bio verification so challenges cannot be bypassed without owning the account
-    let bioText = "";
-    let lookupSucceeded = false;
-    try {
-      if (acc.platform === "x") {
-        const res = await fetch(`https://api.vxtwitter.com/${encodeURIComponent(acc.username)}`, {
+    const appealTweetUrl = (body.appeal_tweet_url || "").trim();
+    if (appealTweetUrl) {
+      // Public Appeal Tweet verification: must be authored by the target handle and mention aiblocklist.com
+      const tweetMatch = appealTweetUrl.match(/^https?:\/\/(?:www\.)?(?:x\.com|twitter\.com)\/([A-Za-z0-9_]{1,30})\/status\/(\d+)/i);
+      if (!tweetMatch) {
+        return jsonError(
+          422,
+          "INVALID_APPEAL_TWEET_URL",
+          "Invalid Appeal Tweet URL",
+          "Enter a valid public X post URL (e.g. https://x.com/yourhandle/status/123456789)."
+        );
+      }
+      const [, tweetHandle, tweetId] = tweetMatch;
+      if (tweetHandle.toLowerCase() !== acc.username.toLowerCase()) {
+        return jsonError(
+          403,
+          "TWEET_AUTHOR_MISMATCH",
+          "Tweet Author Does Not Match",
+          `The appeal tweet must be posted by @${acc.username}, not @${tweetHandle}.`
+        );
+      }
+
+      let tweetText = "";
+      let tweetAuthor = "";
+      let tweetLookupOk = false;
+      try {
+        const res = await fetch(`https://api.vxtwitter.com/${encodeURIComponent(tweetHandle)}/status/${tweetId}`, {
           headers: { "User-Agent": "AIBlockList-Verifier/1.0" },
         });
         if (res.ok) {
-          const data = (await res.json()) as { description?: string; error?: string };
-          if (typeof data.description === "string" && !data.error) {
-            bioText = data.description;
-            lookupSucceeded = true;
+          const data = (await res.json()) as { text?: string; user_screen_name?: string; error?: string };
+          if (typeof data.text === "string" && !data.error) {
+            tweetText = `${data.text} ${JSON.stringify(data)}`;
+            tweetAuthor = String(data.user_screen_name || tweetHandle);
+            tweetLookupOk = true;
           }
         }
-      } else if (acc.platform === "threads") {
-        const res = await fetch(`https://www.threads.net/@${encodeURIComponent(acc.username)}`, {
-          headers: { "User-Agent": "Mozilla/5.0" },
-        });
-        if (res.ok) {
-          const html = await res.text();
-          const match = html.match(/og:description["']\s+content=["']([^"']*)["']/i);
-          if (match?.[1]) {
-            bioText = match[1];
-            lookupSucceeded = true;
-          }
-        }
+      } catch {
+        tweetLookupOk = false;
       }
-    } catch {
-      lookupSucceeded = false;
-    }
 
-    if (!lookupSucceeded) {
-      return jsonError(
-        422,
-        "BIO_LOOKUP_UNAVAILABLE",
-        "Could Not Read Public Profile Bio",
-        `We could not fetch the live public bio for @${acc.username} on ${acc.platform.toUpperCase()} (the account may be suspended, private, or temporarily rate-limited). Ownership cannot be confirmed without a live bio check.`
-      );
-    }
+      if (!tweetLookupOk) {
+        return jsonError(
+          422,
+          "TWEET_LOOKUP_UNAVAILABLE",
+          "Could Not Read Public Tweet",
+          `We could not fetch that public tweet for @${acc.username}. Ensure the post is public and try again, or verify using the Bio Token method.`
+        );
+      }
 
-    if (!bioText.includes(submittedToken)) {
-      return jsonError(
-        401,
-        "BIO_TOKEN_NOT_FOUND",
-        "Verification Token Not Found in Bio",
-        `We checked @${acc.username}'s live ${acc.platform.toUpperCase()} bio and did not find "${submittedToken}". Please add it to your public bio, save, and click Confirm again.`
-      );
+      if (tweetAuthor.toLowerCase() !== acc.username.toLowerCase()) {
+        return jsonError(
+          403,
+          "TWEET_AUTHOR_MISMATCH",
+          "Tweet Author Does Not Match",
+          `The public tweet belongs to @${tweetAuthor}, not @${acc.username}.`
+        );
+      }
+
+      if (!tweetText.toLowerCase().includes("aiblocklist.com")) {
+        return jsonError(
+          401,
+          "TWEET_WEBSITE_LINK_MISSING",
+          "Website Link Missing in Tweet",
+          "Your public appeal tweet must mention aiblocklist.com so our platform can verify it."
+        );
+      }
+    } else {
+      // Live public bio verification so challenges cannot be bypassed without owning the account
+      let bioText = "";
+      let lookupSucceeded = false;
+      try {
+        if (acc.platform === "x") {
+          const res = await fetch(`https://api.vxtwitter.com/${encodeURIComponent(acc.username)}`, {
+            headers: { "User-Agent": "AIBlockList-Verifier/1.0" },
+          });
+          if (res.ok) {
+            const data = (await res.json()) as { description?: string; error?: string };
+            if (typeof data.description === "string" && !data.error) {
+              bioText = data.description;
+              lookupSucceeded = true;
+            }
+          }
+        } else if (acc.platform === "threads") {
+          const res = await fetch(`https://www.threads.net/@${encodeURIComponent(acc.username)}`, {
+            headers: { "User-Agent": "Mozilla/5.0" },
+          });
+          if (res.ok) {
+            const html = await res.text();
+            const match = html.match(/og:description["']\s+content=["']([^"']*)["']/i);
+            if (match?.[1]) {
+              bioText = match[1];
+              lookupSucceeded = true;
+            }
+          }
+        }
+      } catch {
+        lookupSucceeded = false;
+      }
+
+      if (!lookupSucceeded) {
+        return jsonError(
+          422,
+          "BIO_LOOKUP_UNAVAILABLE",
+          "Could Not Read Public Profile Bio",
+          `We could not fetch the live public bio for @${acc.username} on ${acc.platform.toUpperCase()} (the account may be suspended, private, or temporarily rate-limited). Ownership cannot be confirmed without a live bio check.`
+        );
+      }
+
+      if (!bioText.includes(submittedToken)) {
+        return jsonError(
+          401,
+          "BIO_TOKEN_NOT_FOUND",
+          "Verification Token Not Found in Bio",
+          `We checked @${acc.username}'s live ${acc.platform.toUpperCase()} bio and did not find "${submittedToken}". Please add it to your public bio, save, and click Confirm again.`
+        );
+      }
     }
 
     const sessionToken = `aibl_app_${randomHex(24)}`;
@@ -664,15 +737,22 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
     const body = (await req.json()) as {
       platform?: string;
       username?: string;
+      account_url?: string;
       reason_code?: string;
       supporting_urls?: string[];
+      evidence_urls?: string[];
       explanation?: string;
     };
     const platform = (body.platform || "x").toLowerCase();
-    const rawUser = (body.username || "").trim().replace(/^@/, "");
-    if (!rawUser) {
-      return jsonError(422, "INVALID_USERNAME", "Invalid Username", "Target username is required.");
+    let rawUser = (body.username || "").trim().replace(/^@/, "");
+    if (!rawUser && body.account_url) {
+      const m = body.account_url.trim().match(/(?:x\.com|twitter\.com|threads\.net|threads\.com)\/@?([A-Za-z0-9_.]+)/i);
+      if (m?.[1]) rawUser = m[1];
     }
+    if (!rawUser) {
+      return jsonError(422, "INVALID_USERNAME", "Invalid Username", "Target username or profile URL is required.");
+    }
+    const mergedUrls = body.supporting_urls || body.evidence_urls || [];
     const norm = rawUser.toLowerCase();
     let acc = await db
       .prepare("SELECT id FROM accounts WHERE platform = ? AND normalized_username = ?")
@@ -710,14 +790,23 @@ async function routeD1(req: NextRequest, pathParts: string[]): Promise<NextRespo
         acc.id,
         reporterId,
         body.reason_code || "automated_reply_spam",
-        JSON.stringify(body.supporting_urls || []),
+        JSON.stringify(mergedUrls),
         await sha256Hex(`${platform}:${norm}:${nowIso}`),
         body.explanation || null,
         await sha256Hex(reportId),
         nowIso
       )
       .run();
-    return NextResponse.json({ report_id: reportId, status: "queued" }, { status: 202 });
+    return NextResponse.json(
+      {
+        report_id: reportId,
+        status: "queued",
+        status_token: reportId,
+        status_url: `/api/v1/reports/${reportId}`,
+        notice: "Your report is queued for 24-hour deduplication, anti-brigading checks, and human review.",
+      },
+      { status: 202 }
+    );
   }
 
   return jsonError(404, "NOT_FOUND", "Endpoint Not Found", `Unknown API route: /api/v1/${route}`);

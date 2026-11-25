@@ -15,12 +15,15 @@ import {
   Scales,
   WarningOctagon,
   Info,
+  Pulse,
+  ShieldCheck,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 import { QuickCheckModal } from "./QuickCheckModal";
 
 const PRIMARY_NAV_ITEMS = [
-  { href: "/", label: "Intelligence" },
-  { href: "/account-health", label: "Health" },
+  { href: "/", label: "Intelligence", icon: ShieldCheck },
+  { href: "/account-health", label: "Health", icon: Pulse },
 ];
 
 const MORE_NAV_ITEMS = [
@@ -311,79 +314,93 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Drawer Links */}
-        <div className="flex flex-col px-5 py-5 space-y-4">
+        {/* Drawer Links (Compact icon-rich mobile layout) */}
+        <div className="flex flex-col px-4 py-4 space-y-3.5">
           {/* Primary Links */}
-          <div className="space-y-1">
-            <span className="font-mono text-[10px] uppercase font-bold text-zinc-500 tracking-wider px-3">
+          <div className="space-y-1.5">
+            <span className="font-mono text-[10px] uppercase font-bold text-zinc-500 tracking-wider px-1">
               Core Platform
             </span>
-            {PRIMARY_NAV_ITEMS.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-base font-medium transition-colors ${
-                    active
-                      ? "bg-[#1f1f1f] text-[#ff6600] font-bold"
-                      : "text-zinc-200 hover:bg-[#151515] hover:text-white"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {active && <span className="h-2 w-2 rounded-full bg-[#ff6600]" />}
-                </Link>
-              );
-            })}
+            <div className="grid grid-cols-2 gap-2">
+              {PRIMARY_NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                      active
+                        ? "border-[#ff6600]/50 bg-[#131209] text-[#ff6600]"
+                        : "border-[#272727] bg-[#141414] text-zinc-200 hover:border-[#383838] hover:text-white"
+                    }`}
+                  >
+                    <Icon size={16} weight="bold" className={active ? "text-[#ff6600]" : "text-zinc-400"} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {/* Resources & Governance Links */}
-          <div className="space-y-1 border-t border-[#222] pt-4">
-            <span className="font-mono text-[10px] uppercase font-bold text-zinc-500 tracking-wider px-3">
+          <div className="space-y-1.5 border-t border-[#222] pt-3.5">
+            <span className="font-mono text-[10px] uppercase font-bold text-zinc-500 tracking-wider px-1">
               Resources &amp; Governance
             </span>
-            {MORE_NAV_ITEMS.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center justify-between rounded-xl px-4 py-2 text-sm transition-colors ${
-                    active
-                      ? "bg-[#1f1f1f] text-white font-bold"
-                      : "text-zinc-400 hover:bg-[#151515] hover:text-zinc-200"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {active && <span className="h-1.5 w-1.5 rounded-full bg-[#ff6600]" />}
-                </Link>
-              );
-            })}
+            <div className="grid grid-cols-2 gap-2">
+              {MORE_NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs transition-colors ${
+                      active
+                        ? "border-[#ff6600]/50 bg-[#131209] text-white font-semibold"
+                        : "border-[#222] bg-[#111] text-zinc-300 hover:border-[#333] hover:text-white"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${
+                        active
+                          ? "border-[#ff6600]/40 bg-[#ff6600]/15 text-[#ff6600]"
+                          : "border-[#2a2a2a] bg-[#1a1a1a] text-zinc-400"
+                      }`}
+                    >
+                      <Icon size={13} weight="bold" />
+                    </span>
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 space-y-2.5 border-t border-[#222]">
+          <div className="pt-3 grid grid-cols-2 gap-2 border-t border-[#222]">
             <button
               type="button"
               onClick={() => {
                 setMenuOpen(false);
                 setQuickCheckOpen(true);
               }}
-              className="button-md flex w-full items-center justify-center gap-2 rounded-xl border border-[#ff6600]/40 bg-[#131209] px-4 py-2.5 font-mono text-[#ff6600] font-bold text-sm"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-[#ff6600]/40 bg-[#131209] px-3 py-2.5 font-mono text-[#ff6600] font-bold text-xs cursor-pointer"
             >
-              <span className="h-2 w-2 rounded-full bg-[#ff6600] animate-pulse" />
-              <span>Am I Blocked? Quick Status Check</span>
+              <MagnifyingGlass size={14} weight="bold" />
+              <span>Am I Blocked?</span>
             </button>
 
             <Link
               href="/directory"
               onClick={() => setMenuOpen(false)}
-              className="button-md flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6600] px-4 py-2.5 text-black font-bold text-sm"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-[#ff6600] px-3 py-2.5 text-black font-bold text-xs"
             >
-              <span>Inspect Account Directory</span>
-              <ArrowUpRight size={16} weight="bold" />
+              <span>Directory</span>
+              <ArrowUpRight size={14} weight="bold" />
             </Link>
           </div>
         </div>
