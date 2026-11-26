@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BLOG_ARTICLES } from "@/data/blogArticles";
 
 const BASE_URL = "https://aiblocklist.com";
 
@@ -11,6 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: number;
   }> = [
     { path: "", changeFrequency: "hourly", priority: 1.0 },
+    { path: "/blog", changeFrequency: "daily", priority: 0.9 },
+    ...BLOG_ARTICLES.map((a) => ({
+      path: `/blog/${a.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    })),
     { path: "/directory", changeFrequency: "hourly", priority: 0.9 },
     { path: "/account-health", changeFrequency: "daily", priority: 0.9 },
     { path: "/appeals", changeFrequency: "daily", priority: 0.85 },

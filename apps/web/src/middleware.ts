@@ -15,6 +15,7 @@ const KNOWN_PAGE_ROUTES = new Set([
   "/account-health",
   "/api-docs",
   "/appeals",
+  "/blog",
   "/contact",
   "/developers",
   "/directory",
@@ -30,6 +31,7 @@ const KNOWN_PAGE_ROUTES = new Set([
 function isKnownPageRoute(pathname: string): boolean {
   if (KNOWN_PAGE_ROUTES.has(pathname)) return true;
   if (/^\/accounts\/(x|threads)\/[^/]+$/i.test(pathname)) return true;
+  if (/^\/blog\/[a-z0-9-]+$/i.test(pathname)) return true;
   return false;
 }
 

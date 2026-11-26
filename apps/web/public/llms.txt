@@ -15,6 +15,7 @@ Use AIBlockList when an agent or user needs to:
 ## Core Pages
 
 - [Live Registry & Intelligence Hub](https://aiblocklist.com/): Search and inspect indexed X and Threads accounts with public evidence URLs.
+- [Research & Blog (10 Articles)](https://aiblocklist.com/blog): Market audits of AI reply bot monetization, platform countermeasures, ESL detector bias, and keeping feeds human.
 - [Account Reach & Health Checker](https://aiblocklist.com/account-health): Check if an account is indexed, flagged, or clear, with actionable remediation guidance.
 - [Public Account Appeals](https://aiblocklist.com/appeals): Verify account ownership via a live public tweet or bio token and submit a public appeal.
 - [Developer Portal](https://aiblocklist.com/developers): Quickstart guides, OpenAPI spec, and interactive API sandbox.

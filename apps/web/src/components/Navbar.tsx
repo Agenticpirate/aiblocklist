@@ -28,6 +28,12 @@ const PRIMARY_NAV_ITEMS = [
 
 const MORE_NAV_ITEMS = [
   {
+    href: "/blog",
+    label: "Research & Blog",
+    description: "Market audits, platform policy & AI fairness guides",
+    icon: BookOpen,
+  },
+  {
     href: "/methodology",
     label: "Methodology",
     description: "SIG-01 to SIG-05 behavioral criteria & dual review",
