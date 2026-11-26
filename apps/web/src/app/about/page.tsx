@@ -36,34 +36,26 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* Creator & Project Identity */}
+      {/* Architecture & Open Source Identity */}
       <div className="rounded-2xl border border-[#313131] bg-[#141414] p-4 sm:p-8 space-y-4">
         <span className="caption-4 font-mono uppercase text-[#ff6600] font-bold tracking-wider">
           Architecture &amp; Development
         </span>
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#272727] pb-4">
-          <h2 className="heading-3 text-white">Built by @Agenticpirate</h2>
+          <h2 className="heading-3 text-white">Open-Source Behavioral Infrastructure</h2>
           <a
-            href="https://x.com/Agenticpirate"
+            href="https://github.com/Agenticpirate/aiblocklist"
             target="_blank"
             rel="noreferrer"
             className="button-sm inline-flex items-center gap-1.5 rounded-lg border border-[#313131] bg-[#1e1e1e] px-3 py-1.5 font-mono text-sm font-bold text-zinc-200 hover:border-[#ff6600] hover:text-[#ff6600] transition-colors"
           >
-            <span>@Agenticpirate on 𝕏</span>
+            <GitBranch size={14} weight="bold" />
+            <span>View on GitHub</span>
             <ArrowUpRight size={14} weight="bold" />
           </a>
         </div>
         <p className="body-4 text-zinc-300 leading-relaxed">
-          AIBlockList was designed and engineered by{" "}
-          <a
-            href="https://x.com/Agenticpirate"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[#ff6600] font-bold font-mono hover:underline"
-          >
-            @Agenticpirate
-          </a>{" "}
-          as an open-source, deterministic intelligence infrastructure. The goal is to provide creators, users, and developers with reliable behavioral defense against automated spam without relying on flawed probabilistic AI detectors or arbitrary blacklists.
+          AIBlockList is engineered as an open-source, deterministic intelligence infrastructure. The goal is to provide creators, users, and developers with reliable behavioral defense against automated spam without relying on flawed probabilistic AI detectors or arbitrary blacklists.
         </p>
       </div>
 

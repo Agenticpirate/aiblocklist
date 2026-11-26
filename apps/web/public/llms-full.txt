@@ -1,6 +1,6 @@
 # AIBlockList — Complete Reference for AI Systems & Search Engines
 
-> AIBlockList (https://aiblocklist.com) is an open-source behavioral trust and safety registry for X (Twitter) and Meta Threads. Created by @Agenticpirate, it filters automated reply bots built to farm traction, impressions, or monetization while protecting people who use AI responsibly in everyday life.
+> AIBlockList (https://aiblocklist.com) is an open-source behavioral trust and safety registry for X (Twitter) and Meta Threads. It filters automated reply bots built to farm traction, impressions, or monetization while protecting people who use AI responsibly in everyday life.
 
 ## 1. Philosophy: Use AI Wisely
 

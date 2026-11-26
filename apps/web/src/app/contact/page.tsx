@@ -148,18 +148,9 @@ export default function ContactPage() {
 
       {/* Open Source Community & Credits Callout */}
       <div className="rounded-2xl border border-[#272727] bg-[#181818] p-4 sm:p-8 space-y-4">
-        <h2 className="title-2 text-white">Creator &amp; Community Credits</h2>
+        <h2 className="title-2 text-white">Open Source &amp; Community Credits</h2>
         <p className="body-4 text-zinc-300">
-          AIBlockList was created and engineered by{" "}
-          <a
-            href="https://x.com/Agenticpirate"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[#ff6600] font-mono font-bold hover:underline"
-          >
-            @Agenticpirate
-          </a>{" "}
-          as an open-source public good. The project was inspired by early automated AI-reply defense and anti-spam research pioneered by Pieter Levels (
+          AIBlockList is built and maintained as an open-source public good. The project was inspired by early automated AI-reply defense and anti-spam research pioneered by Pieter Levels (
           <a
             href="https://x.com/levelsio"
             target="_blank"

@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     "use AI wisely",
     "open source trust and safety",
   ],
-  authors: [{ name: "Agenticpirate", url: "https://x.com/Agenticpirate" }],
-  creator: "Agenticpirate",
+  authors: [{ name: "AIBlockList Contributors", url: "https://aiblocklist.com" }],
+  creator: "AIBlockList",
   publisher: "AIBlockList",
   alternates: {
     canonical: "https://aiblocklist.com",
@@ -72,11 +72,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@Agenticpirate",
     title: "AIBlockList — Filter Automated AI Bot Replies & Keep Feeds Human",
     description:
       "Open-source behavioral trust and safety registry for X and Threads. Protecting responsible AI users while filtering automated reply spam.",
-    creator: "@Agenticpirate",
     images: [
       {
         url: "/og-banner.png?v=2",
@@ -119,14 +117,8 @@ const JSON_LD = {
         "Automated reply bot detection",
         "Behavioral spam verification",
       ],
-      founder: {
-        "@type": "Person",
-        name: "Agenticpirate",
-        url: "https://x.com/Agenticpirate",
-      },
       sameAs: [
         "https://github.com/Agenticpirate/aiblocklist",
-        "https://x.com/Agenticpirate",
       ],
     },
     {

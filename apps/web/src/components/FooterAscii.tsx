@@ -141,30 +141,11 @@ export function FooterAscii() {
         <div className="border-t border-[#272727] pt-4 flex flex-row justify-between items-center gap-3">
           <div className="flex flex-wrap items-center justify-start gap-x-1.5 sm:gap-x-2 gap-y-0.5 text-[10.5px] sm:caption-5 text-zinc-500 font-mono">
             <span>© 2026<span className="hidden sm:inline"> AIBlockList.com</span>.</span>
-            <span>Built by</span>
-            <a
-              href="https://x.com/Agenticpirate"
-              target="_blank"
-              rel="noreferrer"
-              className="text-zinc-300 hover:text-[#ff6600] underline transition-colors"
-            >
-              @Agenticpirate
-            </a>
             <span className="hidden sm:inline">·</span>
             <span className="hidden sm:inline">Observable behavior only, never AI authorship.</span>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <a
-              href="https://x.com/Agenticpirate"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Agenticpirate on X"
-              className="rounded-xl border border-[#313131] bg-[#1F1F1F] p-2 text-zinc-400 hover:border-[#ff6600]/60 hover:text-white transition-colors duration-300"
-            >
-              <XLogo className="w-3.5 h-3.5" shiny={false} />
-            </a>
-
             <Link
               href="/api-docs"
               aria-label="Developer API"
